@@ -35,6 +35,11 @@ if [ -z "$AAVS_PATH" ]; then
     export AAVS_PATH=$PWD
 fi
 
+# Configure global .gitignore
+if [[ -z "`git config --get core.excludefiles`" ]]; then
+  git config --global core.excludefiles $AAVS_PATH/aavs-system/gitignore_global
+fi
+
 # Check if AAVS install directory has been passed as an argument
 if [ -z "$AAVS_INSTALL" ]; then
  if [[ $# -lt 1 ]]; then
