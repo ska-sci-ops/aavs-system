@@ -13,7 +13,9 @@ function install_package(){
 
 echo -e "\n==== Boostrapping AAVS ====\n"
 
-# Install git core to clone repositories
+# Installing required packages
+sudo apt-get -qq update
+sudo apt-get -y -qq upgrade
 install_package git
 
 # Configure git to cache password for 30 days
