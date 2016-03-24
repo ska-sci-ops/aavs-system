@@ -20,26 +20,26 @@ API is bound (by default it is bound to all interface on the machine)
 This repository contains a bootstrap scripts which will kickstart automatic deployment
 of the system. The following steps should be performed:
 
-1. Create a directory where the repositories will be cloned <br/>
+1. Create a directory where the repositories will be cloned  
 `mkdir AAVS`
 
-2. Go into the directory. This will be the AAVS path<br/>
+2. Go into the directory. This will be the AAVS path  
 `cd AAVS`
 
-3. Create an empty bootstrap file and make it executable <br/>
+3. Create an empty bootstrap file and make it executable  
 `touch bootstrap.sh; chmod u+x bootstrap.sh`
 
 4. Copy the contents of the `bootstrap.sh` file from the *AAVS System* into the created
 file
 
 5. Run `bootstrap.sh`, giving it the LMC installation directory as a parameters. In this case,
-it will be installed in `/opt/aavs`, so this directory must be created as well<br/>
-`sudo mkdir -p /opt/aavs`</br>
-`sudo chown $USER /opt/aavs `
-`./bootstrap.sh /opt/aavs`
+it will be installed in `/opt/aavs`, so this directory must be created as well  
+`sudo mkdir -p /opt/aavs`  
+`sudo chown $USER /opt/aavs `  
+`./bootstrap.sh /opt/aavs`  
 
 6. When deployment is ready, the environment should be updated if the same terminal will be
-used for other operations<br/>
+used for other operations  
 `source ~/.bashrc`
 
 The deployment procedure will take about 30 minutes to complete, and will as for sudo
@@ -61,7 +61,7 @@ need to be performed in this environment. To start this environment, use the com
 
 ## Updating Deployment
 
-To update the installation, simple re-run the bootstrap script<br/>
+To update the installation, simple re-run the bootstrap script  
 `cd $AAVS_PATH; ./bootstrap.sh`
 
 This will pull any changes in repositories, install any new requirements needed by any of them, rebuild all source file and python packages and re-start all services

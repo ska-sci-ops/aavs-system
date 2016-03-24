@@ -25,15 +25,15 @@ git config --global credential.helper "cache --timeout=1296000"
 # Clone system repository, which will boostrap the rest of the packages
 if [ ! -d "aavs-system" ]; then
     echo -e "\nCloning AAVS System"
-    git clone https://lessju@bitbucket.org/aavslmc/aavs-system.git
+    git clone https://bitbucket.org/aavslmc/aavs-system.git
 else
     echo -e "\nAAVS System already cloned"
 fi
 
 # Setting top level AAVS directory
-if [ -z "$AAVS_PATH" ]; then 
+if [ -z "$AAVS_PATH" ]; then
     echo -e "Setting AAVS PATH tp `pwd`"
-    echo "export AAVS_PATH=`pwd`" >> ~/.bashrc 
+    echo "export AAVS_PATH=`pwd`" >> ~/.bashrc
     export AAVS_PATH=$PWD
 fi
 
@@ -48,7 +48,7 @@ if [ -z "$AAVS_INSTALL" ]; then
     echo "AAVS install directory required as argument"
     exit 1
   else
-    echo "export AAVS_INSTALL=`echo $1`" >> ~/.bashrc 
+    echo "export AAVS_INSTALL=`echo $1`" >> ~/.bashrc
     export AAVS_INSTALL=`echo $1`
   fi
 else
@@ -59,5 +59,3 @@ fi
 pushd $AAVS_PATH/aavs-system
 . deploy.sh $1
 popd
-
-
