@@ -11,9 +11,10 @@ function install_package(){
     fi
 }
 
-echo -e "\n==== Boostrapping AAVS ====\n"
+echo -e "\n==== Bootstrapping AAVS ====\n"
 
 # Installing required packages
+echo "Updating system and installing requirements"
 sudo apt-get -qq update
 sudo apt-get -y -qq upgrade
 install_package git
