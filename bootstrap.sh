@@ -15,8 +15,8 @@ echo -e "\n==== Bootstrapping AAVS ====\n"
 
 # Installing required packages
 echo "Updating system and installing requirements"
-sudo apt-get -qq update
-sudo apt-get -y -qq upgrade
+#sudo apt-get -qq update
+#sudo apt-get -y -qq upgrade
 install_package git
 
 # Configure git to cache password for 30 days
@@ -56,7 +56,16 @@ else
   echo "AAVS_INSTALL already defined, ignoring argument $1"
 fi
 
+# Check if we need to install other repos as well
+if [[ $# -gt 1 ]]; then
+  echo "Installing other repos"
+  export INSTALL_REPOS="y"
+else
+  echo "Not installing other repos"
+  export INSTALL_REPOS="n"
+fi
+
 # Launch deployment script in aavs-system
 pushd $AAVS_PATH/aavs-system
-. deploy.sh $1
+. deploy.sh $1 $INSTALL_REPOS
 popd
