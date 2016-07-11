@@ -60,6 +60,8 @@ fi
 if [[ $# -gt 1 ]]; then
   echo "Installing other repos"
   export INSTALL_REPOS="y"
+else
+  export INSTALL_REPOS="n"
 fi
 
 # Launch deployment script in aavs-system
