@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Declare array containing repositories to clone
-declare -a repos=("aavs-access-layer" "aavs-tango" "aavs-daq" "aavs-backend")
+declare -a repos=("aavs-access-layer" "aavs-daq" "aavs-tango" "aavs-backend")
 
 # Loop over all required repos
 cd $AAVS_PATH
