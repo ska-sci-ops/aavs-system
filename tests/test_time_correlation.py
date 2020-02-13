@@ -1,4 +1,9 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Import DAQ and Access Layer libraries
+from builtins import input
+from builtins import str
+from builtins import range
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -10,7 +15,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-import test_functions as tf
+from . import test_functions as tf
 import numpy as np
 import os.path
 import logging
@@ -33,24 +38,24 @@ def correlate_raw(data):
             max = correlation.max()
             idx = np.where(correlation == max)[0] - 2047
             if delays[2*a+p] != abs(idx):
-                print "Correlation Error"
-                print "Antenna: " + str(a)
-                print "Polarisation " + str(p)
-                print data[0, 0, 0:128]
-                print data[a, p, 0:128]
-                print "Expected delay: " + str(delays[2*a+p])
-                print "Calculated delay: " + str(abs(idx[0]))
-                print "------------------------------------------------------------------------------------------"
-                raw_input("Press a key")
+                print("Correlation Error")
+                print("Antenna: " + str(a))
+                print("Polarisation " + str(p))
+                print(data[0, 0, 0:128])
+                print(data[a, p, 0:128])
+                print("Expected delay: " + str(delays[2*a+p]))
+                print("Calculated delay: " + str(abs(idx[0])))
+                print("------------------------------------------------------------------------------------------")
+                input("Press a key")
             else:
             # print max, idx
-                print "TEST PASSED:"
-                print "Antenna: " + str(a)
-                print "Polarisation " + str(p)
-                print data[0, 0, 0:128]
-                print data[a, p, 0:128]
-                print "Expected delay - calculated delay: " + str(delays[2*a+p]) + " - " + str(abs(idx[0]))
-                print "------------------------------------------------------------------------------------------"
+                print("TEST PASSED:")
+                print("Antenna: " + str(a))
+                print("Polarisation " + str(p))
+                print(data[0, 0, 0:128])
+                print(data[a, p, 0:128])
+                print("Expected delay - calculated delay: " + str(delays[2*a+p]) + " - " + str(abs(idx[0])))
+                print("------------------------------------------------------------------------------------------")
 
 
 def data_callback(mode, filepath, tile):
@@ -65,10 +70,10 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_raw":
         raw_file = RawFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = raw_file.read_data(antennas=range(16),  # List of channels to read (not use in raw case)
+        data, timestamps = raw_file.read_data(antennas=list(range(16)),  # List of channels to read (not use in raw case)
                                            polarizations=[0, 1],
                                            n_samples=32*1024)
-        print "Raw data: {}".format(data.shape)
+        print("Raw data: {}".format(data.shape))
         correlate_raw(data)
 
     data_received = True
@@ -78,7 +83,7 @@ def data_callback(mode, filepath, tile):
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -139,7 +144,7 @@ if __name__ == "__main__":
     #
     remove_files()
 
-    print "Setting 0 delays..."
+    print("Setting 0 delays...")
     delays = [0] * 32
     tf.set_delay(tile,delays)
 
@@ -150,7 +155,7 @@ if __name__ == "__main__":
     while not data_received:
         time.sleep(0.1)
 
-    print "Setting random delays..."
+    print("Setting random delays...")
     delays = [random.randrange(0, 16, 1) for x in range(32)]
     delays[0] = 0
     tf.set_delay(tile, delays)

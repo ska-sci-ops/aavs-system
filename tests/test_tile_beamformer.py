@@ -1,4 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 # Import DAQ and Access Layer libraries
+from builtins import str
+from builtins import input
+from builtins import range
+from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -10,7 +17,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-import test_functions as tf
+from . import test_functions as tf
 import numpy as np
 import os.path
 import logging
@@ -36,10 +43,10 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_beam":
         beam_file = BeamFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = beam_file.read_data(channels=range(384),  # List of channels to read (not use in raw case)
+        data, timestamps = beam_file.read_data(channels=list(range(384)),  # List of channels to read (not use in raw case)
                                                polarizations=[0, 1],
                                                n_samples=32)
-        print "Beam data: {}".format(data.shape)
+        print("Beam data: {}".format(data.shape))
 
     data_received = True
 
@@ -48,7 +55,7 @@ def data_callback(mode, filepath, tile):
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -115,7 +122,7 @@ if __name__ == "__main__":
 
     remove_files()
 
-    channels = range(int(conf.first_channel), int(conf.last_channel) + 1)
+    channels = list(range(int(conf.first_channel), int(conf.last_channel) + 1))
     single_input_data = np.zeros((2, 16), dtype='complex')
     coeff = np.zeros((2, 16), dtype='complex')
     tf.stop_pattern(tile, "all")
@@ -150,15 +157,15 @@ if __name__ == "__main__":
             single_input_data[1][i] = tf.get_beam_value(data, 1, c-64)
 
             inputs = (inputs << 2)
-            print single_input_data
+            print(single_input_data)
 
         ref_value = single_input_data[ref_pol][ref_antenna]
 
         for p in range(2):
             for n in range(16):
-                coeff[p][n] = ref_value / single_input_data[p][n]
+                coeff[p][n] = old_div(ref_value, single_input_data[p][n])
 
-        print coeff
+        print(coeff)
 
         tf.set_beamf_coeff(tile, coeff, c)
 
@@ -186,10 +193,10 @@ if __name__ == "__main__":
                 exp_val = ref_value
                 rcv_val = single_input_data[p][a]
                 if abs(exp_val.real-rcv_val.real) > 1 or abs(exp_val.imag-rcv_val.imag) > 1:
-                    print "Error:"
-                    print single_input_data
-                    print ref_value
-                    raw_input("Press a key")
+                    print("Error:")
+                    print(single_input_data)
+                    print(ref_value)
+                    input("Press a key")
 
         inputs = 0xFFFFFFFF
         tile.test_generator_input_select(inputs)
@@ -206,13 +213,13 @@ if __name__ == "__main__":
             beam_val = tf.get_beam_value(data, p, c-64)
             single_val = ref_value
 
-            if abs(beam_val.real/16-single_val.real) > 1 or abs(beam_val.imag/16-single_val.imag) > 1:
-                print "Beam sum error:"
-                print single_input_data
-                print tf.get_beam_value(data, p, c-64)
-                print ref_value
-                raw_input("Press a key")
+            if abs(old_div(beam_val.real,16)-single_val.real) > 1 or abs(old_div(beam_val.imag,16)-single_val.imag) > 1:
+                print("Beam sum error:")
+                print(single_input_data)
+                print(tf.get_beam_value(data, p, c-64))
+                print(ref_value)
+                input("Press a key")
 
-        print "CHANNEL " + str(c) + " OK!"
+        print("CHANNEL " + str(c) + " OK!")
 
     daq.stop_daq()

@@ -1,4 +1,10 @@
+from __future__ import print_function
+from __future__ import division
 # Import DAQ and Access Layer libraries
+from builtins import input
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.station import Station
 
@@ -21,8 +27,8 @@ from spead_csp_pcap import *
 
 temp_dir = "./temp_daq_test"
 data_received = False
-test_pattern = range(1024)
-test_adders = range(32)
+test_pattern = list(range(1024))
+test_adders = list(range(32))
 channel_integration_length = 0
 channel_accumulator_width = 0
 channel_round_bits = 0
@@ -30,7 +36,7 @@ raw_data_synchronised = 0
 
 
 def set_pattern(tile, stage, pattern, adders, nof_tpms, start):
-    print "Setting " + stage + " data pattern"
+    print("Setting " + stage + " data pattern")
     for i in range(2):
         tile.tpm.tpm_pattern_generator[i].set_pattern(pattern, stage)
         tile.tpm.tpm_pattern_generator[i].set_signal_adder([adders[i]]*64, stage)
@@ -97,12 +103,12 @@ if __name__ == "__main__":
         station.tiles[n].tpm.tpm_pattern_generator[1].stop_pattern("channel")
         station.tiles[n].tpm.tpm_pattern_generator[0].stop_pattern("beamf")
         station.tiles[n].tpm.tpm_pattern_generator[1].stop_pattern("beamf")
-        print "pattern generator stopped"
+        print("pattern generator stopped")
 
     signal_frequency = 50e6
     start_frequency  = 50e6
-    first_channel = start_frequency * 512 / 400e6
-    logical_channel = signal_frequency * 512 / 400e6 - first_channel
+    first_channel = old_div(start_frequency * 512, 400e6)
+    logical_channel = old_div(signal_frequency * 512, 400e6) - first_channel
 
     ip = ["10.1.10.", "10.2.10.", "10.5.10.", "10.6.10."]
     src_ip = ip[int(logical_channel) % 4] + station_tiles[nof_tpms-1].split(".")[-1]
@@ -144,9 +150,9 @@ if __name__ == "__main__":
 
             t1 = station.tiles[0].current_tile_beamformer_frame()
             if t1 >= t0 + req_delay:
-                print "Delay loading Time Error"
+                print("Delay loading Time Error")
             else:
-                print "Delay of " + str(delay[0][0]) + " ns applied at frame " + str(t0+64)
+                print("Delay of " + str(delay[0][0]) + " ns applied at frame " + str(t0+64))
 
             time.sleep(1)
 
@@ -172,4 +178,4 @@ if __name__ == "__main__":
     spead_1_inst.process()
     time.sleep(0.01)
 
-    raw_input("Press a key to close")
+    input("Press a key to close")

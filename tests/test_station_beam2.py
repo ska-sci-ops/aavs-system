@@ -1,20 +1,26 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 # Import DAQ and Access Layer libraries
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
-import test_functions as tf
+from . import test_functions as tf
 from sys import stdout
 import numpy as np
 import os.path
 import logging
 
 
-from spead_csp import *
+from .spead_csp import *
 
 temp_dir = "./temp_daq_test"
 data_received = False
-test_pattern = range(1024)
-test_adders = range(32)
+test_pattern = list(range(1024))
+test_adders = list(range(32))
 channel_integration_length = 0
 channel_accumulator_width = 0
 channel_round_bits = 0
@@ -35,17 +41,17 @@ first_channel = 200
 
 
 def set_pattern(tiles, stage, pattern, adders, frame_adder, nof_tpms, start):
-    print "Setting " + stage + " data pattern"
+    print("Setting " + stage + " data pattern")
     for tile in tiles:
         tile['fpga1.pattern_gen.beamf_left_shift'] = 0
         tile['fpga2.pattern_gen.beamf_left_shift'] = 0
         for i in range(2):
-            print
+            print()
             tile.tpm.tpm_pattern_generator[i].set_pattern(pattern, stage)
             tile.tpm.tpm_pattern_generator[i].set_signal_adder(adders[i*64:(i+1)*64], stage)
             if start:
                 tile.tpm.tpm_pattern_generator[i].start_pattern(stage)
-    print "Waiting PPS event to set frame_adder register"
+    print("Waiting PPS event to set frame_adder register")
     tiles[0].wait_pps_event()
     for tile in tiles:
         tile['fpga1.pattern_gen.beamf_ctrl.frame_offset_clear'] = 1
@@ -59,18 +65,18 @@ def set_pattern(tiles, stage, pattern, adders, frame_adder, nof_tpms, start):
             tile['fpga1.pattern_gen.beamf_ctrl.frame_offset_lo'] = 0
             tile['fpga2.pattern_gen.beamf_ctrl.frame_offset_lo'] = 0
 
-            tile['fpga1.pattern_gen.beamf_ctrl.frame_offset_hi'] = int(127 / nof_tpms)
-            tile['fpga2.pattern_gen.beamf_ctrl.frame_offset_hi'] = int(127 / nof_tpms)
+            tile['fpga1.pattern_gen.beamf_ctrl.frame_offset_hi'] = int(old_div(127, nof_tpms))
+            tile['fpga2.pattern_gen.beamf_ctrl.frame_offset_hi'] = int(old_div(127, nof_tpms))
     tiles[0].wait_pps_event()
     for tile in tiles:
         tile['fpga1.pattern_gen.beamf_ctrl.frame_offset_clear'] = 0
         tile['fpga2.pattern_gen.beamf_ctrl.frame_offset_clear'] = 0
-    print "Beamformer Pattern Set!"
+    print("Beamformer Pattern Set!")
 
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -113,9 +119,9 @@ if __name__ == "__main__":
             else:
                 pattern[n] = random.randrange(0, 255, 1)
 
-        print "Setting pattern:"
-        print pattern[0:15]
-        print "Setting frame adder: " + str(frame_adder)
+        print("Setting pattern:")
+        print(pattern[0:15])
+        print("Setting frame adder: " + str(frame_adder))
 
         set_pattern(tiles, "beamf", pattern, adders, frame_adder, len(station), True)
 
@@ -128,7 +134,7 @@ if __name__ == "__main__":
 
         iter += 1
 
-        print "Iteration " + str(iter) + " with no errors!"
+        print("Iteration " + str(iter) + " with no errors!")
 
 
 

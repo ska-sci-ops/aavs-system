@@ -1,4 +1,8 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Import DAQ and Access Layer libraries
+from builtins import str
+from builtins import range
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -10,7 +14,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-import test_functions as tf
+from . import test_functions as tf
 import numpy as np
 import os.path
 import logging
@@ -36,11 +40,11 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_channel":
         channel_file = ChannelFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = channel_file.read_data(channels=range(512),  # List of channels to read (not use in raw case)
-                                               antennas=range(16),
+        data, timestamps = channel_file.read_data(channels=list(range(512)),  # List of channels to read (not use in raw case)
+                                               antennas=list(range(16)),
                                                polarizations=[0, 1],
                                                n_samples=128)
-        print "Channel data: {}".format(data.shape)
+        print("Channel data: {}".format(data.shape))
 
     data_received = True
 
@@ -49,7 +53,7 @@ def data_callback(mode, filepath, tile):
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -118,7 +122,7 @@ if __name__ == "__main__":
     saturation = []
     channel_abs = []
     for channel in channels:
-        print "Channel " + str(channel)
+        print("Channel " + str(channel))
         for ampl in range(11):
             frequency = channel * channel_width
             tile.test_generator_set_tone(0, frequency, 0.1*ampl)
@@ -135,9 +139,9 @@ if __name__ == "__main__":
             ch, ant, pol, sam = data.shape
             for i in range(1):  # range(sam):
                 channel_value = data[channel, 0, 0, i][0] + data[channel, 0, 0, i][1]*1j
-                print "CW amplitude: " + str(ampl)
-                print channel_value
-                print abs(channel_value)
+                print("CW amplitude: " + str(ampl))
+                print(channel_value)
+                print(abs(channel_value))
                 if channel_value.real == -128 or channel_value.imag == -128:
                     saturation.append("Saturated     - Amplitude: ")
                     channel_abs.append(0)
@@ -147,12 +151,12 @@ if __name__ == "__main__":
 
     daq.stop_daq()
 
-    print
+    print()
     for n in range(len(channel_abs)):
-        print "CW amplitude " + str(0.1*n) + " => " + str(saturation[n]) + str(channel_abs[n])
-    print
-    print "Amplitude difference:"
+        print("CW amplitude " + str(0.1*n) + " => " + str(saturation[n]) + str(channel_abs[n]))
+    print()
+    print("Amplitude difference:")
     for n in range(1,len(channel_abs)):
         if channel_abs[n] > 0:
-            print "A" + str(n) + "-A" + str(n-1) + ": " + str(channel_abs[n] - channel_abs[n-1])
+            print("A" + str(n) + "-A" + str(n-1) + ": " + str(channel_abs[n] - channel_abs[n-1]))
 

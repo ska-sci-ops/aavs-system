@@ -1,4 +1,10 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 # Import DAQ and Access Layer libraries
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -10,7 +16,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-import test_functions as tf
+from . import test_functions as tf
 from datetime import datetime
 import numpy as np
 import os.path
@@ -44,11 +50,11 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_channel":
         channel_file = ChannelFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = channel_file.read_data(channels=range(512),  # List of channels to read (not use in raw case)
-                                               antennas=range(16),
+        data, timestamps = channel_file.read_data(channels=list(range(512)),  # List of channels to read (not use in raw case)
+                                               antennas=list(range(16)),
                                                polarizations=[0, 1],
                                                n_samples=128)
-        print "Channel data: {}".format(data.shape)
+        print("Channel data: {}".format(data.shape))
 
     data_received = True
 
@@ -57,7 +63,7 @@ def data_callback(mode, filepath, tile):
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -131,7 +137,7 @@ if __name__ == "__main__":
     tf.set_delay(tile, [0]*32)
 
     if conf.test_mode:
-        tile.test_generator_set_tone(0, int(conf.channel) * 400e6 / 512, 1.0)
+        tile.test_generator_set_tone(0, old_div(int(conf.channel) * 400e6, 512), 1.0)
         tile.test_generator_input_select(0xFFFFFFFF)
 
 
@@ -165,7 +171,7 @@ if __name__ == "__main__":
         tile['fpga2.lmc_gen.readout_channel_ptr.input_1'] = 2*(test_antenna-8) + test_pol
         test_fpga = 'fpga2'
 
-    print "Channel " + str(channel)
+    print("Channel " + str(channel))
     time_prev = datetime.now()
     while True:
 
@@ -177,12 +183,12 @@ if __name__ == "__main__":
         reference_value = tf.signed((tile['%s.lmc_gen.readout_input_0' % reference_fpga] & 0xFFF), 12) + tf.signed(((tile['%s.lmc_gen.readout_input_0' % reference_fpga] >> 12) & 0xFFF),12)*1j
         test_value =      tf.signed((tile['%s.lmc_gen.readout_input_1' % test_fpga]      & 0xFFF), 12) + tf.signed(((tile['%s.lmc_gen.readout_input_1' % test_fpga]      >> 12) & 0xFFF), 12)*1j
 
-        print "R: " + str(reference_value)
-        print "T: " + str(test_value)
+        print("R: " + str(reference_value))
+        print("T: " + str(test_value))
         phase_diff = phase_diff_calc(reference_value, test_value)
-        print "Reference Channel amplitude : " + str(abs(reference_value))
-        print "Test Channel amplitude      : " + str(abs(test_value))
-        print "Phase diff                  : " + str(phase_diff)
+        print("Reference Channel amplitude : " + str(abs(reference_value)))
+        print("Test Channel amplitude      : " + str(abs(test_value)))
+        print("Phase diff                  : " + str(phase_diff))
 
         f = open(file_name, "a")
         txt = str(time_sec)

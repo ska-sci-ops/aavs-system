@@ -1,4 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 # Import DAQ and Access Layer libraries
+from builtins import input
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -10,7 +17,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-import test_functions as tf
+from . import test_functions as tf
 import numpy as np
 import os.path
 import logging
@@ -36,11 +43,11 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_channel":
         channel_file = ChannelFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = channel_file.read_data(channels=range(512),  # List of channels to read (not use in raw case)
-                                               antennas=range(16),
+        data, timestamps = channel_file.read_data(channels=list(range(512)),  # List of channels to read (not use in raw case)
+                                               antennas=list(range(16)),
                                                polarizations=[0, 1],
                                                n_samples=128)
-        print "Channel data: {}".format(data.shape)
+        print("Channel data: {}".format(data.shape))
 
     data_received = True
 
@@ -49,7 +56,7 @@ def data_callback(mode, filepath, tile):
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -117,16 +124,16 @@ if __name__ == "__main__":
     tile.set_channeliser_truncation(4)
 
     points_per_channel = int(conf.points)
-    channels = range(int(conf.first_channel), int(conf.last_channel) + 1)
+    channels = list(range(int(conf.first_channel), int(conf.last_channel) + 1))
     channel_width = 400e6 / 512.0
 
     for channel in channels:
         for point in range(points_per_channel):
-            frequency = channel * channel_width - channel_width / 2 + channel_width / (points_per_channel + 1) * (point + 1)
+            frequency = channel * channel_width - old_div(channel_width, 2) + old_div(channel_width, (points_per_channel + 1)) * (point + 1)
             tile.test_generator_set_tone(0, frequency, 1.0)
             delays = [0] + [random.randrange(0, 4, 1) for x in range(31)]
             tf.set_delay(tile, delays)
-            print "setting frequency: " + str(frequency) + " Hz, point " + str(point)
+            print("setting frequency: " + str(frequency) + " Hz, point " + str(point))
             time.sleep(1)
 
             remove_files()
@@ -155,62 +162,62 @@ if __name__ == "__main__":
                             phase_value = np.angle(channel_value, deg=True)
                             if c != channel:
                                 if ref_power_value - power_value < 30 and power_value > 0:
-                                    print data[:, a, p, i]
-                                    print "Test channel " + str(channel)
-                                    print "Excessive power in channel " + str(c)
-                                    print "Frequency: " + str(frequency)
-                                    print "Antenna: " + str(a)
-                                    print "Polarization: " + str(p)
-                                    print "Sample index: " + str(i)
-                                    print "Reference value: " + str(ref_channel_value)
-                                    print "Reference power " + str(ref_power_value)
-                                    print "Channel value " + str(channel_value)
-                                    print "Channel power " + str(power_value)
-                                    raw_input("Press a key")
+                                    print(data[:, a, p, i])
+                                    print("Test channel " + str(channel))
+                                    print("Excessive power in channel " + str(c))
+                                    print("Frequency: " + str(frequency))
+                                    print("Antenna: " + str(a))
+                                    print("Polarization: " + str(p))
+                                    print("Sample index: " + str(i))
+                                    print("Reference value: " + str(ref_channel_value))
+                                    print("Reference power " + str(ref_power_value))
+                                    print("Channel value " + str(channel_value))
+                                    print("Channel power " + str(power_value))
+                                    input("Press a key")
                             else:
                                 if ref_power_value - power_value > 1 or ref_power_value < 35:
-                                    print data[:, a, p, i]
-                                    print "Test channel " + str(channel)
-                                    print "Low power in channel " + str(c)
-                                    print "Frequency: " + str(frequency)
-                                    print "Antenna: " + str(a)
-                                    print "Polarization: " + str(p)
-                                    print "Sample index: " + str(i)
-                                    print "Reference value: " + str(ref_channel_value)
-                                    print "Reference power " + str(ref_power_value)
-                                    print "Channel value " + str(channel_value)
-                                    print "Channel power " + str(power_value)
-                                    raw_input("Press a key")
+                                    print(data[:, a, p, i])
+                                    print("Test channel " + str(channel))
+                                    print("Low power in channel " + str(c))
+                                    print("Frequency: " + str(frequency))
+                                    print("Antenna: " + str(a))
+                                    print("Polarization: " + str(p))
+                                    print("Sample index: " + str(i))
+                                    print("Reference value: " + str(ref_channel_value))
+                                    print("Reference power " + str(ref_power_value))
+                                    print("Channel value " + str(channel_value))
+                                    print("Channel power " + str(power_value))
+                                    input("Press a key")
 
                             if c == channel:
                                 #if phase_value < 0:
                                 ref_phase_value_360 = ref_phase_value % 360
                                 phase_value_360 = phase_value % 360
                                 applied_delay = delays[2*a+p] * 1.25e-9
-                                phase_delay = np.modf(applied_delay / (1.0 / frequency))[0]
+                                phase_delay = np.modf(old_div(applied_delay, (1.0 / frequency)))[0]
                                 expected_phase_delay = phase_delay*360
                                 expected_phase = (ref_phase_value_360 + expected_phase_delay) % 360
                                 diff = abs(expected_phase - phase_value_360) % 360
                                 if diff > 3 and 360-diff > 3:
-                                    print data[:, a, p, i]
-                                    print diff
-                                    print "Test channel " + str(channel)
-                                    print "Excessive phase shift in channel " + str(c)
-                                    print "Frequency: " + str(frequency)
-                                    print "Antenna: " + str(a)
-                                    print "Polarization: " + str(p)
-                                    print "Sample index: " + str(i)
-                                    print "Reference value: " + str(ref_channel_value)
-                                    print "Reference phase " + str(ref_phase_value_360)
-                                    print "Channel value " + str(channel_value)
-                                    print "Channel phase " + str(phase_value_360)
-                                    print "Expected phase: " + str(expected_phase)
-                                    print "Applied delay: " + str(applied_delay)
-                                    print "Applied delay steps: " + str(delays[2*a+p])
-                                    print "Expected phase delay: " + str(expected_phase_delay)
-                                    print "Periods delay: " + str(np.modf(applied_delay / (1.0 / frequency))[1])
-                                    raw_input("Press a key")
+                                    print(data[:, a, p, i])
+                                    print(diff)
+                                    print("Test channel " + str(channel))
+                                    print("Excessive phase shift in channel " + str(c))
+                                    print("Frequency: " + str(frequency))
+                                    print("Antenna: " + str(a))
+                                    print("Polarization: " + str(p))
+                                    print("Sample index: " + str(i))
+                                    print("Reference value: " + str(ref_channel_value))
+                                    print("Reference phase " + str(ref_phase_value_360))
+                                    print("Channel value " + str(channel_value))
+                                    print("Channel phase " + str(phase_value_360))
+                                    print("Expected phase: " + str(expected_phase))
+                                    print("Applied delay: " + str(applied_delay))
+                                    print("Applied delay steps: " + str(delays[2*a+p]))
+                                    print("Expected phase delay: " + str(expected_phase_delay))
+                                    print("Periods delay: " + str(np.modf(old_div(applied_delay, (1.0 / frequency)))[1]))
+                                    input("Press a key")
 
-        print "CHANNEL " + str(channel) + " OK!"
+        print("CHANNEL " + str(channel) + " OK!")
 
     daq.stop_daq()

@@ -1,3 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
+from builtins import input
+from builtins import str
+from builtins import hex
+from builtins import range
+from past.utils import old_div
 import os
 import time
 import h5py
@@ -7,7 +15,7 @@ import random
 from struct import *
 from optparse import OptionParser
 from multiprocessing import Process
-import test_functions as tf
+from . import test_functions as tf
 #import pyshark
 import binascii
 
@@ -40,8 +48,8 @@ class spead_rx(Process):
         self.sock.bind(("10.0.10.201", self.port))
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 32*1024*1024)
 
-        self.reassembled = [[0] * (8192 / 4)] * 392
-        self.data_buff = [0]*(8192/4)
+        self.reassembled = [[0] * (old_div(8192, 4))] * 392
+        self.data_buff = [0]*(old_div(8192,4))
         self.center_frequency = 0
         self.payload_length = 0
         self.sync_time = 0
@@ -137,7 +145,7 @@ class spead_rx(Process):
 
     def make_exp_data(self, nof_tpms, pattern, adders):
         if len(pattern) != 1024:
-            print "Pattern must be a 1024 element array"
+            print("Pattern must be a 1024 element array")
             exit(-1)
 
         for n in range(512):
@@ -171,32 +179,32 @@ class spead_rx(Process):
                 self.timestamp = val
             elif id == 0x9011 and idx == 5:
                 self.center_frequency = val & 0xFFFFFFFF
-                exp_freq = 400e6*(self.logical_channel_id + first_channel)/512
+                exp_freq = old_div(400e6*(self.logical_channel_id + first_channel),512)
                 if self.center_frequency != exp_freq:
-                    print "Error frequency ID"
-                    print "Expected ID " + str(exp_freq) + ", received " + str(self.center_frequency)
-                    print hex(val)
-                    print "Received logical channel_id: " + str(self.logical_channel_id)
-                    raw_input("Press a key...")
+                    print("Error frequency ID")
+                    print("Expected ID " + str(exp_freq) + ", received " + str(self.center_frequency))
+                    print(hex(val))
+                    print("Received logical channel_id: " + str(self.logical_channel_id))
+                    input("Press a key...")
                     # break
             elif id == 0xb000 and idx == 6:
                 self.csp_channel_info = val
                 physical_channel_id = val & 0x3FF
                 if physical_channel_id != self.logical_channel_id + first_channel:
-                    print "Error physical channel ID"
-                    print "Expected ID " + str(self.logical_channel_id + first_channel) + ", received " + str(physical_channel_id)
-                    print hex(val)
-                    print "Received logical channel_id: " + str(self.logical_channel_id)
-                    raw_input("Press a key...")
+                    print("Error physical channel ID")
+                    print("Expected ID " + str(self.logical_channel_id + first_channel) + ", received " + str(physical_channel_id))
+                    print(hex(val))
+                    print("Received logical channel_id: " + str(self.logical_channel_id))
+                    input("Press a key...")
                     # break
             elif id == 0xb001 and idx == 7:
                 self.csp_antenna_info = val
             elif id == 0x3300 and idx == 8:
                 self.offset = 9*8
             else:
-                print "Error in header"
-                print "Unexpected item " + hex(item) + " at position " + str(idx)
-                raw_input("Press a key...")
+                print("Error in header")
+                print("Unexpected item " + hex(item) + " at position " + str(idx))
+                input("Press a key...")
                 break
 
     def dump(self, channel_id):
@@ -218,10 +226,10 @@ class spead_rx(Process):
             for i in range(len(self.data_buff)):
                 rcv_val = self.data_buff[i]
                 if rcv_val != exp_val:
-                    print "Error in logical channel " + str(n)
-                    print "Sample Index: " + str(i)
-                    print "Error - Exp: " + hex(exp_val) + " Rcv " + hex(rcv_val) #+ hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF)
-                    raw_input("Press a key...")
+                    print("Error in logical channel " + str(n))
+                    print("Sample Index: " + str(i))
+                    print("Error - Exp: " + hex(exp_val) + " Rcv " + hex(rcv_val)) #+ hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF)
+                    input("Press a key...")
                     break
         else:
             exp_val = [0] * 4
@@ -234,12 +242,12 @@ class spead_rx(Process):
             for i in range(len(self.data_buff)):
                 rcv_val = self.data_buff[i]
                 if (rcv_val & data_mask) != 0:
-                        print "Data Error in logical channel " + str(channel_id)
-                        print "Sample Index: " + str(i)
-                        print "Error: "  + hex(rcv_val)
+                        print("Data Error in logical channel " + str(channel_id))
+                        print("Sample Index: " + str(i))
+                        print("Error: "  + hex(rcv_val))
                         for  n in range(16):
-                            print hex(self.data_buff[i-8+n])
-                            raw_input("Press a key...")
+                            print(hex(self.data_buff[i-8+n]))
+                            input("Press a key...")
                 if rcv_val != first_val:
                     if found == 0:
                         for m in range(4):
@@ -250,13 +258,13 @@ class spead_rx(Process):
                         for m in range(4):
                             rcv_val8 = (rcv_val >> m*8) & 0xFF
                             if rcv_val8 != exp_val[m]:
-                                print "Error in logical channel " + str(channel_id)
-                                print "Sample Index: " + str(i+1)
-                                print "Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF)
+                                print("Error in logical channel " + str(channel_id))
+                                print("Sample Index: " + str(i+1))
+                                print("Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF))
                                 for  n in range(16):
-                                    print hex(self.data_buff[i-8+n])
+                                    print(hex(self.data_buff[i-8+n]))
                                 #raw_input("Press a key...")
-                                print
+                                print()
                                 if dump_done == 0:
                                     dump_done = 1
                                     self.dump(channel_id)
@@ -270,11 +278,11 @@ class spead_rx(Process):
                             frame_offset = i
                         else:
                             if frame_offset != i:
-                                print "Frame Offset error in logical channel " + str(channel_id)
-                                print "Sample Index: " + str(i)
-                                print "Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF)
-                                print "Expected frame offset " + str(frame_offset)
-                                print
+                                print("Frame Offset error in logical channel " + str(channel_id))
+                                print("Sample Index: " + str(i))
+                                print("Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF))
+                                print("Expected frame offset " + str(frame_offset))
+                                print()
                                 if channel_id % 2 == 0:
                                     self.frame_offset_error_0 += 1
                                 else:
@@ -292,12 +300,12 @@ class spead_rx(Process):
                         else:
                             self.frame_offset_1 = frame_offset
                     else:
-                        print "Multiple Frame Offset error in logical channel " + str(n)
-                        print "Sample Index: " + str(i)
-                        print "Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF)
-                        print "Expected frame offset " + str(frame_offset)
-                        raw_input("Press a key...")
-                        print
+                        print("Multiple Frame Offset error in logical channel " + str(n))
+                        print("Sample Index: " + str(i))
+                        print("Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF))
+                        print("Expected frame offset " + str(frame_offset))
+                        input("Press a key...")
+                        print()
                         if dump_done == 0:
                             dump_done = 1
                             self.dump(channel_id)
@@ -348,12 +356,12 @@ class spead_rx(Process):
 
         self.processed_frame += 1
         if self.processed_frame % 1000 == 0:
-            print "Frames processed with no errors: " + str(self.processed_frame)
+            print("Frames processed with no errors: " + str(self.processed_frame))
             #if self.frame_offset >= 0:
-            print "Frame offset 0: " + str(self.frame_offset_0)
-            print "Frame offset 1: " + str(self.frame_offset_1)
-            print "Frame offset error 0: " + str(self.frame_offset_error_0)
-            print "Frame offset error 1: " + str(self.frame_offset_error_1)
+            print("Frame offset 0: " + str(self.frame_offset_0))
+            print("Frame offset 1: " + str(self.frame_offset_1))
+            print("Frame offset error 0: " + str(self.frame_offset_error_0))
+            print("Frame offset error 1: " + str(self.frame_offset_error_1))
 
     def run_test(self, nof_tpms, pattern, adders, frame_adder, first_channel, nof_packets):
         self.make_exp_data(nof_tpms, pattern, adders)
@@ -387,13 +395,13 @@ class spead_rx(Process):
                     # print _pkt[0:128]
                     break
                 except socket.timeout:
-                    print "socket timeout!"
+                    print("socket timeout!")
                     pass
                 # except:
                     # pass
             if len(_pkt) > 8192:
                 self.spead_header_decode(_pkt, first_channel)
-                self.data_buff = unpack('I' * (self.payload_length / 4), _pkt[self.offset:])
+                self.data_buff = unpack('I' * (old_div(self.payload_length, 4)), _pkt[self.offset:])
                 self.check_buffer(self.logical_channel_id, frame_adder, nof_tpms)
                 checked += 1
             if checked == nof_packets and nof_packets > 0:
@@ -414,7 +422,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
 
-    pattern = range(1024)
+    pattern = list(range(1024))
     adders = [0, 1]
     nof_packets = -1
 

@@ -1,4 +1,9 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Import DAQ and Access Layer libraries
+from builtins import input
+from builtins import str
+from builtins import range
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -10,7 +15,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-import test_functions as tf
+from . import test_functions as tf
 import numpy as np
 import os.path
 import logging
@@ -28,11 +33,11 @@ def check_adc_pattern(pattern_type, fixed_pattern):
 
     global data
 
-    print "Checking " + pattern_type + " ADC pattern"
+    print("Checking " + pattern_type + " ADC pattern")
     if pattern_type == "fixed":
-        print "Pattern data: "
+        print("Pattern data: ")
         for n in range(16):
-            print fixed_pattern[n]
+            print(fixed_pattern[n])
 
     for a in range(16):
         for p in range(2):
@@ -42,12 +47,12 @@ def check_adc_pattern(pattern_type, fixed_pattern):
                 for n in range(len(buffer)):
                     exp_value = (seed + n) % 256
                     if buffer[n] != exp_value:
-                        print "Error detected, ramp pattern"
-                        print "Buffer position: " + str(n)
-                        print "Expected value: " + str(exp_value)
-                        print "Received value: " + str(buffer[n])
-                        print buffer[0:128]
-                        raw_input()
+                        print("Error detected, ramp pattern")
+                        print("Buffer position: " + str(n))
+                        print("Expected value: " + str(exp_value))
+                        print("Received value: " + str(buffer[n]))
+                        print(buffer[0:128])
+                        input()
             if pattern_type == "fixed":
                 for n in range(4):
                     seed = n
@@ -59,15 +64,15 @@ def check_adc_pattern(pattern_type, fixed_pattern):
                 for n in range(0, len(buffer)):
                     exp_value = fixed_pattern[a][(seed + n) % 4]
                     if buffer[n] != exp_value:
-                        print "Error detected, fixed pattern"
-                        print fixed_pattern[a]
-                        print "Buffer position: " + str(n)
-                        print "Expected value: " + str(fixed_pattern[a][(n + m) % 4])
-                        print "Received value: " + str(buffer[n])
-                        print buffer[0:128]
-                        raw_input()
+                        print("Error detected, fixed pattern")
+                        print(fixed_pattern[a])
+                        print("Buffer position: " + str(n))
+                        print("Expected value: " + str(fixed_pattern[a][(n + m) % 4]))
+                        print("Received value: " + str(buffer[n]))
+                        print(buffer[0:128])
+                        input()
 
-    print "Data pattern checked!\n"
+    print("Data pattern checked!\n")
 
 def data_callback(mode, filepath, tile):
     # Note that this will be called asynchronosuly from the C code when a new file is generated
@@ -82,10 +87,10 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_raw":
         raw_file = RawFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = raw_file.read_data(antennas=range(16),  # List of channels to read (not use in raw case)
+        data, timestamps = raw_file.read_data(antennas=list(range(16)),  # List of channels to read (not use in raw case)
                                            polarizations=[0, 1],
                                            n_samples=32*1024)
-        print "Raw data: {}".format(data.shape)
+        print("Raw data: {}".format(data.shape))
 
     data_received = True
 
@@ -93,7 +98,7 @@ def data_callback(mode, filepath, tile):
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -159,13 +164,13 @@ if __name__ == "__main__":
     #
     remove_files()
 
-    print "Setting 0 delays..."
+    print("Setting 0 delays...")
     delays = [0] * 32
     tf.set_delay(tile, delays)
 
     while iter > 0 or iter == -1:
         pattern_type = "ramp"
-        tf.enable_adc_test_pattern(tile, range(16), pattern_type)
+        tf.enable_adc_test_pattern(tile, list(range(16)), pattern_type)
         time.sleep(0.2)
 
         data_received = False
@@ -180,7 +185,7 @@ if __name__ == "__main__":
         for n in range(16):
             fixed_pattern[n] = [random.randrange(0, 255, 1) for x in range(4)]
         pattern_type = "fixed"
-        tf.enable_adc_test_pattern(tile, range(16), pattern_type, fixed_pattern)
+        tf.enable_adc_test_pattern(tile, list(range(16)), pattern_type, fixed_pattern)
         time.sleep(0.2)
 
         data_received = False

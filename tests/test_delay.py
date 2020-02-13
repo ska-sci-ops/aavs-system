@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 import time
 
@@ -12,10 +16,10 @@ def test_setup(beamformer, ch):
   """
     tile = beamformer.tile
     tload = tile.tpm["fpga1.pps_manager.timestamp_read_val"] + 100
-    tile.tpm.test_generator[0].set_tone(0, (ch + 1 / 1024.) * 800e6 / 1024, 1.0, 0.0, tload)
-    tile.tpm.test_generator[1].set_tone(0, (ch + 1 / 1024.) * 800e6 / 1024, 1.0, 0.0, tload)
-    tile.tpm.test_generator[0].set_tone(1, ((ch + 4) + 1 / 1024.) * 800e6 / 1024, 1.0, 0.0, tload)
-    tile.tpm.test_generator[1].set_tone(1, ((ch + 4) + 1 / 1024.) * 800e6 / 1024, 1.0, 0.0, tload)
+    tile.tpm.test_generator[0].set_tone(0, old_div((ch + 1 / 1024.) * 800e6, 1024), 1.0, 0.0, tload)
+    tile.tpm.test_generator[1].set_tone(0, old_div((ch + 1 / 1024.) * 800e6, 1024), 1.0, 0.0, tload)
+    tile.tpm.test_generator[0].set_tone(1, old_div(((ch + 4) + 1 / 1024.) * 800e6, 1024), 1.0, 0.0, tload)
+    tile.tpm.test_generator[1].set_tone(1, old_div(((ch + 4) + 1 / 1024.) * 800e6, 1024), 1.0, 0.0, tload)
     tile.tpm.test_generator[0].channel_select(0xffff)
     tile.tpm.test_generator[1].channel_select(0xffff)
     beamformer.set_first_last_tile(True, False)
@@ -95,7 +99,7 @@ def test_rate(beamformer):
     for d in range(300):
         beamformer.start(0, 16)
         if np.mod(d, 10):
-            print d / 10
+            print(old_div(d, 10))
         time.sleep(12.)
 
     tile.tpm.test_generator[0].set_delay([0] * 16)
@@ -132,6 +136,6 @@ def test_prdg_delay(beamformer):
     delay_fp = [[0.0, 0.0]] * 16
     for i in range(16):
         delay_fp[i] = [-sample_time * delay[i]]
-        delay1[i] = delay[i / 2]
-        delay2[i] = delay[i / 2 + 8]
+        delay1[i] = delay[old_div(i, 2)]
+        delay2[i] = delay[old_div(i, 2) + 8]
 #

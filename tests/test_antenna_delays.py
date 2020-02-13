@@ -1,4 +1,8 @@
 #!/usr/bin/env python2
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
@@ -104,7 +108,7 @@ def normalize_complex_vector(vector):
                 
     for p in range(vector.shape[0]):
         for a in range(nof_antennas):
-            normalised[p, a] = vector[p][a] / max_val
+            normalised[p, a] = old_div(vector[p][a], max_val)
      
     return normalised
     
@@ -169,7 +173,7 @@ def calibrate(vis, nof_antennas):
     for pol in range(vis.shape[1]):
         # Determine per baseline complex coefficient, assuming all baselines should have equal response
         with np.errstate(divide='ignore', invalid='ignore'):
-            bas_coeffs = vis[ref_antenna, pol] / vis[:, pol]
+            bas_coeffs = old_div(vis[ref_antenna, pol], vis[:, pol])
  
         # Compute per antenna coefficients, with respect to reference antenna. Default is antenna 0
         selection = np.unique(np.where(baseline_mapping[:, :] == ref_antenna)[0])
@@ -257,8 +261,8 @@ def correlate_data(daq_config, test_station):
     output = np.zeros((nof_baselines, 2), dtype=np.complex64)
     
     baseline = 0
-    for antenna1 in xrange(nof_antennas):
-        for antenna2 in xrange(antenna1, nof_antennas):
+    for antenna1 in range(nof_antennas):
+        for antenna2 in range(antenna1, nof_antennas):
             output[baseline, 0] = np.correlate(data[0, antenna1, 0, :], data[0, antenna2, 0, :])[0]
             output[baseline, 1] = np.correlate(data[0, antenna1, 1, :], data[0, antenna2, 1, :])[0]
             baseline += 1
@@ -380,9 +384,9 @@ if __name__ == "__main__":
 
     # Update channel numbers for script
     channel_bandwidth = 400e6 / 512.0
-    channelised_channel = int(test_signal / channel_bandwidth)
-    beamformed_channel = int((test_signal - station_config['observation']['start_frequency_channel']) / channel_bandwidth)
-    nof_channels = int(station_config['observation']['bandwidth'] / channel_bandwidth)
+    channelised_channel = int(old_div(test_signal, channel_bandwidth))
+    beamformed_channel = int(old_div((test_signal - station_config['observation']['start_frequency_channel']), channel_bandwidth))
+    nof_channels = int(old_div(station_config['observation']['bandwidth'], channel_bandwidth))
     
     # Generate DAQ configuration
     daq_config = {"nof_channels": 1,

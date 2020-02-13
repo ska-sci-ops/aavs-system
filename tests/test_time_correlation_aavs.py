@@ -1,4 +1,8 @@
+from __future__ import print_function
+from __future__ import division
 # Import DAQ and Access Layer libraries
+from builtins import range
+from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -22,8 +26,8 @@ temp_dir = "./temp_daq_test"
 data_received = False
 beam_int_data_received = False
 channel_int_data_received = False
-test_pattern = range(1024)
-test_adders = range(32)
+test_pattern = list(range(1024))
+test_adders = list(range(32))
 channel_integration_length = 0
 channel_accumulator_width = 0
 channel_round_bits = 0
@@ -72,8 +76,8 @@ def channelize_pattern(pattern):
         :param pattern: pattern buffer, frequency channel in increasing order
         """
         tmp = [0]*len(pattern)
-        half = len(pattern) / 2
-        for n in range(half / 2):
+        half = old_div(len(pattern), 2)
+        for n in range(old_div(half, 2)):
             tmp[4*n] = pattern[2*n]
             tmp[4*n+1] = pattern[2*n+1]
             tmp[4*n+2] = pattern[-(1+2*n+1)]
@@ -82,7 +86,7 @@ def channelize_pattern(pattern):
 
 
 def set_pattern(tile, stage, pattern, adders, start):
-    print "Setting " + stage + " data pattern"
+    print("Setting " + stage + " data pattern")
     signal_adder = []
     for n in range(32):
         signal_adder += [adders[n]]*4
@@ -102,8 +106,8 @@ def set_delay(tile, delay):
 def correlate_raw(data):
     global delays
     
-    print data[0, 0, 0:8]
-    print data[1, 0, 0:8]
+    print(data[0, 0, 0:8])
+    print(data[1, 0, 0:8])
     ref = np.array(data[0, 0, 0:2048],dtype='int')
     for a in range(16):
         for p in range(1):
@@ -118,7 +122,7 @@ def correlate_raw(data):
             #    print "Correlation Error"
             #    raw_input("Press a key")
                 max_idx[a][int(idx)] = max_idx[a][int(idx)]+1
-            print max, idx
+            print(max, idx)
 
 
 
@@ -135,10 +139,10 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_raw":
         raw_file = RawFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = raw_file.read_data(antennas=range(16),  # List of channels to read (not use in raw case)
+        data, timestamps = raw_file.read_data(antennas=list(range(16)),  # List of channels to read (not use in raw case)
                                            polarizations=[0, 1],
                                            n_samples=32*1024)
-        print "Raw data: {}".format(data.shape)
+        print("Raw data: {}".format(data.shape))
         correlate_raw(data)
 
     data_received = True
@@ -148,7 +152,7 @@ def data_callback(mode, filepath, tile):
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -223,7 +227,7 @@ if __name__ == "__main__":
             for i in range(31):
                 sys.stdout.write('{:3d}'.format(int(max_idx[a][i])) + " ")
 
-            print
+            print()
         #print max_idx[1]
         #print max_idx[2]
 
@@ -241,7 +245,7 @@ if __name__ == "__main__":
     while not data_received:
         time.sleep(0.1)
 
-    print delays
+    print(delays)
 
 
     daq.stop_daq()

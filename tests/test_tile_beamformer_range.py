@@ -1,4 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 # Import DAQ and Access Layer libraries
+from builtins import input
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -10,7 +17,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-import test_functions as tf
+from . import test_functions as tf
 import numpy as np
 import os.path
 import logging
@@ -42,8 +49,8 @@ def check_beam(pattern, adders, data):
                 #print exp_re
                 #print exp_im
 
-                exp_re = exp_re*8/2*2
-                exp_im = exp_im*8/2*2
+                exp_re = old_div(exp_re*8,2)*2
+                exp_im = old_div(exp_im*8,2)*2
 
                 exp_re_round = tf.s_round(exp_re, 4, 16)
                 exp_im_round = tf.s_round(exp_im, 4, 16)
@@ -57,17 +64,17 @@ def check_beam(pattern, adders, data):
 
 
                 if abs(exp[0] - data[p, c, s, x][0]) > 2 or abs(exp[1] != data[p, c, s, x][1]) > 2:
-                    print "Data Error!"
-                    print "Frequency Channel: " + str(c)
-                    print "Polarization: " + str(p)
-                    print "Sample index: " + str(s)
-                    print "Expected data real: " + str(exp_re_round)
-                    print "Expected data imag: " + str(exp_im_round)
-                    print "Expected data: " + str(exp)
-                    print "Received data: " + str(data[p, c, s, x])
-                    raw_input()
+                    print("Data Error!")
+                    print("Frequency Channel: " + str(c))
+                    print("Polarization: " + str(p))
+                    print("Sample index: " + str(s))
+                    print("Expected data real: " + str(exp_re_round))
+                    print("Expected data imag: " + str(exp_im_round))
+                    print("Expected data: " + str(exp))
+                    print("Received data: " + str(data[p, c, s, x]))
+                    input()
                     # exit(-1)
-    print "Beam data are correct"
+    print("Beam data are correct")
 
 
 
@@ -84,10 +91,10 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_beam":
         beam_file = BeamFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = beam_file.read_data(channels=range(384),  # List of channels to read (not use in raw case)
+        data, timestamps = beam_file.read_data(channels=list(range(384)),  # List of channels to read (not use in raw case)
                                                polarizations=[0, 1],
                                                n_samples=32)
-        print "Beam data: {}".format(data.shape)
+        print("Beam data: {}".format(data.shape))
 
     data_received = True
 
@@ -96,7 +103,7 @@ def data_callback(mode, filepath, tile):
 def remove_files():
     # create temp directory
     if not os.path.exists(temp_dir):
-        print "Creating temp folder: " + temp_dir
+        print("Creating temp folder: " + temp_dir)
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
@@ -165,7 +172,7 @@ if __name__ == "__main__":
     # channels = range(64, 448)
 
     for n in range(0,256,1):
-        print n
+        print(n)
         pattern = [n]*1024 #range(1024)
         adders = [0] * 128
 
