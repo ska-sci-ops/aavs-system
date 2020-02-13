@@ -1,0 +1,43 @@
+# Observation-related configuration, specifying the channel region
+# for the station beamformer
+observation:
+    start_frequency_channel: 50e6
+    bandwidth: 300e6
+
+# Station configuration parameters
+station:
+    id: 0
+    channel_truncation: 2
+    beam_integration_time: -1
+    channel_integration_time: -1
+    beamformer_scaling: 4
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf311.bit"
+    equalize_preadu: Yes
+
+# Network configuration parameters
+network:
+    lmc:
+        lmc_mac: 0x248A078F9D38
+        lmc_ip: "10.0.10.201"
+        lmc_port: 4660
+        tpm_cpld_port: 10000
+        use_teng: True
+
+    csp_ingest:
+        dst_mac: 0x248A078F9D38
+        dst_ip: "10.0.10.201"
+        dst_port: 4660
+        src_mac: Null
+        src_ip: 10.0.10.254
+        src_port: Null
+
+# List of TPM IPs (or names) which will form station
+tiles:
+    - tpm-1
+    - tpm-2
+    - tpm-3
+    - tpm-4
+    - tpm-5
+    - tpm-6
+    - tpm-7
+    - tpm-8

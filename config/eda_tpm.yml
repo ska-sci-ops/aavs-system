@@ -1,0 +1,48 @@
+# Observation-related configuration, specifying the channel region
+# for the station beamformer
+observation:
+    start_frequency_channel: 156.25e6
+    bandwidth: 6.25e6
+#    bandwidth: 0.78125e6
+
+# Station configuration parameters, 
+# beam_integration_time was 1 -> changed to 5 to produce less data 
+station:
+    id: 1
+    name: "EDA"
+    number_of_antennas: 16
+    channel_truncation: 2
+    beam_integration_time: 1
+    channel_integration_time: 0.1
+    beamformer_scaling: 1
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf311.bit"
+    equalize_preadu: Yes
+
+# Network configuration parameters
+network:
+    lmc:
+        lmc_mac: 0x248A078F9D38
+        lmc_ip: "10.0.10.200"
+        lmc_port: 4660
+        tpm_cpld_port: 10000
+        use_teng: True
+        
+        # Integrated data configuration
+        integrated_data_port: 5001
+        integrated_data_ip: "10.0.10.200"
+        use_teng_integrated: False
+
+    csp_ingest:
+        dst_mac: 0x248A078F9D38
+        dst_ip: "10.0.10.200"
+        dst_port: 4660
+        src_mac: Null
+        src_ip: 10.0.10.250
+        src_port: Null
+
+# List of TPM IPs (or names) which will form station
+# 2019-05-01 : changed from tpm-17 -> tpm-24 - as per Andrea's e-mail about re-cabling the Rack59 :
+# 2019-05-03 : changed tpm-24 -> tpm-23 after they swapped over 
+# 2019-05-23 : EDA1 changed to tpm-20 ( serial number 24 ) - see emails from Andrea / Dave M.
+tiles:
+    - tpm-20

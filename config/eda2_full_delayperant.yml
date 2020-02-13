@@ -1,0 +1,90 @@
+# Observation-related configuration, specifying the channel region
+# for the station beamformer
+observation:
+    start_frequency_channel: 156.25e6
+#    start_frequency_channel: 113.28125e6
+#    start_frequency_channel: 96.09375
+#    start_frequency_channel: 226.5625e6
+#    start_frequency_channel: 133.59375
+#    start_frequency_channel: 226.5625e6
+#    start_frequency_channel: 107.03125e6
+#    start_frequency_channel: 67.1875e6
+#    start_frequency_channel: 46.875
+#    start_frequency_channel: 317.1875e6
+#    start_frequency_channel: 129.6875e6
+    bandwidth: 6.25e6
+
+# Station configuration parameters
+station:
+    id: 2
+    name: "EDA2"
+    number_of_antennas: 256
+    channel_truncation: 0
+    beam_integration_time: -1
+    channel_integration_time: 2
+    beamformer_scaling: 4
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf347.bit"
+    equalize_preadu: No
+    pps_delays: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+# Network configuration parameters
+network:
+    lmc:
+        lmc_mac: 0x98039b861596
+        lmc_ip: "10.0.10.190"
+        lmc_port: 4660
+        tpm_cpld_port: 10000
+        use_teng: True
+
+        # Integrated data configuration
+        integrated_data_port: 5000
+        integrated_data_ip: "10.0.10.200"
+        use_teng_integrated: False
+
+    csp_ingest:
+        dst_mac: 0x98039b861596
+        dst_ip: "10.0.10.190"
+        dst_port: 4660
+        src_mac: Null
+        src_ip: 10.0.10.254
+        src_port: Null
+
+# List of TPM IPs (or names) which will form station
+tiles:
+    - tpm-1
+    - tpm-2
+    - tpm-3
+    - tpm-4
+    - tpm-5
+    - tpm-6
+    - tpm-7
+    - tpm-8
+    - tpm-9
+    - tpm-10
+    - tpm-11
+    - tpm-12
+    - tpm-13
+    - tpm-14
+    - tpm-15
+    - tpm-32 # testing AAVS2 TPM with EDA2 to check if works here ...
+#    - tpm-16
+
+# Time delay to apply to each antenna (one entry per TPM, optional)
+time_delays:
+    - [5, 5, 3, 3, 0, 0, 4, 4, 4, 4, 3, 3, 4, 4, 4, 4, 5, 5, 10, 10, 0, 0, 2, 2, 6, 6, 7, 7, 3, 3, 2, 2]
+    - [4, 4, 1, 1, 0, 0, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 4, 4, 2, 2, 4, 4]
+    - [4, 4, 3, 3, 1, 1, 0, 0, 7, 7, 5, 5, 6, 6, 7, 7, 4, 4, 1, 1, 8, 8, 4, 4, 12, 12, 4, 4, 3, 3, 2, 2]
+    - [-25, -25, -29, -29, -31, -31, -31, -31, -28, -28, -29, -29, -29, -29, -30, -30, -27, -27, -28, -28, -30, -30, -30, -30, -27, -27, -26, -26, -28, -28, -29, -29]
+    - [9, 9, 13, 13, 15, 15, 12, 12, 9, 9, 5, 5, 8, 8, 10, 10, 5, 5, 8, 8, 9, 9, 6, 6, 21, 21, 11, 11, 9, 9, 7, 7]
+    - [9, 9, 11, 11, 6, 6, 10, 10, 6, 6, 5, 5, 119, 119, 5, 5, 10, 10, 8, 8, 8, 8, 6, 6, 13, 13, 10, 10, 9, 9, 8, 8]
+    - [88, 88, 76, 76, 76, 76, 74, 74, 81, 81, 77, 77, 76, 76, 78, 78, 78, 78, 81, 81, 74, 74, 75, 75, 80, 80, 78, 78, 76, 76, 75, 75]
+    - [74, 74, 72, 72, 71, 71, 73, 73, 74, 74, 75, 75, 74, 74, 75, 75, 77, 77, 78, 78, 72, 72, 72, 72, 80, 80, 78, 78, 72, 72, 74, 74]    
+    - [8,  8,  5,  5,  9,  9,  4,  4,  4,  4, 12, 12, 15, 15, 13, 13,  5, 5,  6,  6,  4,  4,  6,  6,  9,  9,  8,  8,  6,  6,  5,  5]    
+    - [13, 13, 11, 11, 14, 14, 9, 9, 14, 14, 12, 12, 12, 12, 15, 15, 9, 9, 11, 11, 10, 10, 11, 11, 14, 14, 14, 14, 0, 0, 11, 11]
+    - [-35, -35, -33, -33, -38, -38, -35, -35, -36, -36, -40, -40, -37, -37, -35, -35, -35, -35, -37, -37, -36, -36, -38, -38, -22, -22, -36, -36, -38, -38, -37, -37]
+    - [-29, -29, -39, -39, -40, -40, -43, -43, -41, -41, -41, -41, -40, -40, -42, -42, -38, -38, -34, -34, -42, -42, -41, -41, -34, -34, -38, -38, -40, -40, -41, -41]
+    - [0, 0, -37, -37, -39, -39, -37, -37, -41, -41, -39, -39, -35, -35, -37, -37, -32, -32, -33, -33, -38, -38, -38, -38, -35, -35, -33, -33, -37, -37, -37, -37]
+    - [-39, -39, -40, -40, -41, -41, -40, -40, -41, -41, -41, -41, -40, -40, -42, -42, -36, -36, -35, -35, -40, -40, -40, -40, -40, -40, -38, -38, -34, -34, -39, -39]
+    - [-36, -36, -38, -38, -34, -34, -39, -39, -34, -34, -32, -32, -35, -35, -30, -30, -39, -39, -37, -37, -39, -39, -38, -38, -31, -31, -35, -35, -38, -38, -37, -37]
+    - [-15, -15, -11, -11,  -9,  -9, -11, -11, -15, -15, -16, -16, -16,-16, -15, -15, -19, -19, -16, -16, -15, -15, -18, -18, -15, -15, -13, -13, -15, -15, -16, -16]
+

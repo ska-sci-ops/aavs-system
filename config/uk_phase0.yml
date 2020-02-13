@@ -1,0 +1,46 @@
+# Observation-related configuration, specifying the channel region
+# for the station beamformer
+observation:
+    start_frequency_channel: 156.25e6
+    bandwidth: 6.25e6
+
+# Station configuration parameters
+station:
+    id: 0
+    name: "UKPHASE0"
+    number_of_antennas: 1
+    channel_truncation: 2
+    beam_integration_time: -1
+    channel_integration_time: 2
+    beamformer_scaling: 4
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf347.bit"
+    equalize_preadu: Yes
+
+# Network configuration parameters
+network:
+    lmc:
+        lmc_mac: 0x248A078F9D38
+        lmc_ip: "10.0.10.202"
+        lmc_port: 4660
+        tpm_cpld_port: 10000
+        use_teng: True
+        
+        # Integrated data configuration
+        integrated_data_port: 5005
+        integrated_data_ip: "10.0.10.200"
+        use_teng_integrated: False
+
+    csp_ingest:
+        dst_mac: 0x248A078F9D38
+        dst_ip: "10.0.10.202"
+        dst_port: 4660
+        src_mac: Null
+        src_ip: Null #10.0.10.254
+        src_port: Null
+
+time_delays:
+    - 0
+
+# List of TPM IPs (or names) which will form station
+tiles:
+    - tpm-24
