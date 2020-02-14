@@ -30,10 +30,10 @@ data_received = False
 
 
 def filter_value(val):
-    #if val == 2**32-1:
+    # if val == 2**32-1:
     #    val = 0
     if val > 0:
-        pw = 10*np.log10(val)
+        pw = 10 * np.log10(val)
     else:
         pw = 0
     return val, pw
@@ -53,11 +53,10 @@ def data_callback(mode, filepath, tile):
     if mode == "integrated_beam":
         beam_file = BeamFormatFileManager(root_path=os.path.dirname(filepath), daq_mode=FileDAQModes.Integrated)
         data, timestamps = beam_file.read_data(channels=list(range(384)),
-                                           polarizations=[0, 1],
-                                           n_samples=1)
+                                               polarizations=[0, 1],
+                                               n_samples=1)
         print("Integrated beam data: {}".format(data.shape))
         data_received = True
-
 
 
 def remove_files():
@@ -67,8 +66,8 @@ def remove_files():
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     from optparse import OptionParser
     from sys import argv, stdout
@@ -112,17 +111,17 @@ if __name__ == "__main__":
         lo_frequency = float(conf.freq)
         hi_frequency = lo_frequency
         frequency_adder = 1.0
-        channel = int(old_div(lo_frequency,400e6)*512+0.5)
+        channel = int(old_div(lo_frequency, 400e6) * 512 + 0.5)
         print(channel)
     else:
         points = int(conf.points)
-        channel_width = old_div(400e6,512)
+        channel_width = old_div(400e6, 512)
         test_width = extension * channel_width
-        center_freq = old_div(400e6,512) * channel
-        lo_frequency = center_freq - old_div(test_width,2)
+        center_freq = old_div(400e6, 512) * channel
+        lo_frequency = center_freq - old_div(test_width, 2)
         if lo_frequency < 0.0:
             lo_frequency = 0.0
-        hi_frequency = center_freq + old_div(test_width,2)
+        hi_frequency = center_freq + old_div(test_width, 2)
         if hi_frequency > 400e6:
             hi_frequency = 400e6
         frequency_adder = old_div((hi_frequency - lo_frequency), points)
@@ -136,11 +135,11 @@ if __name__ == "__main__":
     tile.test_generator_input_select(0xFFFFFFFF)
     for n in range(16):
         cal_coeff = [[complex(2.0), complex(0.0), complex(0.0), complex(2.0)]] * 512
-        #if n == 0:
+        # if n == 0:
         #    cal_coeff = [[complex(1.0), complex(0.0), complex(0.0), complex(0.0)]] * 512
-        #else:
+        # else:
         #    cal_coeff = [[complex(0.0), complex(0.0), complex(0.0), complex(0.0)]] * 512
-        tile.tpm.beamf_fd[old_div(n,8)].load_calibration(n % 8, cal_coeff[64:448])
+        tile.tpm.beamf_fd[old_div(n, 8)].load_calibration(n % 8, cal_coeff[64:448])
     tile.tpm.beamf_fd[0].switch_calibration_bank(force=True)
     tile.tpm.beamf_fd[1].switch_calibration_bank(force=True)
     tile.set_channeliser_truncation(4)
@@ -155,11 +154,11 @@ if __name__ == "__main__":
     # Initialise DAQ. For now, this needs a configuration file with ALL the below configured
     # I'll change this to make it nicer
     daq_config = {
-                      'receiver_interface': 'eth3',  # CHANGE THIS if required
-                      'directory': temp_dir,  # CHANGE THIS if required
-                      'nof_beam_channels': 384,
-                      'nof_beam_samples': 1
-                      }
+        'receiver_interface': 'eth3',  # CHANGE THIS if required
+        'directory': temp_dir,  # CHANGE THIS if required
+        'nof_beam_channels': 384,
+        'nof_beam_samples': 1
+    }
 
     # Configure the DAQ receiver and start receiving data
     daq.populate_configuration(daq_config)
@@ -199,9 +198,9 @@ if __name__ == "__main__":
             while not data_received:
                 time.sleep(0.1)
 
-        kc = data[0, channel-64, 0, 0]
-        kp = data[0, channel-64-1, 0, 0]
-        kn = data[0, channel-64+1, 0, 0]
+        kc = data[0, channel - 64, 0, 0]
+        kp = data[0, channel - 64 - 1, 0, 0]
+        kn = data[0, channel - 64 + 1, 0, 0]
 
         # if kc < 1236311703:
         #     print "Error!"
@@ -221,13 +220,13 @@ if __name__ == "__main__":
         power_pc.append(pc)
         power_pp.append(pp)
         power_pn.append(pn)
-        freqs.append(old_div(test_frequency,1e6))
+        freqs.append(old_div(test_frequency, 1e6))
 
         test_frequency += frequency_adder
         iteration += 1
 
         f = open("channel_" + str(channel) + "_response.txt", "a")
-        txt = str(old_div(test_frequency,1e6)) + " " + str(vc) + " " + str(vp) + " " + str(vn) + "\n"
+        txt = str(old_div(test_frequency, 1e6)) + " " + str(vc) + " " + str(vp) + " " + str(vn) + "\n"
         f.write(txt)
         f.close()
 
@@ -244,4 +243,3 @@ if __name__ == "__main__":
     # f.close()
 
     daq.stop_integrated_beam_data_consumer()
-

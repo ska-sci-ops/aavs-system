@@ -1,25 +1,25 @@
-from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
-# Import DAQ and Access Layer libraries
-from builtins import hex
+from __future__ import print_function
+
 from builtins import str
 from builtins import range
-from past.utils import old_div
+import logging
+import os.path
+import random
+import time
+
+import test_functions as tf
+
+
+# Import DAQ and Access Layer libraries
+from builtins import hex
+
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
 # Import required persisters
 from pydaq.persisters import *
-
-from sys import stdout
-import numpy as np
-from . import test_functions as tf
-import os.path
-import logging
-import random
-import math
-import time
 
 temp_dir = "./temp_daq_test"
 data_received = False
@@ -39,10 +39,10 @@ dropped_integrated_beam_sample = 0
 def s_round(data, bits, max_width=32):
     if bits == 0:
         return data
-    elif data == -2**(max_width-1):
+    elif data == -2 ** (max_width - 1):
         return data
     else:
-        c_half = 2**(bits-1)
+        c_half = 2 ** (bits - 1)
         if data >= 0:
             data = (data + c_half + 0) >> bits
         else:
@@ -51,35 +51,35 @@ def s_round(data, bits, max_width=32):
 
 
 def integrated_sample_calc(data_re, data_im, integration_length, round_bits, max_width):
-    power = data_re**2 + data_im**2
+    power = data_re ** 2 + data_im ** 2
     accumulator = power * integration_length
     round = s_round(accumulator, round_bits, max_width)
     return round
 
 
 def channelize_pattern(pattern):
-        """ Change the frequency channel order to match che channelizer output
+    """ Change the frequency channel order to match che channelizer output
         :param pattern: pattern buffer, frequency channel in increasing order
         """
-        tmp = [0]*len(pattern)
-        half = old_div(len(pattern), 2)
-        for n in range(old_div(half, 2)):
-            tmp[4*n] = pattern[2*n]
-            tmp[4*n+1] = pattern[2*n+1]
-            tmp[4*n+2] = pattern[-(1+2*n+1)]
-            tmp[4*n+3] = pattern[-(1+2*n)]
-        return tmp
+    tmp = [0] * len(pattern)
+    half = old_div(len(pattern), 2)
+    for n in range(old_div(half, 2)):
+        tmp[4 * n] = pattern[2 * n]
+        tmp[4 * n + 1] = pattern[2 * n + 1]
+        tmp[4 * n + 2] = pattern[-(1 + 2 * n + 1)]
+        tmp[4 * n + 3] = pattern[-(1 + 2 * n)]
+    return tmp
 
 
 def set_pattern(tile, stage, pattern, adders, start):
     print("Setting " + stage + " data pattern")
     signal_adder = []
     for n in range(32):
-        signal_adder += [adders[n]]*4
+        signal_adder += [adders[n]] * 4
 
     for i in range(2):
         tile.tpm.tpm_pattern_generator[i].set_pattern(pattern, stage)
-        tile.tpm.tpm_pattern_generator[i].set_signal_adder(signal_adder[64*i:64*(i+1)], stage)
+        tile.tpm.tpm_pattern_generator[i].set_signal_adder(signal_adder[64 * i:64 * (i + 1)], stage)
         tile['fpga1.pattern_gen.beamf_left_shift'] = 4
         tile['fpga2.pattern_gen.beamf_left_shift'] = 4
         tile['fpga1.pattern_gen.channel_left_shift'] = 0
@@ -88,14 +88,12 @@ def set_pattern(tile, stage, pattern, adders, start):
             tile.tpm.tpm_pattern_generator[i].start_pattern(stage)
 
 
-
 def check_raw(pattern, adders, data):
-
     global raw_data_synchronised
 
     ant, pol, sam = data.shape
     if raw_data_synchronised == 1:
-        sam /= 8
+        sam = int(sam / 8)
     for a in range(ant):
         for p in range(pol):
             for i in range(sam):
@@ -124,9 +122,9 @@ def check_channel(pattern, adders, data):
                 sample_idx = 2 * c
                 signal_idx = (a * 2 + p)
                 exp_re = pattern[sample_idx] + adders[signal_idx]
-                exp_im = pattern[sample_idx+1] + adders[signal_idx]
+                exp_im = pattern[sample_idx + 1] + adders[signal_idx]
                 exp = (tf.signed(exp_re), tf.signed(exp_im))
-                for i in range(16):  # range(sam):
+                for i in range(16):
                     if exp[0] != data[c, a, p, i][0] or exp[1] != data[c, a, p, i][1]:
                         print("Data Error!")
                         print("Frequency Channel: " + str(c))
@@ -147,8 +145,8 @@ def check_beam(pattern, adders, data):
             for s in range(sam):
                 sample_idx = (old_div(c, 2)) * 4 + 2 * p
                 signal_idx = 16 * (c % 2)
-                exp_re = (pattern[sample_idx] + adders[signal_idx])*16
-                exp_im = (pattern[sample_idx+1] + adders[signal_idx])*16
+                exp_re = (pattern[sample_idx] + adders[signal_idx]) * 16
+                exp_im = (pattern[sample_idx + 1] + adders[signal_idx]) * 16
                 exp = (tf.signed(exp_re, 12, 16), tf.signed(exp_im, 12, 16))
                 for i in range(16):  # range(sam):
                     if exp[0] != data[p, c, s, x][0] or exp[1] != data[p, c, s, x][1]:
@@ -170,8 +168,9 @@ def check_integrated_channel(pattern, adders, data):
                 sample_idx = 2 * c
                 signal_idx = (a * 2 + p)
                 exp_re = pattern[sample_idx] + adders[signal_idx]
-                exp_im = pattern[sample_idx+1] + adders[signal_idx]
-                exp = integrated_sample_calc(tf.signed(exp_re), tf.signed(exp_im), channel_integration_length, channel_round_bits, channel_accumulator_width)
+                exp_im = pattern[sample_idx + 1] + adders[signal_idx]
+                exp = integrated_sample_calc(tf.signed(exp_re), tf.signed(exp_im), channel_integration_length,
+                                             channel_round_bits, channel_accumulator_width)
                 for i in range(1):  # range(sam):
                     if exp != data[c, a, p, i]:
                         print("Data Error!")
@@ -194,11 +193,12 @@ def check_integrated_beam(pattern, adders, data):
             for p in range(pol):
                 sample_idx = (old_div(c, 2)) * 4 + 2 * p
                 signal_idx = 16 * (c % 2)
-                exp_re = (pattern[sample_idx] + adders[signal_idx])*16
-                exp_im = (pattern[sample_idx+1] + adders[signal_idx])*16
+                exp_re = (pattern[sample_idx] + adders[signal_idx]) * 16
+                exp_im = (pattern[sample_idx + 1] + adders[signal_idx]) * 16
                 exp_re_sign = tf.signed(exp_re, 12, 12)
                 exp_im_sign = tf.signed(exp_im, 12, 12)
-                exp = integrated_sample_calc(exp_re_sign, exp_im_sign, beamf_integration_length, beamf_round_bits, beamf_accumulator_width)
+                exp = integrated_sample_calc(exp_re_sign, exp_im_sign, beamf_integration_length, beamf_round_bits,
+                                             beamf_accumulator_width)
                 for i in range(1):  # range(sam):
                     if exp != data[p, c, a, i]:
                         print("Data Error!")
@@ -214,7 +214,7 @@ def check_integrated_beam(pattern, adders, data):
     print("Integrated Beam data are correct")
 
 
-def data_callback(mode, filepath, tile):
+def data_callback(mode, filepath, _):
     # Note that this will be called asynchronosuly from the C code when a new file is generated
     # If you want to control the flow of the main program as data comes in, then you need to synchronise
     # with a global variable. In this example, there will be an infinite loop between sending data and receiving data
@@ -226,24 +226,27 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_raw":
         raw_file = RawFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = raw_file.read_data(antennas=list(range(16)),  # List of channels to read (not use in raw case)
-                                           polarizations=[0, 1],
-                                           n_samples=32*1024)
+        data, timestamps = raw_file.read_data(antennas=list(range(16)),
+                                              # List of channels to read (not used in raw case)
+                                              polarizations=[0, 1],
+                                              n_samples=32 * 1024)
         print("Raw data: {}".format(data.shape))
         check_raw(test_pattern, raw_test_adders, data)
 
     if mode == "burst_channel":
         channel_file = ChannelFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = channel_file.read_data(channels=list(range(512)),  # List of channels to read (not use in raw case)
-                                               antennas=list(range(16)),
-                                               polarizations=[0, 1],
-                                               n_samples=128)
+        data, timestamps = channel_file.read_data(channels=list(range(512)),
+                                                  # List of channels to read (not used in raw case)
+                                                  antennas=list(range(16)),
+                                                  polarizations=[0, 1],
+                                                  n_samples=128)
         print("Channel data: {}".format(data.shape))
         check_channel(test_pattern, channel_test_adders, data)
 
     if mode == "burst_beam":
         beam_file = BeamFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = beam_file.read_data(channels=list(range(384)),  # List of channels to read (not use in raw case)
+        data, timestamps = beam_file.read_data(channels=list(range(384)),
+                                               # List of channels to read (not used in raw case)
                                                polarizations=[0, 1],
                                                n_samples=32)
         print("Beam data: {}".format(data.shape))
@@ -253,7 +256,6 @@ def data_callback(mode, filepath, tile):
 
 
 def integrated_data_callback(mode, filepath, tile):
-
     global channel_int_data_received
     global beam_int_data_received
     global dropped_integrated_beam_sample
@@ -261,8 +263,8 @@ def integrated_data_callback(mode, filepath, tile):
     if mode == "integrated_channel":
         channel_file = ChannelFormatFileManager(root_path=os.path.dirname(filepath), daq_mode=FileDAQModes.Integrated)
         data, timestamps = channel_file.read_data(antennas=list(range(16)),
-                                           polarizations=[0, 1],
-                                           n_samples=1)
+                                                  polarizations=[0, 1],
+                                                  n_samples=1)
         print("Integrated channel data: {}".format(data.shape))
         check_integrated_channel(test_pattern, channel_test_adders, data)
         channel_int_data_received = True
@@ -270,8 +272,8 @@ def integrated_data_callback(mode, filepath, tile):
     if mode == "integrated_beam":
         beam_file = BeamFormatFileManager(root_path=os.path.dirname(filepath), daq_mode=FileDAQModes.Integrated)
         data, timestamps = beam_file.read_data(channels=list(range(384)),
-                                           polarizations=[0, 1],
-                                           n_samples=1)
+                                               polarizations=[0, 1],
+                                               n_samples=1)
         print("Integrated beam data: {}".format(data.shape))
         if dropped_integrated_beam_sample == 0:
             check_integrated_beam(test_pattern, beamf_test_adders, data)
@@ -288,8 +290,8 @@ def remove_files():
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     from optparse import OptionParser
     from sys import argv, stdout
@@ -299,6 +301,8 @@ if __name__ == "__main__":
                       type="int", default="10000", help="Port [default: 10000]")
     parser.add_option("--tpm_ip", action="store", dest="tpm_ip",
                       default="10.0.10.3", help="IP [default: 10.0.10.3]")
+    parser.add_option("--interface", action="store", dest="interface",
+                      default="eth3", help="Network interface [default: eth3]")
     parser.add_option("--test", action="store", dest="test_type",
                       default="all", help="Test stage [raw, channel, beam, integrated, non-integrated. default: all]")
     (conf, args) = parser.parse_args(argv[1:])
@@ -319,12 +323,13 @@ if __name__ == "__main__":
     # Initialise DAQ. For now, this needs a configuration file with ALL the below configured
     # I'll change this to make it nicer
     daq_config = {
-                  'receiver_interface': 'eth3',  # CHANGE THIS if required
-                  'directory': temp_dir,  # CHANGE THIS if required
-                  'nof_beam_channels': 384,
-                  'nof_beam_samples': 32,
-                  'receiver_frame_size': 9000
-                  }
+        'receiver_interface': conf.interface,
+        'directory': temp_dir,
+        'nof_beam_channels': 384,
+        'nof_beam_samples': 32,
+        'receiver_frame_size': 9000,
+        'nof_channel_samples': 256
+    }
 
     # Configure the DAQ receiver and start receiving data
     daq.populate_configuration(daq_config)
@@ -422,7 +427,7 @@ if __name__ == "__main__":
                 else:
                     test_pattern[n] = random.randrange(0, 255, 1)
 
-            beamf_test_adders = list(range(16)) + list(range(2, 16+2))
+            beamf_test_adders = list(range(16)) + list(range(2, 16 + 2))
             set_pattern(tile, "beamf", test_pattern, beamf_test_adders, start=True)
             # Send data from tile
             tile.send_beam_data()
@@ -438,11 +443,11 @@ if __name__ == "__main__":
         print("Checking integrated data format now...")
 
         daq_config = {
-                      'receiver_interface': 'eth3',  # CHANGE THIS if required
-                      'directory': temp_dir,  # CHANGE THIS if required
-                      'nof_beam_channels': 384,
-                      'nof_beam_samples': 1
-                      }
+            'receiver_interface': conf.interface,  # CHANGE THIS if required
+            'directory': temp_dir,  # CHANGE THIS if required
+            'nof_beam_channels': 384,
+            'nof_beam_samples': 1
+        }
 
         channel_integration_length = tile['fpga1.lmc_integrated_gen.channel_integration_length']
         channel_accumulator_width = tile['fpga1.lmc_integrated_gen.channel_accumulator_width']
@@ -465,11 +470,11 @@ if __name__ == "__main__":
 
             channel_test_adders = list(range(32))
             set_pattern(tile, "channel", channelize_pattern(test_pattern), channel_test_adders, start=True)
-            beamf_test_adders = list(range(16)) + list(range(2, 16+2))
+            beamf_test_adders = list(range(16)) + list(range(2, 16 + 2))
             set_pattern(tile, "beamf", test_pattern, beamf_test_adders, start=True)
 
-            print("Sleeping for " + str(channel_integration_length*1.08e-6+0.5) + " seconds...")
-            time.sleep(channel_integration_length*1.08e-6+0.5)
+            print("Sleeping for " + str(channel_integration_length * 1.08e-6 + 0.5) + " seconds...")
+            time.sleep(channel_integration_length * 1.08e-6 + 0.5)
 
             # Set data received to False
             remove_files()

@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+
 # Import DAQ and Access Layer libraries
 from builtins import input
 from builtins import str
@@ -17,7 +18,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-from . import test_functions as tf
+import test_functions as tf
 import numpy as np
 import os.path
 import logging

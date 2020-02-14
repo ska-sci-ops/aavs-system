@@ -363,7 +363,7 @@ if __name__ == "__main__":
     # Define station beam parameters (using configuration for test pattern generator)
     station_config['observation']['start_frequency_channel'] = beam_start_frequency
     station_config['observation']['bandwidth'] = beam_bandwidth
-    
+
     # Check number of antennas to delay
     nof_antennas = len(station_config['tiles']) * antennas_per_tile
     
@@ -415,9 +415,6 @@ if __name__ == "__main__":
 
         for i, tile in enumerate(test_station.tiles):
             for antenna in range(antennas_per_tile):
-                #if i * 16 + antenna in masked_antennas:
-                #    tile.load_calibration_coefficients(antenna, zero_matrix.tolist())
-                #else:
                 tile.load_calibration_coefficients(antenna, one_matrix.tolist())
          
         # Done downloading coefficient, switch calibration bank 

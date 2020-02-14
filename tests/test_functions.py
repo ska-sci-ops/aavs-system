@@ -18,7 +18,6 @@ import math
 import time
 
 
-
 def s_round(data, bits, max_width=32):
     if bits == 0:
         return data

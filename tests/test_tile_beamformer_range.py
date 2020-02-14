@@ -17,7 +17,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-from . import test_functions as tf
+import test_functions as tf
 import numpy as np
 import os.path
 import logging

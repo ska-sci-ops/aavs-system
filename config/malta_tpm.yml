@@ -1,8 +1,8 @@
 # Observation-related configuration, specifying the channel region
 # for the station beamformer
 observation:
-    start_frequency_channel: 50e6
-    bandwidth: 300e6
+    start_frequency_channel: 75e6
+    bandwidth: 6.25e6
 
 # Station configuration parameters
 station:
@@ -18,13 +18,13 @@ station:
 # Network configuration parameters
 network:
     lmc:
-        lmc_mac: 0xAC1F6B404A4D # 1Gb MAC
-        lmc_ip: "10.0.10.10" # 1Gb IP
-        #lmc_mac: 0x5065F385AC71 # 40Gb MAC
-        #lmc_ip: "10.0.10.250" # 40Gb IP
+        #lmc_mac: 0xAC1F6B404A4D # 1Gb MAC
+        #lmc_ip: "10.0.10.10" # 1Gb IP
+        lmc_mac: 0x5065F385AC71 # 40Gb MAC
+        lmc_ip: "10.0.0.100" # 40Gb IP
         lmc_port: 4660
         tpm_cpld_port: 10000
-        use_teng: False
+        use_teng: True
         
         # Integrated data configuration
         integrated_data_port: 5000
@@ -32,13 +32,13 @@ network:
         use_teng_integrated: False
 
     csp_ingest:
-        dst_mac: 0xAC1F6B404A4D  # 1Gb MAC
-        dst_ip: "10.0.10.10" # 1Gb IP
-        #dst_mac: 0x5065F385AC71  # 40Gb MAC
-        #dst_ip: "10.0.10.250"  # 40Gb MAC
+        # dst_mac: 0xAC1F6B404A4D  # 1Gb MAC
+        # dst_ip: "10.0.10.10" # 1Gb IP
+        dst_mac: 0x5065F385AC71  # 40Gb MAC
+        dst_ip: "10.0.0.100"  # 40Gb MAC
         dst_port: 4660
         src_mac: Null
-        src_ip: 10.0.10.254
+        src_ip: 10.0.0.99
         src_port: Null
 
 # List of TPM IPs (or names) which will form station

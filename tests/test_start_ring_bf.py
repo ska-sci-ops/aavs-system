@@ -3,6 +3,7 @@
 
 from __future__ import division
 from past.utils import old_div
+
 def start_ring_bf(tile):
     for i in [0, 1, 2, 3, 4, 5, 6, 7]:
         tile.tpm.tpm_10g_core[i].set_src_mac(0x620000000002 + i)

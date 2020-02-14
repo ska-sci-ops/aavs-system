@@ -16,7 +16,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-from . import test_functions as tf
+import test_functions as tf
 from datetime import datetime
 import numpy as np
 import os.path
@@ -50,14 +50,14 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_channel":
         channel_file = ChannelFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = channel_file.read_data(channels=list(range(512)),  # List of channels to read (not use in raw case)
-                                               antennas=list(range(16)),
-                                               polarizations=[0, 1],
-                                               n_samples=128)
+        data, timestamps = channel_file.read_data(channels=list(range(512)),
+                                                  # List of channels to read (not use in raw case)
+                                                  antennas=list(range(16)),
+                                                  polarizations=[0, 1],
+                                                  n_samples=128)
         print("Channel data: {}".format(data.shape))
 
     data_received = True
-
 
 
 def remove_files():
@@ -67,8 +67,8 @@ def remove_files():
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     from optparse import OptionParser
     from sys import argv, stdout
@@ -110,12 +110,12 @@ if __name__ == "__main__":
     # Initialise DAQ. For now, this needs a configuration file with ALL the below configured
     # I'll change this to make it nicer
     daq_config = {
-                  'receiver_interface': 'eth3',  # CHANGE THIS if required
-                  'directory': temp_dir,  # CHANGE THIS if required
-                  'nof_beam_channels': 384,
-                  'nof_beam_samples': 32,
-                  'receiver_frame_size': 9000
-                  }
+        'receiver_interface': 'eth3',  # CHANGE THIS if required
+        'directory': temp_dir,  # CHANGE THIS if required
+        'nof_beam_channels': 384,
+        'nof_beam_samples': 32,
+        'receiver_frame_size': 9000
+    }
 
     # Configure the DAQ receiver and start receiving data
     daq.populate_configuration(daq_config)
@@ -126,7 +126,6 @@ if __name__ == "__main__":
     daq.start_channel_data_consumer(callback=data_callback)  # Change start_xxxx_data_consumer with data mode required
     # daq.start_beam_data_consumer(callback=data_callback)  # Change start_xxxx_data_consumer with data mode required
 
-
     tf.stop_pattern(tile, "all")
     tile['fpga1.jesd204_if.regfile_channel_disable'] = 0x0000
     tile['fpga2.jesd204_if.regfile_channel_disable'] = 0x0000
@@ -134,12 +133,11 @@ if __name__ == "__main__":
     tile.test_generator_disable_tone(1)
     tile.test_generator_set_noise(0.0)
     tile.test_generator_input_select(0x0)
-    tf.set_delay(tile, [0]*32)
+    tf.set_delay(tile, [0] * 32)
 
     if conf.test_mode:
         tile.test_generator_set_tone(0, old_div(int(conf.channel) * 400e6, 512), 1.0)
         tile.test_generator_input_select(0xFFFFFFFF)
-
 
     reference_antenna = int(conf.reference_antenna)
     reference_pol = int(conf.reference_pol)
@@ -159,16 +157,16 @@ if __name__ == "__main__":
     tile['fpga1.lmc_gen.readout_channel_ptr.channel'] = channel
     tile['fpga2.lmc_gen.readout_channel_ptr.channel'] = channel
     if reference_antenna < 8:
-        tile['fpga1.lmc_gen.readout_channel_ptr.input_0'] = 2*reference_antenna + reference_pol
+        tile['fpga1.lmc_gen.readout_channel_ptr.input_0'] = 2 * reference_antenna + reference_pol
         reference_fpga = 'fpga1'
     else:
-        tile['fpga2.lmc_gen.readout_channel_ptr.input_0'] = 2*(reference_antenna-8) + reference_pol
+        tile['fpga2.lmc_gen.readout_channel_ptr.input_0'] = 2 * (reference_antenna - 8) + reference_pol
         reference_fpga = 'fpga2'
     if test_antenna < 8:
-        tile['fpga1.lmc_gen.readout_channel_ptr.input_1'] = 2*test_antenna + test_pol
+        tile['fpga1.lmc_gen.readout_channel_ptr.input_1'] = 2 * test_antenna + test_pol
         test_fpga = 'fpga1'
     else:
-        tile['fpga2.lmc_gen.readout_channel_ptr.input_1'] = 2*(test_antenna-8) + test_pol
+        tile['fpga2.lmc_gen.readout_channel_ptr.input_1'] = 2 * (test_antenna - 8) + test_pol
         test_fpga = 'fpga2'
 
     print("Channel " + str(channel))
@@ -180,8 +178,10 @@ if __name__ == "__main__":
         time_sec = time_diff.total_seconds()
         time_prev = time_this
 
-        reference_value = tf.signed((tile['%s.lmc_gen.readout_input_0' % reference_fpga] & 0xFFF), 12) + tf.signed(((tile['%s.lmc_gen.readout_input_0' % reference_fpga] >> 12) & 0xFFF),12)*1j
-        test_value =      tf.signed((tile['%s.lmc_gen.readout_input_1' % test_fpga]      & 0xFFF), 12) + tf.signed(((tile['%s.lmc_gen.readout_input_1' % test_fpga]      >> 12) & 0xFFF), 12)*1j
+        reference_value = tf.signed((tile['%s.lmc_gen.readout_input_0' % reference_fpga] & 0xFFF), 12) + tf.signed(
+            ((tile['%s.lmc_gen.readout_input_0' % reference_fpga] >> 12) & 0xFFF), 12) * 1j
+        test_value = tf.signed((tile['%s.lmc_gen.readout_input_1' % test_fpga] & 0xFFF), 12) + tf.signed(
+            ((tile['%s.lmc_gen.readout_input_1' % test_fpga] >> 12) & 0xFFF), 12) * 1j
 
         print("R: " + str(reference_value))
         print("T: " + str(test_value))
@@ -219,20 +219,20 @@ if __name__ == "__main__":
         #     phase_ref.append(np.angle(reference_value))
         #     phase_test.append(np.angle(test_value))
         #
-        #phase_diff_avg = np.average(phase_diff)
-        #phase_diff_std = np.std(phase_diff)
-        #print str(sam) + " samples"
-        #print "Reference Channel amplitude : " + str(abs(reference_value))
-        #print "Test Channel amplitude      : " + str(abs(test_value))
-        #print "Phase diff                  : " + str(phase_diff_avg)
-        #print "Standard deviation          : " + str(phase_diff_std)
-        #print
+        # phase_diff_avg = np.average(phase_diff)
+        # phase_diff_std = np.std(phase_diff)
+        # print str(sam) + " samples"
+        # print "Reference Channel amplitude : " + str(abs(reference_value))
+        # print "Test Channel amplitude      : " + str(abs(test_value))
+        # print "Phase diff                  : " + str(phase_diff_avg)
+        # print "Standard deviation          : " + str(phase_diff_std)
+        # print
 
         if conf.test_mode:
             iter += 1
             if iter == 128:
                 iter = 0
-            tf.set_delay(tile, [0] + [iter]*31)
+            tf.set_delay(tile, [0] + [iter] * 31)
 
         time.sleep(polling_time)
 

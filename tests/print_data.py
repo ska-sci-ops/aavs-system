@@ -39,28 +39,30 @@ def data_callback(mode, filepath, tile):
     # filename will contain the full path
     if mode == "burst_raw":
         raw_file = RawFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = raw_file.read_data(antennas=list(range(16)),  # List of channels to read (not use in raw case)
-                                           polarizations=[0, 1],
-                                           n_samples=32*1024)
+        data, timestamps = raw_file.read_data(antennas=list(range(16)),
+                                              # List of channels to read (not use in raw case)
+                                              polarizations=[0, 1],
+                                              n_samples=32 * 1024)
         print("Raw data: {}".format(data.shape))
 
     if mode == "burst_channel":
         channel_file = ChannelFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = channel_file.read_data(channels=list(range(512)),  # List of channels to read (not use in raw case)
-                                               antennas=list(range(16)),
-                                               polarizations=[0, 1],
-                                               n_samples=128)
+        data, timestamps = channel_file.read_data(channels=list(range(512)),
+                                                  # List of channels to read (not use in raw case)
+                                                  antennas=list(range(16)),
+                                                  polarizations=[0, 1],
+                                                  n_samples=128)
         print("Channel data: {}".format(data.shape))
 
     if mode == "burst_beam":
         beam_file = BeamFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = beam_file.read_data(channels=list(range(384)),  # List of channels to read (not use in raw case)
+        data, timestamps = beam_file.read_data(channels=list(range(384)),
+                                               # List of channels to read (not use in raw case)
                                                polarizations=[0, 1],
                                                n_samples=32)
         print("Beam data: {}".format(data.shape))
 
     data_received = True
-
 
 
 def remove_files():
@@ -70,8 +72,8 @@ def remove_files():
         os.system("mkdir " + temp_dir)
     os.system("rm " + temp_dir + "/*.hdf5")
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     from optparse import OptionParser
     from sys import argv, stdout
@@ -107,12 +109,12 @@ if __name__ == "__main__":
     # Initialise DAQ. For now, this needs a configuration file with ALL the below configured
     # I'll change this to make it nicer
     daq_config = {
-                  'receiver_interface': 'eth3',  # CHANGE THIS if required
-                  'directory': temp_dir,  # CHANGE THIS if required
-                  'nof_beam_channels': 384,
-                  'nof_beam_samples': 32,
-                  'receiver_frame_size': 9000
-                  }
+        'receiver_interface': 'eth3',  # CHANGE THIS if required
+        'directory': temp_dir,  # CHANGE THIS if required
+        'nof_beam_channels': 384,
+        'nof_beam_samples': 32,
+        'receiver_frame_size': 9000
+    }
 
     # Configure the DAQ receiver and start receiving data
     daq.populate_configuration(daq_config)
@@ -128,16 +130,13 @@ if __name__ == "__main__":
     channel = int(conf.channel)
     antenna = int(conf.antenna)
 
-
-
     while True:
         data_received = False
         tile.send_raw_data_synchronised()
         while not data_received:
-                time.sleep(0.1)
+            time.sleep(0.1)
 
         print(data[antenna, 0, :128])
-
 
         if conf.type in ["channel", "both"]:
             # Set data received to False
@@ -151,13 +150,17 @@ if __name__ == "__main__":
 
             # print data[0, :, 0, 0]
 
-            print("Antenna " + str(antenna) + " Pol 0 Channel " + str(channel) + ": " + str(data[channel, antenna, 0, 0]))  #+ " " + str(np.abs(data[channel, antenna, 0, 0]))
-            print("Antenna " + str(antenna) + " Pol 1 Channel " + str(channel) + ": " + str(data[channel, antenna, 1, 0]))  #+ " " + str(np.abs(data[channel, antenna, 1, 0]))
+            print("Antenna " + str(antenna) + " Pol 0 Channel " + str(channel) + ": " + str(
+                data[channel, antenna, 0, 0]))  # + " " + str(np.abs(data[channel, antenna, 0, 0]))
+            print("Antenna " + str(antenna) + " Pol 1 Channel " + str(channel) + ": " + str(
+                data[channel, antenna, 1, 0]))  # + " " + str(np.abs(data[channel, antenna, 1, 0]))
 
             if conf.antenna_b != "no":
                 antenna_b = int(conf.antenna_b)
-                print("Antenna " + str(antenna_b) + " Pol 0 Channel " + str(channel) + ": " + str(data[channel, antenna_b, 0, 0]))  #+ " " + str(np.abs(data[channel, antenna, 0, 0]))
-                print("Antenna " + str(antenna_b) + " Pol 1 Channel " + str(channel) + ": " + str(data[channel, antenna_b, 1, 0]))
+                print("Antenna " + str(antenna_b) + " Pol 0 Channel " + str(channel) + ": " + str(
+                    data[channel, antenna_b, 0, 0]))  # + " " + str(np.abs(data[channel, antenna, 0, 0]))
+                print("Antenna " + str(antenna_b) + " Pol 1 Channel " + str(channel) + ": " + str(
+                    data[channel, antenna_b, 1, 0]))
 
         if conf.type in ["beam", "both"]:
             # Set data received to False
@@ -171,7 +174,9 @@ if __name__ == "__main__":
 
             # print data[0, :, 0, 0]
 
-            print("Pol 0 Channel " + str(channel) + ": " + str(tf.get_beam_value(data, 0, channel-64)) + " " + str(np.abs(tf.get_beam_value(data, 0, channel-64))))
-            print("Pol 1 Channel " + str(channel) + ": " + str(tf.get_beam_value(data, 1, channel-64)) + " " + str(np.abs(tf.get_beam_value(data, 1, channel-64))))
+            print("Pol 0 Channel " + str(channel) + ": " + str(tf.get_beam_value(data, 0, channel - 64)) + " " + str(
+                np.abs(tf.get_beam_value(data, 0, channel - 64))))
+            print("Pol 1 Channel " + str(channel) + ": " + str(tf.get_beam_value(data, 1, channel - 64)) + " " + str(
+                np.abs(tf.get_beam_value(data, 1, channel - 64))))
 
     daq.stop_daq()

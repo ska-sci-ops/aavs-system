@@ -17,7 +17,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-from . import test_functions as tf
+import test_functions as tf
 import numpy as np
 import os.path
 import logging
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     # Initialise DAQ. For now, this needs a configuration file with ALL the below configured
     # I'll change this to make it nicer
     daq_config = {
-                  'receiver_interface': 'eth3',  # CHANGE THIS if required
+                  'receiver_interface': 'eth1',  # CHANGE THIS if required
                   'directory': temp_dir,  # CHANGE THIS if required
                   'nof_beam_channels': 384,
                   'nof_beam_samples': 32,

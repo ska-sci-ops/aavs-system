@@ -13,7 +13,6 @@ from pydaq.persisters.channel import ChannelFormatFileManager
 from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
-from . import test_functions as tf
 from sys import stdout
 import numpy as np
 import os.path
