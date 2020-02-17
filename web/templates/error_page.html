@@ -1,0 +1,62 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Page Not Found</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <link rel="stylesheet"  href="{{ url_for('static', filename='css/normalize.min.css') }}">
+
+	    <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+              integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+              crossorigin="anonymous">
+        <link rel="stylesheet"  href="{{ url_for('static', filename='css/main.css') }}">
+
+        <script src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3-respond-1.4.2.min.js') }}"></script>
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+        <script language="JavaScript" type="text/javascript"> 
+  
+            var seconds =6; 
+            // countdown timer. took 6 because page takes approx 1 sec to load 
+              
+            var url="/"; 
+            // variable for index.html url 
+              
+            function redirect(){ 
+             if (seconds <=0){ 
+              
+             // redirect to new url after counter  down. 
+              window.location = url; 
+             } else { 
+              seconds--; 
+              document.getElementById("pageInfo").innerHTML="Redirecting to Home Page after " 
+            +seconds+" seconds." 
+              setTimeout("redirect()", 1000) 
+             } 
+            } 
+            </script> 
+
+    </head>
+    {% block body %} 
+   
+    <body onload="redirect()"> 
+        <div class="header-container">
+            <header class="wrapper clearfix">
+                <h2 style="width:100%; text-align:center;" class="title">Page Not Found</h2>
+            </header>
+        </div>
+
+   <p id="pageInfo"></p> 
+   {% endblock %} 
+</html>

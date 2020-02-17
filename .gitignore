@@ -1,0 +1,9 @@
+python/build/
+python/dist/
+python/pydaq.egg-info/
+src/build/
+
+*.pyc
+*.hdf*
+*.log
+*.idea

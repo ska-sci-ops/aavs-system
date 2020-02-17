@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{station}} Bandpasses</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+              integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+              crossorigin="anonymous">
+
+    <link rel="stylesheet"  href="{{ url_for('static', filename='css/main.css') }}">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+    <!-- Refresh page every 15 seconds -->
+    <!-- <meta http-equiv="refresh" content="15"/> -->
+
+</head>
+<body>
+
+        <div class="header-container" style="margin-bottom:7px">
+            <header class="wrapper clearfix">
+                <h2 style="width:100%; text-align:center;" class="title" id="page_title">{{station}} Bandpasses</h2>
+            </header>
+        </div>
+
+    <div class="container-fluid">
+        <div class="row">
+        {%for i in range(nof_tiles)%}
+            <div class="col-sm-4 col-lg-3 plotBox">
+                <a href="{{images[i]}}/show"><img src="{{images[i]}}" class="img-responsive bandpass-img" id="bandpass-img-{{pol}}-{{i}}"/></a>
+            </div>
+        {%endfor%}
+        </div>
+</div>
+<script>
+
+    function get_images(){
+      let base_url = "/{{station}}/bandpass/";
+      $('#page_title').text("{{station}} Bandpasses - Updating")
+      window.setTimeout(done_updating, 3000);
+      $('.bandpass-img').each(function (id) {
+          let unique = $.now();
+          var img = $('#bandpass-img-' + "{{pol}}" + '-' + id)
+          img.attr('src', base_url + "{{pol}}" + '/' + id + '?' + unique);
+      });
+    }
+    
+    function done_updating() {
+        $('#page_title').text("{{station}} Bandpasses");
+    }
+    
+    setInterval(get_images, 20000) // 20 seconds
+    
+    </script>
+
+</body>
+</html>
