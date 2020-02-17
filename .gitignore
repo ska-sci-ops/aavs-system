@@ -3,6 +3,7 @@ python/dist/
 python/pydaq.egg-info/
 src/build/
 
+*.egg-info
 *.pyc
 *.hdf*
 *.log

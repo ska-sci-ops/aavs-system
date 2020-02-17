@@ -1,4 +1,7 @@
+from __future__ import print_function
+from __future__ import absolute_import
 
+from builtins import range
 from matplotlib.backends.backend_svg import FigureCanvasSVG as FigureCanvas
 from flask import Flask, Response, render_template, send_from_directory, abort
 import helpers
@@ -10,7 +13,6 @@ bandpass_directory = "/storage/monitoring/bandpass"
 
 # Gloval stations list
 stations = [s.upper() for s in helpers.station_list()]
-print(stations)
 
 # Remove old  stations
 stations.remove("AAVS1")
@@ -18,12 +20,12 @@ stations.remove("AAVS1.5")
 
 app = Flask(__name__)
 
-# app name 
-@app.errorhandler(404) 
 
+# app name
+@app.errorhandler(404)
 # inbuilt function which takes error as parameter 
-def not_found(e): 
-  return render_template("error_page.html") 
+def not_found(e):
+    return render_template("error_page.html")
 
 
 @app.route('/')
@@ -75,7 +77,7 @@ def get_bandpass(station_name, pol, tile):
     tile = int(tile)
 
     while True:
-        with open("{}/{}/tile_{}_pol_{}.svg".format(bandpass_directory, station_name, tile+1, pol), 'r') as f:
+        with open("{}/{}/tile_{}_pol_{}.svg".format(bandpass_directory, station_name, tile + 1, pol), 'r') as f:
             data = f.read()
             if data.endswith("</svg>\n"):
                 break
@@ -108,7 +110,8 @@ def show_bandpass_image(station_name, pol, tile):
     pol = pol.lower()
     tile = int(tile)
 
-    return render_template('show_image.html', refresh=True, image='/{}/bandpass/{}/{}'.format(station_name.upper(), pol, tile))
+    return render_template('show_image.html', refresh=True,
+                           image='/{}/bandpass/{}/{}'.format(station_name.upper(), pol, tile))
 
 
 @app.route("/<station_name>/calibration/delay_map/show", methods=['GET'])
@@ -119,6 +122,7 @@ def show_latest_delay_map(station_name):
     output = io.BytesIO()
     FigureCanvas(figure).print_svg(output)
     return Response(output.getvalue(), mimetype='image/svg+xml')
+
 
 @app.route("/<station_name>/fibre", methods=['GET'])
 def show_latest_fibre_delays(station_name):
@@ -131,7 +135,8 @@ def show_latest_fibre_delays(station_name):
 
 @app.route("/<station_name>/calibration/delay_map", methods=['GET'])
 def get_latest_delay_map(station_name):
-    return render_template('show_image.html', refresh=False, image='/{}/calibration/delay_map/show'.format(station_name.upper()))
+    return render_template('show_image.html', refresh=False,
+                           image='/{}/calibration/delay_map/show'.format(station_name.upper()))
 
 
 @app.route("/phase1/eda2")

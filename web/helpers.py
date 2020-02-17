@@ -1,13 +1,16 @@
-import aavs_calibration.common as db
+from __future__ import division
 
+from builtins import range
 from datetime import datetime, timedelta
-from matplotlib.figure import Figure
+
 import matplotlib.dates as md
-import numpy as np
+from matplotlib.figure import Figure
+from past.utils import old_div
+
+import aavs_calibration.common as db
 
 
 def station_list():
-    station_list = db.get_station_list()
     return list(set(db.get_station_list()) - set(['UKPHASE0']))
 
 
@@ -15,7 +18,7 @@ def get_nof_tiles(station):
     """ Return number of antennas in station"""
     # TODO: Make better
     base, _, _ = db.get_antenna_positions(station)
-    return len(base) / 16
+    return old_div(len(base), 16)
 
 
 def generate_fibre_delay_plot():
