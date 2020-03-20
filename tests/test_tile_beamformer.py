@@ -1,11 +1,4 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
 # Import DAQ and Access Layer libraries
-from builtins import str
-from builtins import input
-from builtins import range
-from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -25,10 +18,18 @@ import random
 import math
 import time
 
+channel_bandwidth = 400e6 / 512.0
+beam_start_frequency = 156.25e6
+beam_start_channel = int(beam_start_frequency / channel_bandwidth)
+beam_bandwidth = 6.25e6
+nof_channels = int(beam_bandwidth / channel_bandwidth)
+nof_samples = 524288
+
+
 temp_dir = "./temp_daq_test"
 data = []
 data_received = False
-
+tile_id = 0
 
 def data_callback(mode, filepath, tile):
     # Note that this will be called asynchronosuly from the C code when a new file is generated
@@ -43,9 +44,10 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_beam":
         beam_file = BeamFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = beam_file.read_data(channels=list(range(384)),  # List of channels to read (not use in raw case)
+        data, timestamps = beam_file.read_data(channels=range(nof_channels),  # List of channels to read (not use in raw case)
                                                polarizations=[0, 1],
-                                               n_samples=32)
+                                               n_samples=32,
+                                               tile_id=tile_id)
         print("Beam data: {}".format(data.shape))
 
     data_received = True
@@ -73,7 +75,9 @@ if __name__ == "__main__":
     parser.add_option("-f", "--first", action="store", dest="first_channel",
                       default="64", help="First frequency channel [default: 64]")
     parser.add_option("-l", "--last", action="store", dest="last_channel",
-                      default="447", help="Last frequency channel [default: 383]")
+                      default="383", help="Last frequency channel [default: 383]")
+    parser.add_option("-i", "--receiver_interface", action="store", dest="receiver_interface",
+                      default="eth0", help="Receiver interface [default: eth0]")
     (conf, args) = parser.parse_args(argv[1:])
 
     # Set logging
@@ -89,15 +93,19 @@ if __name__ == "__main__":
     tile = Tile(ip=conf.tpm_ip, port=conf.port)
     tile.connect()
 
+    tile_id = tile['fpga1.dsp_regfile.config_id.tpm_id']
+
     # Initialise DAQ. For now, this needs a configuration file with ALL the below configured
     # I'll change this to make it nicer
     daq_config = {
-                  'receiver_interface': 'eth1',  # CHANGE THIS if required
+                  'receiver_interface': conf.receiver_interface,  # CHANGE THIS if required
                   'directory': temp_dir,  # CHANGE THIS if required
-                  'nof_beam_channels': 384,
-                  'nof_beam_samples': 32,
-                  'receiver_frame_size': 9000
+             #     'nof_beam_channels': nof_channels,
+             #     'nof_beam_samples': 64,
+             #     'receiver_frame_size': 9000
                   }
+
+    print(daq_config)
 
     # Configure the DAQ receiver and start receiving data
     daq.populate_configuration(daq_config)
@@ -122,7 +130,7 @@ if __name__ == "__main__":
 
     remove_files()
 
-    channels = list(range(int(conf.first_channel), int(conf.last_channel) + 1))
+    channels = range(int(conf.first_channel), int(conf.last_channel) + 1)
     single_input_data = np.zeros((2, 16), dtype='complex')
     coeff = np.zeros((2, 16), dtype='complex')
     tf.stop_pattern(tile, "all")
@@ -153,8 +161,8 @@ if __name__ == "__main__":
 
             # print data[0, :, 0, 0]
 
-            single_input_data[0][i] = tf.get_beam_value(data, 0, c-64)
-            single_input_data[1][i] = tf.get_beam_value(data, 1, c-64)
+            single_input_data[0][i] = tf.get_beam_value(data, 0, c-beam_start_channel)
+            single_input_data[1][i] = tf.get_beam_value(data, 1, c-beam_start_channel)
 
             inputs = (inputs << 2)
             print(single_input_data)
@@ -163,7 +171,7 @@ if __name__ == "__main__":
 
         for p in range(2):
             for n in range(16):
-                coeff[p][n] = old_div(ref_value, single_input_data[p][n])
+                coeff[p][n] = ref_value / single_input_data[p][n]
 
         print(coeff)
 
@@ -183,8 +191,8 @@ if __name__ == "__main__":
             while not data_received:
                 time.sleep(0.1)
 
-            single_input_data[0][i] = tf.get_beam_value(data, 0, c-64)
-            single_input_data[1][i] = tf.get_beam_value(data, 1, c-64)
+            single_input_data[0][i] = tf.get_beam_value(data, 0, c-beam_start_channel)
+            single_input_data[1][i] = tf.get_beam_value(data, 1, c-beam_start_channel)
 
             inputs = (inputs << 2)
 
@@ -196,7 +204,7 @@ if __name__ == "__main__":
                     print("Error:")
                     print(single_input_data)
                     print(ref_value)
-                    input("Press a key")
+                    _ = input("Press Enter")
 
         inputs = 0xFFFFFFFF
         tile.test_generator_input_select(inputs)
@@ -210,15 +218,15 @@ if __name__ == "__main__":
             time.sleep(0.1)
 
         for p in range(2):
-            beam_val = tf.get_beam_value(data, p, c-64)
+            beam_val = tf.get_beam_value(data, p, c-beam_start_channel)
             single_val = ref_value
 
-            if abs(old_div(beam_val.real,16)-single_val.real) > 1 or abs(old_div(beam_val.imag,16)-single_val.imag) > 1:
+            if abs(beam_val.real/16-single_val.real) > 1 or abs(beam_val.imag/16-single_val.imag) > 1:
                 print("Beam sum error:")
                 print(single_input_data)
-                print(tf.get_beam_value(data, p, c-64))
+                print(tf.get_beam_value(data, p, c-beam_start_channel))
                 print(ref_value)
-                input("Press a key")
+                _ = input("Press Enter")
 
         print("CHANNEL " + str(c) + " OK!")
 
