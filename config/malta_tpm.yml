@@ -13,6 +13,7 @@ station:
     channel_integration_time: -1
     beamformer_scaling: 4
     bitfile: "/home/lessju/Code/aavs-system/bitfiles/itpm_v1_1_tpm_test_wrap_narrowband.bit"
+    default_preadu_attenuation: -1
     equalize_preadu: No
 
 # Network configuration parameters
