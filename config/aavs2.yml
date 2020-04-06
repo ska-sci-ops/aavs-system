@@ -12,9 +12,10 @@ station:
     channel_truncation: 2
     beam_integration_time: -1
     channel_integration_time: 2
-    beamformer_scaling: 4
+    beamformer_scaling: 5
     bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf347.bit"
-    equalize_preadu: Yes
+    default_preadu_attenuation: 10
+    equalize_preadu: 18
     pps_delays: [0, 0, 3, 0, 0, 0, 0, 0, 0, -3, 0, 0, 0, 0, 0, 0]
 
 # Network configuration parameters
@@ -56,8 +57,7 @@ tiles:
     - tpm-29
     - tpm-30
     - tpm-31
-    - tpm-16 # EDA2 TPM for a test
-#    - tpm-32
+    - tpm-32 # updated based on e-mail from Andrea (2020-03-25) : tpm-16 -> back to tpm-32
 
 # Time delay to apply to each antenna (one entry per TPM, optional)        
 time_delays:
