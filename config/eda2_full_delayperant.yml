@@ -66,8 +66,7 @@ tiles:
     - tpm-13
     - tpm-14
     - tpm-15
-    - tpm-32 # testing AAVS2 TPM with EDA2 to check if works here ...
-#    - tpm-16
+    - tpm-16
 
 # Time delay to apply to each antenna (one entry per TPM, optional)
 time_delays:
