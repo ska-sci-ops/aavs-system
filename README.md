@@ -12,3 +12,5 @@ This is the base repository for the AAVS software systems, organised as follows:
 - src: Data acqusition backend
 - tests: Firmware and software tests
 - web: Monitoring page
+
+Additional utilities can be added to python/utilities
