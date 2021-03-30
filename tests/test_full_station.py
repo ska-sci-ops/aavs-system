@@ -7,39 +7,22 @@ from pydaq import daq_receiver as receiver
 from datetime import datetime, timedelta
 from pydaq.persisters import *
 from pyaavs import station
+from config_manager import ConfigManager
 from numpy import random
+from spead_beam_power import spead_rx
+import test_functions as tf
 import numpy as np
 import tempfile
 import logging
 import shutil
 import time
 
-# Script parameters
-station_config_file = None
-receiver_interface = None
-initialise_tile = None
-program_tile = None
-
-# Test generator and beam parameters
-beam_start_frequency = 156.25e6
-beam_bandwidth = 6.25e6
+# Number of samples to process
 nof_samples = 256*1024
-test_channel = 204
-
-# Antenna delay parameters
-antennas_per_tile = 16
-
-# Global variables populated by main
-channelised_channel = None
-beamformed_channel = None
-nof_antennas = None
-nof_channels = None
-
 # Global variables to track callback
 tiles_processed = None
 buffers_processed = 0
 data_ready = False
-nof_buffers = 2
 
 
 def channel_callback(data_type, filename, tile):
@@ -49,6 +32,8 @@ def channel_callback(data_type, filename, tile):
 
     global tiles_processed
     global data_ready
+
+    nof_buffers = 2
     
     if data_ready:
         return
@@ -65,6 +50,7 @@ def station_callback(data_type, filename, samples):
 
     global buffers_processed
     global data_ready
+    global nof_samples
     
     if data_ready:
         return
@@ -73,14 +59,6 @@ def station_callback(data_type, filename, samples):
     if nof_samples == samples:
         data_ready = True
        
-       
-def accurate_sleep(seconds):
-    now = datetime.datetime.now()
-    end = now + timedelta(seconds=seconds)
-    while now < end:
-        now = datetime.datetime.now()
-        time.sleep(0.1)
-
 
 def delete_files(directory):
     """ Delete all files in directory """
@@ -89,13 +67,14 @@ def delete_files(directory):
 
 
 def offline_beamformer(data):
+    global nof_samples
     x = np.sum(np.power(np.abs(np.sum(data[:, 0, :], axis=0)), 2))
     y = np.sum(np.power(np.abs(np.sum(data[:, 1, :], axis=0)), 2))
 
-    return x / daq_config['nof_channel_samples'], y / daq_config['nof_channel_samples']
+    return x / nof_samples, y / nof_samples
 
 
-def get_offline_beam(daq_config, test_station):
+def get_offline_beam(daq_config, test_station, channel, antennas_per_tile=16):
     """ Grab channel data """
     global buffers_processed
     global data_ready
@@ -106,7 +85,7 @@ def get_offline_beam(daq_config, test_station):
 
     # Stop any data transmission
     test_station.stop_data_transmission()
-    accurate_sleep(1)
+    tf.accurate_sleep(1)
 
     # Start DAQ
     logging.info("Starting DAQ")
@@ -115,19 +94,19 @@ def get_offline_beam(daq_config, test_station):
     receiver.start_continuous_channel_data_consumer(channel_callback)
 
     # Wait for DAQ to initialise
-    accurate_sleep(2)
+    tf.accurate_sleep(2)
 
     # Start sending data
-    test_station.send_channelised_data_continuous(channelised_channel, daq_config['nof_channel_samples'])
+    test_station.send_channelised_data_continuous(channel, daq_config['nof_channel_samples'])
     logging.info("Acquisition started")
 
     # Wait for observation to finish
     while not data_ready:
-        accurate_sleep(0.1)
+        tf.accurate_sleep(0.1)
 
     # All done, instruct receiver to stop writing to disk
     receiver.WRITE_TO_DISK = False
-    logging.info("Data acquired")
+    logging.info("Channelised Data acquired")
 
     # Stop DAQ
     try:
@@ -160,26 +139,26 @@ def get_offline_beam(daq_config, test_station):
 
     # antenna, pol, samples order
     data = data[0, :, :, :]
-    logging.info("Beamforming data")
+    logging.info("Beamforming data offline")
     x, y = offline_beamformer(data)
 
     return 10 * np.log10([x, y])
 
         
-def get_realtime_beam(daq_config):
+def get_realtime_beam(daq_config, channel):
     """ Grab channel data """
     global buffers_processed
     global data_ready
     
     # Start DAQ
-    logging.info("Starting DAQ")
+    logging.debug("Starting DAQ")
     receiver.populate_configuration(daq_config)
     receiver.initialise_daq()
     receiver.start_station_beam_data_consumer(station_callback)
         
     # Wait for observation to finish
     while not data_ready:
-        accurate_sleep(0.1)
+        tf.accurate_sleep(0.1)
         
     # All done, instruct receiver to stop writing to disk
     logging.info("Station beam acquired")
@@ -198,7 +177,7 @@ def get_realtime_beam(daq_config):
     
     # Data is in pol/sample/channel order.
     data, _, _ = station_file_mgr.read_data(timestamp=None, n_samples=buffers_processed)
-    beam_power = 10 * np.log10(data[:, -1, beamformed_channel])
+    beam_power = 10 * np.log10(data[:, -1, channel])
     
     # Reset number of buffers processed
     buffers_processed = 0
@@ -206,31 +185,180 @@ def get_realtime_beam(daq_config):
     return beam_power
 
 
-def prepare_test(test_station):
-    test_station.test_generator_input_select(0xFFFFFFFF)
-    test_station.test_generator_set_tone(0, frequency=100e6, ampl=0.0)
-    test_station.test_generator_set_tone(1, frequency=100e6, ampl=0.0)
-    test_station.test_generator_set_noise(ampl=0.35, delay=1024)
-    scale = int(np.ceil(np.log2(len(test_station.tiles))))
-    for tile in test_station.tiles:
-        tile['fpga1.beamf_ring.csp_scaling'] = scale + 2
-        tile['fpga2.beamf_ring.csp_scaling'] = scale + 2
-        tile.set_channeliser_truncation(2)
+class TestFullStation():
+    def __init__(self, station_config, logger):
+        self._logger = logger
+        self._station_config = station_config
+        self._daq_eth_if = station_config['eth_if']
+        self._total_bandwidth = station_config['test_config']['total_bandwidth']
+        self._antennas_per_tile = station_config['test_config']['antennas_per_tile']
+        self._pfb_nof_channels = station_config['test_config']['pfb_nof_channels']
 
-def set_delay(test_station, random_delays, max_delay):
-    delays = np.array(random_delays * max_delay, dtype=np.int)
+    def prepare_test(self):
+        for i, tile in enumerate(self._test_station.tiles):
+            tile.set_channeliser_truncation(5)
+            tf.disable_test_generator_and_pattern(tile)
+            tile['fpga1.jesd204_if.regfile_channel_disable'] = 0xFFFF
+            tile['fpga2.jesd204_if.regfile_channel_disable'] = 0xFFFF
+            self._test_station.tiles[i].test_generator_input_select(0xFFFFFFFF)
+        self._test_station.test_generator_set_tone(0, frequency=100e6, ampl=0.0)
+        self._test_station.test_generator_set_tone(1, frequency=100e6, ampl=0.0)
+        self._test_station.test_generator_set_noise(ampl=0.35, delay=1024)
+        scale = int(np.ceil(np.log2(len(self._test_station.tiles))))
+        if scale == 0:
+            scale = 1
+        for tile in self._test_station.tiles:
+            tile['fpga1.beamf_ring.csp_scaling'] = scale + 1
+            tile['fpga2.beamf_ring.csp_scaling'] = scale + 1
+            tile.set_channeliser_truncation(2)
 
-    # interleaving same array
-    delays_per_antenna = np.empty((delays.size + delays.size,), dtype=delays.dtype)
-    delays_per_antenna[0::2] = delays
-    delays_per_antenna[1::2] = delays
+    def set_delay(self, random_delays, max_delay):
+        delays = np.array(random_delays * max_delay, dtype=np.int)
 
-    print(delays_per_antenna)
-    for i, tile in enumerate(test_station.tiles):
-        tile_delays = delays_per_antenna[i*antennas_per_tile*2: (i+1)*antennas_per_tile*2]
-        # Set delays
-        tile.test_generator[0].set_delay(tile_delays[:antennas_per_tile].tolist())
-        tile.test_generator[1].set_delay(tile_delays[antennas_per_tile:].tolist())
+        # interleaving same array
+        delays_per_antenna = np.empty((delays.size + delays.size,), dtype=delays.dtype)
+        delays_per_antenna[0::2] = delays
+        delays_per_antenna[1::2] = delays
+
+        # print(delays_per_antenna)
+        for i, tile in enumerate(self._test_station.tiles):
+            tile_delays = delays_per_antenna[i * self._antennas_per_tile * 2: (i + 1) * self._antennas_per_tile * 2]
+            # Set delays
+            tile.test_generator[0].set_delay(tile_delays[:self._antennas_per_tile].tolist())
+            tile.test_generator[1].set_delay(tile_delays[self._antennas_per_tile:].tolist())
+
+    def check_station(self):
+        station_ok = True
+        if not self._test_station.properly_formed_station:
+            station_ok = False
+        else:
+            for tile in self._test_station.tiles:
+                if not tile.is_programmed():
+                    station_ok = False
+                if not tile.beamformer_is_running():
+                    station_ok = False
+        return station_ok
+
+    def execute(self, test_channel=4, max_delay=128):
+        global nof_samples
+
+        self._test_station = station.Station(self._station_config)
+        self._test_station.connect()
+        # reinit_todo = False
+        # try:
+        #     self._test_station = station.Station(self._station_config)
+        #     self._test_station.connect()
+        #     if not self.check_station():
+        #         reinit_todo = True
+        # except:
+        #     reinit_todo = True
+        #
+        # if reinit_todo:
+        #     self._logger.info("Station not properly formed, re-initilising station")
+        #     self._station_config['station']['program'] = True
+        #     self._station_config['station']['initialise'] = True
+        #     self._station_config['station']['start_beamformer'] = True
+        #     self._test_station = station.Station(self._station_config)
+        #     self._test_station.connect()
+        #     if not self.check_station():
+        #         self._logger.info("Not possible to form station, exiting...TEST FAILED!")
+        #         return
+
+        self.prepare_test()
+
+        # Update channel numbers
+        channel_bandwidth = float(self._total_bandwidth) / int(self._pfb_nof_channels)
+        nof_channels = int(self._station_config['observation']['bandwidth'] / channel_bandwidth)
+
+        if test_channel >= nof_channels:
+            self._logger.error("Station beam does not contain selected frequency channel. Exiting...")
+            return
+        channelised_channel = test_channel + int((self._station_config['observation']['start_frequency_channel']) / channel_bandwidth)
+        beamformed_channel = test_channel
+
+        # Generate DAQ configuration
+        daq_config = {"nof_channels": 1,
+                      "nof_tiles": len(self._test_station.tiles),
+                      "nof_channel_samples": nof_samples,
+                      "nof_beam_channels": nof_channels,
+                      "nof_station_samples": nof_samples,
+                      "receiver_interface": self._daq_eth_if,
+                      "receiver_frame_size": 9000}
+
+        # Create temporary directory to store DAQ generated files
+        data_directory = tempfile.mkdtemp()
+        daq_config['directory'] = data_directory
+        self._logger.info("Using temporary directory {}".format(data_directory))
+
+        spead_rx_inst = spead_rx(4660, self._daq_eth_if)
+        try:
+            errors = 0
+            # Mask antennas if required
+            one_matrix = np.ones((nof_channels, 4), dtype=np.complex64)
+            one_matrix[:, 1] = one_matrix[:, 2] = 0
+
+            for i, tile in enumerate(self._test_station.tiles):
+                for antenna in range(self._antennas_per_tile):
+                    tile.load_calibration_coefficients(antenna, one_matrix.tolist())
+
+            # Done downloading coefficient, switch calibration bank
+            self._test_station.switch_calibration_banks(1024)
+            self._logger.info("Applied default beamformer coefficients")
+
+            nof_antennas = len(self._station_config['tiles']) * self._antennas_per_tile
+            random.seed(0)  # Static seed so that each run generates the same random numbers
+            random_delays = (random.random(nof_antennas) - 0.5) * 2.0
+
+            offline_power = []
+            realtime_power = []
+            while max_delay > 0:
+                self._logger.info("Setting time domain delays, maximum %d" % max_delay)
+                self.set_delay(random_delays, max_delay)
+                tf.accurate_sleep(4)
+
+                offline_beam_power = get_offline_beam(daq_config, self._test_station, channelised_channel, self._antennas_per_tile)
+                self._logger.info("Offline beamformed channel power: {}".format(str(offline_beam_power)))
+                delete_files(data_directory)
+                offline_power.append(offline_beam_power)
+
+                # realtime_beam_power = get_realtime_beam(daq_config, beamformed_channel)
+                realtime_beam_power = np.asarray(spead_rx_inst.get_power(8 * nof_samples, beamformed_channel))
+                self._logger.info("Realtime beamformed channel power: {}".format(str(realtime_beam_power)))
+                delete_files(data_directory)
+                realtime_power.append(realtime_beam_power)
+
+                max_delay = int(max_delay/2)
+
+            rescale = offline_power[0][0] - realtime_power[0][0]
+
+            self._logger.info("Test result:")
+            self._logger.info("Step, Realtime, Offline, Difference [dB]")
+            max_diff = 0.0
+            for n in range(len(realtime_power)):
+                diff = realtime_power[n][0] - offline_power[n][0] + rescale
+                self._logger.info("%d %f %f %f" % (n, realtime_power[n][0], offline_power[n][0], diff))
+                if abs(diff) > max_diff:
+                    max_diff = abs(diff)
+
+            self._logger.info("Maximum difference: %f dB" % max_diff)
+            if abs(max_diff) > 0.4:
+                self._logger.error("TEST FAILED!")
+                errors += 1
+            else:
+                self._logger.info("TEST PASSED!")
+
+            # plt.plot(np.array(realtime_power)[:, 0])
+            # plt.plot(np.array(offline_power)[:, 0] - rescale)
+            # plt.show()
+            # plt.savefig("test_full_station.png")
+            # All done, remove temporary directory
+        except Exception as e:
+            import traceback
+            self._logger.error(traceback.format_exc())
+
+        finally:
+            shutil.rmtree(data_directory, ignore_errors=True)
+            return errors
 
 
 if __name__ == "__main__":
@@ -239,140 +367,43 @@ if __name__ == "__main__":
     from sys import argv, stdout
     
     parser = OptionParser(usage="usage: %test_full_station [options]")
-    parser.add_option("--config", action="store", dest="config",
-                      type="str", default=None, help="Configuration file [default: None]")
-    parser.add_option("-P", "--program", action="store_true", dest="program",
-                      default=False, help="Program FPGAs [default: False]")
-    parser.add_option("-I", "--initialise", action="store_true", dest="initialise",
-                      default=False, help="Initialise TPM [default: False]")
-    parser.add_option("-i", "--receiver_interface", action="store", dest="receiver_interface",
-                      default="eth0", help="Receiver interface [default: eth0]")
+    parser = tf.add_default_parser_options(parser)
+    parser.add_option("--max_delay", action="store", dest="max_delay",
+                      type="str", default="128", help="Maximum antenna delay [default: 128]")
+    parser.add_option("--test_channel", action="store", dest="test_channel",
+                      type="str", default="4", help="Beam test channel ID [default: 4]")
+
     (opts, args) = parser.parse_args(argv[1:])
-    
-    # Set logging
-    log = logging.getLogger('')
-    log.setLevel(logging.INFO)
-    line_format = logging.Formatter("%(asctime)s - %(levelname)s - %(threadName)s - %(message)s")
-    ch = logging.StreamHandler(stdout)
-    ch.setFormatter(line_format)
-    log.addHandler(ch)
-    
+
+    # set up logging to file - see previous section for more details
+    logging_format = "%(name)-12s - %(asctime)s - %(levelname)s - %(message)s"
+    logging.basicConfig(level=logging.DEBUG,
+                        format=logging_format,
+                        filename='test_log/test_full_station.log',
+                        filemode='w')
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    # set a format which is simpler for console use
+    formatter = logging.Formatter(logging_format)
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
+
+    test_logger = logging.getLogger('TEST_FULL_STATION')
+
     # Check if a config file is specified
     if opts.config is None:
-        logging.error("No station configuration file was defined. Exiting")
+        test_logger.error("No station configuration file was defined. Exiting")
         exit()
     elif not os.path.exists(opts.config) or not os.path.isfile(opts.config):
-        logging.error("Specified config file does not exist or is not a file. Exiting")
-        exit()
-        
-    # Update global config
-    station_config_file = opts.config
-    receiver_interface = opts.receiver_interface
-    initialise_tile = opts.initialise
-    program_tile = opts.program
-    
-    # Load station configuration file
-    station.load_configuration_file(station_config_file)
-    
-    # Override parameters
-    station_config = station.configuration
-    station_config['station']['program'] = program_tile
-    station_config['station']['initialise'] = initialise_tile
-    station_config['station']['channel_truncation'] = 5  # Increase channel truncation factor
-    station_config['station']['start_beamformer'] = True
-    
-    # Define station beam parameters (using configuration for test pattern generator)
-    station_config['observation']['start_frequency_channel'] = beam_start_frequency
-    station_config['observation']['bandwidth'] = beam_bandwidth
-    
-    # Check number of antennas to delay
-    nof_antennas = len(station_config['tiles']) * antennas_per_tile
-    
-    # Create station
-    test_station = station.Station(station_config)
-    
-    # Initialise station
-    test_station.connect()
-    
-    if not test_station.properly_formed_station:
-        logging.error("Station not properly formed, exiting")
+        test_logger.error("Specified config file does not exist or is not a file. Exiting")
         exit()
 
-    prepare_test(test_station)
+    config_manager = ConfigManager(opts.test_config)
+    station_config = config_manager.apply_test_configuration(opts)
 
-    # Update channel numbers for script
-    channel_bandwidth = 400e6 / 512.0
-    nof_channels = int(station_config['observation']['bandwidth'] / channel_bandwidth)
-    channelised_channel = int(test_channel)
-    beamformed_channel = channelised_channel - int((station_config['observation']['start_frequency_channel']) / channel_bandwidth)
-    if beamformed_channel > nof_channels - 1:
-        logging.error("Station beam does not contain selected frequency channel, exiting")
-    
-    # Generate DAQ configuration
-    daq_config = {"nof_channels": 1,
-                  "nof_tiles": len(test_station.tiles),
-                  "nof_channel_samples": nof_samples,
-                  "nof_beam_channels": nof_channels,
-                  "nof_station_samples": nof_samples,
-                  "receiver_interface": receiver_interface,
-                  "receiver_frame_size": 9000}
-     
-    # Create temporary directory to store DAQ generated files
-    data_directory = tempfile.mkdtemp()
-    daq_config['directory'] = data_directory
-    logging.info("Using temporary directory {}".format(data_directory))
-    
-    try:
-        
-        # Mask antennas if required
-        one_matrix = np.ones((nof_channels, 4), dtype=np.complex64)
-        one_matrix[:, 1] = one_matrix[:, 2] = 0
-
-        for i, tile in enumerate(test_station.tiles):
-            for antenna in range(antennas_per_tile):
-                tile.load_calibration_coefficients(antenna, one_matrix.tolist())
-
-        # Done downloading coefficient, switch calibration bank 
-        test_station.switch_calibration_banks(1024)
-        logging.info("Applied default coefficients")
-
-        max_delay = 128
-        random.seed(0)  # Static seed so that each run generates the same random numbers
-        random_delays = (random.random(nof_antennas) - 0.5) * 2.0
-        #random_delays = np.array(range(nof_antennas), dtype=np.float) / float(nof_antennas)
-
-        offline_power = []
-        realtime_power = []
-        while max_delay >= 0:
-            logging.info("Setting delays, maximum %d" % max_delay)
-            set_delay(test_station, random_delays, max_delay)
-            accurate_sleep(1)
-
-            offline_beam_power = get_offline_beam(daq_config, test_station)
-            logging.info("Offline beamformed channel power: {}".format(str(offline_beam_power)))
-            delete_files(data_directory)
-            offline_power.append(offline_beam_power)
-
-            realtime_beam_power = get_realtime_beam(daq_config)
-            logging.info("Realtime beamformed channel power: {}".format(str(realtime_beam_power)))
-            delete_files(data_directory)
-            realtime_power.append(realtime_beam_power)
-
-            if int(max_delay) == 0:
-                max_delay = -1
-            else:
-                max_delay = max_delay // 2
-
-        rescale = offline_power[0][0] - realtime_power[0][0]
-        plt.plot(np.array(realtime_power)[:, 0])
-        plt.plot(np.array(offline_power)[:, 0] - rescale)
-
-        #plt.show()
-        plt.savefig("test_full_station.png")
-        # All done, remove temporary directory
-    except Exception as e:
-        import traceback
-        logging.error(traceback.format_exc())
-
-    finally:
-        shutil.rmtree(data_directory, ignore_errors=True)       
+    test_inst = TestFullStation(station_config, test_logger)
+    test_inst.execute(int(opts.test_channel),
+                      int(opts.max_delay))

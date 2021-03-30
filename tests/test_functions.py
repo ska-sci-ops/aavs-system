@@ -1,14 +1,9 @@
-from __future__ import print_function
-from __future__ import division
 # Import DAQ and Access Layer libraries
-from builtins import str
-from builtins import range
-from past.utils import old_div
-import pydaq.daq_receiver as daq
+# import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from sys import stdout
 import numpy as np
 import os.path
@@ -16,6 +11,14 @@ import logging
 import random
 import math
 import time
+
+
+def accurate_sleep(seconds):
+    now = datetime.now()
+    end = now + timedelta(seconds=seconds)
+    while now < end:
+        now = datetime.now()
+        time.sleep(0.1)
 
 
 def s_round(data, bits, max_width=32):
@@ -39,11 +42,6 @@ def integrated_sample_calc(data_re, data_im, integration_length, round_bits, max
     return round
 
 
-# Custom function to compute the absoule of the custom data type
-#def complex_f(value):
-#    return math.sqrt((value[0] ** 2) + (value[1] ** 2))
-
-
 def signed(data, bits=8, ext_bits=8):
     data = data % 2**bits
     if data >= 2**(bits-1):
@@ -59,8 +57,8 @@ def channelize_pattern(pattern):
     :param pattern: pattern buffer, frequency channel in increasing order
     """
     tmp = [0]*len(pattern)
-    half = old_div(len(pattern), 2)
-    for n in range(old_div(half, 2)):
+    half = int(len(pattern) / 2)
+    for n in range(int(half / 2)):
         tmp[4*n] = pattern[2*n]
         tmp[4*n+1] = pattern[2*n+1]
         tmp[4*n+2] = pattern[-(1+2*n+1)]
@@ -69,7 +67,7 @@ def channelize_pattern(pattern):
 
 
 def set_pattern(tile, stage, pattern, adders, start, shift=0):
-    print("Setting " + stage + " data pattern")
+    # print("Setting " + stage + " data pattern")
     if stage == "channel":
         pattern_tmp = channelize_pattern(pattern)
     else:
@@ -86,12 +84,13 @@ def set_pattern(tile, stage, pattern, adders, start, shift=0):
         tile['fpga2.pattern_gen.%s_left_shift' % stage] = shift
         tile['fpga1.pattern_gen.beamf_left_shift'] = 4
         tile['fpga2.pattern_gen.beamf_left_shift'] = 4
-        if start:
+    if start:
+        for i in range(2):
             tile.tpm.tpm_pattern_generator[i].start_pattern(stage)
 
 
 def stop_pattern(tile, stage):
-    print("Stopping " + stage + " data pattern")
+    # print("Stopping " + stage + " data pattern")
     if stage == "all":
         stages = ["jesd", "channel", "beamf"]
     else:
@@ -101,8 +100,24 @@ def stop_pattern(tile, stage):
             tile.tpm.tpm_pattern_generator[i].stop_pattern(s)
 
 
+def stop_station_pattern(station, stage):
+    for tile in station.tiles:
+        for i in range(2):
+            tile.tpm.tpm_pattern_generator[i].stop_pattern(stage)
+
+
+def disable_test_generator_and_pattern(tile):
+    stop_pattern(tile, "all")
+    tile['fpga1.jesd204_if.regfile_channel_disable'] = 0x0
+    tile['fpga2.jesd204_if.regfile_channel_disable'] = 0x0
+    tile.test_generator_disable_tone(0)
+    tile.test_generator_disable_tone(1)
+    tile.test_generator_set_noise(0.0)
+    tile.test_generator_input_select(0x00000000)
+
+
 def set_chennelizer_walking_pattern(tile):
-    set_pattern(tile, "channel", list(range(1024)), [0]*32, True, 0)
+    set_pattern(tile, "channel", range(1024), [0]*32, True, 0)
     tile['fpga1.pattern_gen.%s_ctrl.frame_offset_enable' % "channel"] = 1
     tile['fpga2.pattern_gen.%s_ctrl.frame_offset_enable' % "channel"] = 1
     tile['fpga1.pattern_gen.%s_ctrl.frame_offset_adder' % "channel"] = 1
@@ -120,6 +135,7 @@ def set_chennelizer_walking_pattern(tile):
     tile['fpga1.pattern_gen.%s_ctrl.frame_offset_clear' % "channel"] = 0
     tile['fpga2.pattern_gen.%s_ctrl.frame_offset_clear' % "channel"] = 0
 
+
 def set_delay(tile, delay):
     tile.tpm.test_generator[0].set_delay(delay[0:16])
     tile.tpm.test_generator[1].set_delay(delay[16:32])
@@ -132,11 +148,11 @@ def get_beam_value(data, pol, channel):
 
 
 def reset_beamf_coeff(tile,  gain=2.0):
-    # print "Reset beamormer coefficients"
+    # print("Reset beamormer coefficients")
     for n in range(16):
         cal_coeff = [[complex(gain), complex(0.0), complex(0.0), complex(gain)]] * 512
-        tile.tpm.beamf_fd[old_div(n,8)].load_calibration(n % 8, cal_coeff[64:448])
-        # tile.tpm.beamf_fd[n/8].load_cal_curve(n % 8, 0, cal_coeff)
+        tile.tpm.beamf_fd[int(n / 8)].load_calibration(int(n % 8), cal_coeff)
+        # tile.tpm.beamf_fd[int(n / 8)].load_cal_curve(int(n % 8), 0, cal_coeff)
     #tile.tpm.beamf_fd[0].compute_calibration_coefs()
     #tile.tpm.beamf_fd[1].compute_calibration_coefs()
     tile.tpm.beamf_fd[0].switch_calibration_bank(force=True)
@@ -148,8 +164,8 @@ def set_beamf_coeff(tile, coeff, channel):
         # cal_coeff = [[complex(0.0), complex(0.0), complex(0.0), complex(0.0)]] * 512
         cal_coeff = [np.random.random_sample(4)] * 512
         cal_coeff[channel] = [coeff[0][n], complex(0.0), complex(0.0), coeff[1][n]]
-        #tile.tpm.beamf_fd[n/8].load_calibration(n % 8, cal_coeff[64:448])
-        tile.tpm.beamf_fd[old_div(n,8)].load_cal_curve(n % 8, 0, cal_coeff[64:448])
+        #tile.tpm.beamf_fd[int(n / 8)].load_calibration(int(n % 8), cal_coeff[64:448])
+        tile.tpm.beamf_fd[int(n / 8)].load_cal_curve(int(n % 8), 0, cal_coeff)
     tile.tpm.beamf_fd[0].compute_calibration_coefs()
     tile.tpm.beamf_fd[1].compute_calibration_coefs()
     tile.tpm.beamf_fd[0].switch_calibration_bank()
@@ -162,15 +178,15 @@ def mask_antenna(tile, antenna, gain=1.0):
             cal_coeff = [[complex(0.0), complex(0.0), complex(0.0), complex(0.0)]] * 512
         else:
             cal_coeff = [[complex(gain), complex(0.0), complex(0.0), complex(gain)]] * 512
-        tile.tpm.beamf_fd[old_div(n,8)].load_calibration(n % 8, cal_coeff[64:448])
+        tile.tpm.beamf_fd[int(n / 8)].load_calibration(int(n % 8), cal_coeff[64:448])
     tile.tpm.beamf_fd[0].switch_calibration_bank()
     tile.tpm.beamf_fd[1].switch_calibration_bank()
 
 
 def enable_adc_test_pattern(tile, adc, pattern_type, pattern_value=[[15, 67, 252, 128]]*16):
-    print("Setting ADC pattern " + pattern_type)
+    # print("Setting ADC pattern " + pattern_type)
     for adc_id in adc:
-        # print "setting ADC pattern " + pattern_type + " on ADC " + str(adc_id)
+        # print("setting ADC pattern " + pattern_type + " on ADC " + str(adc_id))
         tile[("adc" + str(adc_id), 0x552)] = pattern_value[adc_id][0]
         tile[("adc" + str(adc_id), 0x554)] = pattern_value[adc_id][1]
         tile[("adc" + str(adc_id), 0x556)] = pattern_value[adc_id][2]
@@ -180,8 +196,8 @@ def enable_adc_test_pattern(tile, adc, pattern_type, pattern_value=[[15, 67, 252
         elif pattern_type == "ramp":
             tile[("adc" + str(adc_id), 0x550)] = 0xF
         else:
-            print("Supported pattern are fixed, ramp")
-            exit()
+            logging.error("Supported patterns are fixed, ramp")
+            sys.exit(-1)
 
 
 def disable_adc_test_pattern(tile, adc):
@@ -190,7 +206,7 @@ def disable_adc_test_pattern(tile, adc):
 
 
 def get_beamf_pattern_data(channel, pattern, adder, shift):
-    index = 4 * (old_div(channel, 2))
+    index = 4 * (int(channel / 2))
     ret = []
     for n in range(4):
         adder_idx = 64 * (channel % 2) + n
@@ -234,58 +250,77 @@ def rms_station_log(station, sampling_period=1.0):
         print('interrupted!')
 
 
-def ddr3_test(station, duration):
-    station['fpga1.ddr3_simple_test.start'] = 0
-    station['fpga2.ddr3_simple_test.start'] = 0
+def ddr_test(station, duration, last_addr=0x7FFFFF8):
+    station['fpga1.ddr_simple_test.last_addr'] = last_addr
+    station['fpga2.ddr_simple_test.last_addr'] = last_addr
+
+    station['fpga1.ddr_simple_test.start'] = 0
+    station['fpga2.ddr_simple_test.start'] = 0
+
+    station['fpga1.ddr_simple_test.error'] = 0
+    station['fpga2.ddr_simple_test.error'] = 0
 
     time.sleep(0.1)
 
-    station['fpga1.ddr3_simple_test.start'] = 1
-    station['fpga2.ddr3_simple_test.start'] = 1
+    station['fpga1.ddr_simple_test.start'] = 1
+    station['fpga2.ddr_simple_test.start'] = 1
 
-    fpga1_pass = station['fpga1.ddr3_simple_test.pass']
-    fpga2_pass = station['fpga2.ddr3_simple_test.pass']
-    fpga1_status = station['fpga1.ddr3_if.status']
-    fpga2_status = station['fpga2.ddr3_if.status']
+    fpga1_pass = station['fpga1.ddr_simple_test.pass']
+    fpga2_pass = station['fpga2.ddr_simple_test.pass']
+    fpga1_status = station['fpga1.ddr_if.status']
+    fpga2_status = station['fpga2.ddr_if.status']
 
     for n in range(duration):
         time.sleep(1)
         for n in range(len(station.tiles)):
-            if fpga1_pass[n] == station['fpga1.ddr3_simple_test.pass'][n]:
-                print("Tile %d FPGA1 error. Pass does not increment." % n)
-                return
-            if fpga2_pass[n] == station['fpga2.ddr3_simple_test.pass'][n]:
-                print("Tile %d FPGA2 error. Pass does not increment." % n)
-                return
-            if station['fpga1.ddr3_simple_test.error'][n] == 1:
+            print(station['fpga1.ddr_simple_test.pass'])
+            print(station['fpga2.ddr_simple_test.pass'])
+            if station['fpga1.ddr_simple_test.error'][n] == 1:
                 print("Tile %d FPGA1 error. Test error." % n)
                 return
-            if station['fpga2.ddr3_simple_test.error'][n] == 1:
+            if station['fpga2.ddr_simple_test.error'][n] == 1:
                 print("Tile %d FPGA2 error. Test error." % n)
                 return
-            if (station['fpga1.ddr3_if.status'][n] & 0xF00) != (fpga1_status[n] & 0xF00):
+            if (station['fpga1.ddr_if.status'][n] & 0xF00) != (fpga1_status[n] & 0xF00):
                 print("Tile %d FPGA1 error. Reset error." % n)
                 return
-            if (station['fpga2.ddr3_if.status'][n] & 0xF00) != (fpga2_status[n] & 0xF00):
+            if (station['fpga2.ddr_if.status'][n] & 0xF00) != (fpga2_status[n] & 0xF00):
                 print("Tile %d FPGA2 error. Reset error." % n)
                 return
             print("Test running ...")
 
-    station['fpga1.ddr3_simple_test.start'] = 0
-    station['fpga2.ddr3_simple_test.start'] = 0
+    station['fpga1.ddr_simple_test.start'] = 0
+    station['fpga2.ddr_simple_test.start'] = 0
     print("Test passed!")
 
 
-def network_test(station, duration):
-    station.mii_test(0xFFFFFFFF, show_result=False)
-    for n in range(duration):
-        time.sleep(1)
-        for i, tile in enumerate(station.tiles):
-            print("Tile " + str(i) + " MII test result:")
-            tile.mii_show_result()
-        print()
-        print()
-    station['fpga1.regfile.eth10g_ctrl'] = 0
-    station['fpga2.regfile.eth10g_ctrl'] = 0
-    print("Test ended!")
+def ddr_reset(station):
+    station[0x00000020] = 0
+    station[0x10000020] = 0
+    station[0x00000020] = 0x10
+    station[0x10000020] = 0x10
+    station[0x00000020] = 0
+    station[0x10000020] = 0
+
+
+def remove_hdf5_files(temp_dir):
+    # create temp directory
+    if not os.path.exists(temp_dir):
+        print("Creating temp folder: " + temp_dir)
+        os.system("mkdir " + temp_dir)
+    os.system("rm " + temp_dir + "/*.hdf5")
+
+
+def add_default_parser_options(parser):
+    from optparse import OptionParser
+    parser.add_option("--config", action="store", dest="config",
+                      type="str", default=None, help="Station configuration file [default: None]")
+    parser.add_option("--test_config", action="store", dest="test_config",
+                      type="str", default="config/test_config.yml",
+                      help="Test Environment configuration file [default: config/test_config.yml]")
+    parser.add_option("--tpm_port", action="store", dest="tpm_port",
+                      default="", help="UDP Port for UCP protocol [default: 10000]")
+    parser.add_option("--tpm_ip", action="store", dest="tpm_ip",
+                      default="", help="Specify TPM IP [default: None, Address retireved from configuratiuon files]")
+    return parser
 

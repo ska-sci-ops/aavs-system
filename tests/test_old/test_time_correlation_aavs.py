@@ -1,8 +1,4 @@
-from __future__ import print_function
-from __future__ import division
 # Import DAQ and Access Layer libraries
-from builtins import range
-from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -26,8 +22,8 @@ temp_dir = "./temp_daq_test"
 data_received = False
 beam_int_data_received = False
 channel_int_data_received = False
-test_pattern = list(range(1024))
-test_adders = list(range(32))
+test_pattern = range(1024)
+test_adders = range(32)
 channel_integration_length = 0
 channel_accumulator_width = 0
 channel_round_bits = 0
@@ -76,8 +72,8 @@ def channelize_pattern(pattern):
         :param pattern: pattern buffer, frequency channel in increasing order
         """
         tmp = [0]*len(pattern)
-        half = old_div(len(pattern), 2)
-        for n in range(old_div(half, 2)):
+        half = len(pattern) / 2
+        for n in range(half / 2):
             tmp[4*n] = pattern[2*n]
             tmp[4*n+1] = pattern[2*n+1]
             tmp[4*n+2] = pattern[-(1+2*n+1)]
@@ -117,14 +113,8 @@ def correlate_raw(data):
             idx = np.where(correlation[-2047-16:-2047+16] == max)
             if len(idx) == 1 and idx[0] in range(128):
                 idx = idx[0]
-                # print idx
-            #if delays[2*a+p] != abs(idx):
-            #    print "Correlation Error"
-            #    raw_input("Press a key")
                 max_idx[a][int(idx)] = max_idx[a][int(idx)]+1
             print(max, idx)
-
-
 
 
 def data_callback(mode, filepath, tile):
@@ -139,7 +129,7 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_raw":
         raw_file = RawFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = raw_file.read_data(antennas=list(range(16)),  # List of channels to read (not use in raw case)
+        data, timestamps = raw_file.read_data(antennas=range(16),  # List of channels to read (not use in raw case)
                                            polarizations=[0, 1],
                                            n_samples=32*1024)
         print("Raw data: {}".format(data.shape))
@@ -210,9 +200,6 @@ if __name__ == "__main__":
     #
     remove_files()
 
-
-
-
     delays = [0] * 32
     set_delay(tile,delays)
     
@@ -226,13 +213,7 @@ if __name__ == "__main__":
         for a in range(16):
             for i in range(31):
                 sys.stdout.write('{:3d}'.format(int(max_idx[a][i])) + " ")
-
             print()
-        #print max_idx[1]
-        #print max_idx[2]
-
-
-
 
     #delays = [random.randrange(0,16,1) for x in range(32)]
     #delays[0] = 0
@@ -246,7 +227,6 @@ if __name__ == "__main__":
         time.sleep(0.1)
 
     print(delays)
-
 
     daq.stop_daq()
 

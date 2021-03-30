@@ -1,11 +1,4 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
 # Import DAQ and Access Layer libraries
-from builtins import input
-from builtins import str
-from builtins import range
-from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -16,6 +9,7 @@ from pydaq.persisters.channel import ChannelFormatFileManager
 from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
+from builtins import input
 from sys import stdout
 import test_functions as tf
 import numpy as np
@@ -40,28 +34,21 @@ def check_beam(pattern, adders, data):
             for s in [0]:#range(sam):
                 sample_idx = 2 * c + first_channel_offset
                 signal_idx = 0
-                exp_re = (pattern[sample_idx] % 256) << 4
-                exp_im = (pattern[sample_idx+1] % 256) << 4
-                #print exp_re
-                #print exp_im
+                exp_re = int(pattern[sample_idx] % 256) << 4
+                exp_im = int(pattern[sample_idx+1] % 256) << 4
+                #print(exp_re)
+                #print(exp_im)
                 exp_re = tf.signed(exp_re, 12, 12)
                 exp_im = tf.signed(exp_im, 12, 12)
-                #print exp_re
-                #print exp_im
+                #print(exp_re)
+                #print(exp_im)
 
-                exp_re = old_div(exp_re*8,2)*2
-                exp_im = old_div(exp_im*8,2)*2
+                exp_re = int(exp_re * 8 / 2) * 2
+                exp_im = int(exp_im * 8 / 2) * 2
 
                 exp_re_round = tf.s_round(exp_re, 4, 16)
                 exp_im_round = tf.s_round(exp_im, 4, 16)
                 exp = (exp_re_round*2, exp_im_round*2)
-
-                # exp_re = exp_re/2
-                # exp_im = exp_im/2
-                # exp_re_round = tf.s_round(exp_re, 4, 12)*8
-                # exp_im_round = tf.s_round(exp_im, 4, 12)*8
-                # exp = (exp_re_round*2, exp_im_round*2)
-
 
                 if abs(exp[0] - data[p, c, s, x][0]) > 2 or abs(exp[1] != data[p, c, s, x][1]) > 2:
                     print("Data Error!")
@@ -72,7 +59,7 @@ def check_beam(pattern, adders, data):
                     print("Expected data imag: " + str(exp_im_round))
                     print("Expected data: " + str(exp))
                     print("Received data: " + str(data[p, c, s, x]))
-                    input()
+                    input("Press a key")
                     # exit(-1)
     print("Beam data are correct")
 
@@ -91,7 +78,7 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_beam":
         beam_file = BeamFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = beam_file.read_data(channels=list(range(384)),  # List of channels to read (not use in raw case)
+        data, timestamps = beam_file.read_data(channels=range(384),  # List of channels to read (not use in raw case)
                                                polarizations=[0, 1],
                                                n_samples=32)
         print("Beam data: {}".format(data.shape))

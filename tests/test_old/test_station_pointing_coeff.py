@@ -1,10 +1,4 @@
-from __future__ import print_function
-from __future__ import division
 # Import DAQ and Access Layer libraries
-from builtins import input
-from builtins import str
-from builtins import range
-from past.utils import old_div
 import pydaq.daq_receiver as daq
 from pyaavs.station import Station
 
@@ -15,6 +9,7 @@ from pydaq.persisters.channel import ChannelFormatFileManager
 from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
+from builtins import input
 from sys import stdout
 import numpy as np
 import os.path
@@ -27,8 +22,8 @@ from spead_csp_pcap import *
 
 temp_dir = "./temp_daq_test"
 data_received = False
-test_pattern = list(range(1024))
-test_adders = list(range(32))
+test_pattern = range(1024)
+test_adders = range(32)
 channel_integration_length = 0
 channel_accumulator_width = 0
 channel_round_bits = 0
@@ -94,7 +89,7 @@ if __name__ == "__main__":
     #     station.tiles[n].tpm.tpm_pattern_generator[1].start_pattern("channel")
     #     station.tiles[n].tpm.tpm_pattern_generator[0].stop_pattern("beamf")
     #     station.tiles[n].tpm.tpm_pattern_generator[1].stop_pattern("beamf")
-    #     print "pattern set"
+    #     print("pattern set")
 
     station['fpga1.jesd204_if.regfile_channel_copy'] = 0xFFFF
     station['fpga2.jesd204_if.regfile_channel_copy'] = 0xFFFF
@@ -107,8 +102,8 @@ if __name__ == "__main__":
 
     signal_frequency = 50e6
     start_frequency  = 50e6
-    first_channel = old_div(start_frequency * 512, 400e6)
-    logical_channel = old_div(signal_frequency * 512, 400e6) - first_channel
+    first_channel = start_frequency * 512 / 400e6
+    logical_channel = signal_frequency * 512 / 400e6 - first_channel
 
     ip = ["10.1.10.", "10.2.10.", "10.5.10.", "10.6.10."]
     src_ip = ip[int(logical_channel) % 4] + station_tiles[nof_tpms-1].split(".")[-1]

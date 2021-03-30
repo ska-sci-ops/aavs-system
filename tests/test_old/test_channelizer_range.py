@@ -1,8 +1,4 @@
-from __future__ import print_function
-from __future__ import absolute_import
 # Import DAQ and Access Layer libraries
-from builtins import str
-from builtins import range
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -14,7 +10,7 @@ from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
 from sys import stdout
-from . import test_functions as tf
+import test_functions as tf
 import numpy as np
 import os.path
 import logging
@@ -40,8 +36,8 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_channel":
         channel_file = ChannelFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = channel_file.read_data(channels=list(range(512)),  # List of channels to read (not use in raw case)
-                                               antennas=list(range(16)),
+        data, timestamps = channel_file.read_data(channels=range(512),  # List of channels to read (not use in raw case)
+                                               antennas=range(16),
                                                polarizations=[0, 1],
                                                n_samples=128)
         print("Channel data: {}".format(data.shape))

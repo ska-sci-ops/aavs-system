@@ -1,11 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-from builtins import input
-from builtins import str
-from builtins import hex
-from builtins import range
-from past.utils import old_div
 import os
 import time
 import h5py
@@ -13,9 +5,10 @@ import math
 import socket
 import random
 from struct import *
+from builtins import input
 from optparse import OptionParser
 from multiprocessing import Process
-from . import test_functions as tf
+import test_functions as tf
 #import pyshark
 import binascii
 
@@ -45,11 +38,11 @@ class spead_rx(Process):
         self.sock = socket.socket(socket.AF_INET,      # Internet
                                 socket.SOCK_DGRAM)   # UDP
         self.sock.settimeout(1)
-        self.sock.bind(("10.0.10.201", self.port))
+        self.sock.bind(("0.0.0.0", self.port))
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 32*1024*1024)
 
-        self.reassembled = [[0] * (old_div(8192, 4))] * 392
-        self.data_buff = [0]*(old_div(8192,4))
+        self.reassembled = [[0] * int(8192 / 4)] * 392
+        self.data_buff = [0] * int(8192 / 4)
         self.center_frequency = 0
         self.payload_length = 0
         self.sync_time = 0
@@ -82,49 +75,10 @@ class spead_rx(Process):
         #    self.exp_buff[n] = random.randint(0, 255)
         #self.exp_buff = range(1024)
 
-
-
     def close_socket(self):
         self.sock.close()
 
-    # def beam_data(self, value, nof_tpms):
-    #     log2_tpms = int(math.log(nof_tpms, 2))
-    #     bit_round = 4
-    #     mask_round = 0xFFFFFFFFFFFFFFFF << bit_round
-    #
-    #     value = value << (4 - log2_tpms)  # pattern left_shift
-    #     value = value * nof_tpms  # beamforming
-    #
-    #     rounding = value & ~mask_round  # csp rounding
-    #     value = value >> bit_round
-    #     if rounding > 2**bit_round:
-    #         value += 1
-    #
-    #     #value = s_round(value,bit_round,12)
-    #
-    #     if value > 127:  # clipping
-    #         value = 127
-    #     return value
-
-    def beam_data(self, value, nof_tpms):
-        # log2_tpms = int(math.log(nof_tpms, 2))
-        # bit_round = 4
-        # mask_round = 0xFFFFFFFFFFFFFFFF << bit_round
-        #
-        # value = value << (4 - log2_tpms)  # pattern left_shift
-        # value = value * nof_tpms  # beamforming
-        #
-        # rounding = value & ~mask_round  # csp rounding
-        # value = value >> bit_round
-        # if rounding > 2**bit_round:
-        #     value += 1
-        #
-        # #value = s_round(value,bit_round,12)
-        #
-        # if value > 127:  # clipping
-        #     value = 127
-        # return value
-
+    def sum_data(self, value, nof_tpms):
         value = value * nof_tpms
         value = tf.s_round(value, 4, 16)
         if value > 127:
@@ -133,38 +87,35 @@ class spead_rx(Process):
             value = -128
         return value
 
-    def beam_data2(self, values, nof_tpms):
+    def beam_data(self, values, nof_tpms):
         ret = []
         if type(values) is not list:
             val = [values]
         else:
             val = values
         for v in val:
-            ret.append(self.beam_data(v, nof_tpms))
+            ret.append(self.sum_data(v, nof_tpms))
         return ret
 
     def make_exp_data(self, nof_tpms, pattern, adders):
         if len(pattern) != 1024:
             print("Pattern must be a 1024 element array")
             exit(-1)
-
         for n in range(512):
             data = tf.get_beamf_pattern_data(n, pattern, adders, 4-int(math.log(nof_tpms, 2)))
-            data = self.beam_data2(data, nof_tpms)
-            # print data
-            #for m in range(4):
+            data = self.beam_data(data, nof_tpms)
             self.exp_data[n] = data
 
     def spead_header_decode(self, pkt, first_channel):
         items = unpack('>' + 'Q'*9, pkt[0:8*9])
         self.is_spead = 0
-        # print "--------------------------------"
+        # print("--------------------------------")
         for idx in range(len(items)):
             item = items[idx]
-            # print hex(item)
+            # print(hex(item))
             id = item >> 48
             val = item & 0x0000FFFFFFFFFFFF
-            # print hex(id) + " " + hex(val)
+            # print(hex(id) + " " + hex(val))
             if id == 0x5304 and idx == 0:
                 self.is_spead = 1
             elif id == 0x8001 and idx == 1:
@@ -179,7 +130,7 @@ class spead_rx(Process):
                 self.timestamp = val
             elif id == 0x9011 and idx == 5:
                 self.center_frequency = val & 0xFFFFFFFF
-                exp_freq = old_div(400e6*(self.logical_channel_id + first_channel),512)
+                exp_freq = 400e6 * (self.logical_channel_id + first_channel) / 512
                 if self.center_frequency != exp_freq:
                     print("Error frequency ID")
                     print("Expected ID " + str(exp_freq) + ", received " + str(self.center_frequency))
@@ -245,7 +196,7 @@ class spead_rx(Process):
                         print("Data Error in logical channel " + str(channel_id))
                         print("Sample Index: " + str(i))
                         print("Error: "  + hex(rcv_val))
-                        for  n in range(16):
+                        for n in range(16):
                             print(hex(self.data_buff[i-8+n]))
                             input("Press a key...")
                 if rcv_val != first_val:
@@ -263,7 +214,7 @@ class spead_rx(Process):
                                 print("Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF))
                                 for  n in range(16):
                                     print(hex(self.data_buff[i-8+n]))
-                                #raw_input("Press a key...")
+                                #input("Press a key...")
                                 print()
                                 if dump_done == 0:
                                     dump_done = 1
@@ -287,7 +238,7 @@ class spead_rx(Process):
                                     self.frame_offset_error_0 += 1
                                 else:
                                     self.frame_offset_error_1 += 1
-#                                raw_input("Press a key...")
+                                input("Press a key...")
                                 #break
                                 if dump_done == 0:
                                     dump_done = 1
@@ -311,49 +262,6 @@ class spead_rx(Process):
                             self.dump(channel_id)
                         #break
 
-            # exp_val = [0] * 4
-            # first_val = self.data_buff[0]
-            # for i in range(len(self.data_buff)):
-            #     rcv_val = self.data_buff[i]
-            #     if rcv_val != first_val and (first_val & 0xFF) < 127 - frame_adder:
-            #         for m in range(4):
-            #             exp_val[m] = (first_val >> m*8) & 0xFF
-            #             exp_val[m] += frame_adder
-            #             if exp_val[m] > 127:
-            #                 exp_val[m] -= 256
-            #             if abs(exp_val[m]) >= 127:
-            #                 exp_val[m] = 127
-            #         for m in range(4):
-            #             rcv_val8 = (rcv_val >> m*8) & 0xFF
-            #             if rcv_val8 != exp_val[m]:
-            #                 print "Error in logical channel " + str(n)
-            #                 print "Sample Index: " + str(i+1)
-            #                 print "Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF)
-            #                 for  n in range(16):
-            #                     print hex(self.data_buff[i-8+n])
-            #                 raw_input("Press a key...")
-            #                 break
-            #         if channel_id % 2 ==0:
-            #             frame_offset = self.frame_offset_0
-            #         else:
-            #             frame_offset = self.frame_offset_1
-            #
-            #         if frame_offset < 0:
-            #             frame_offset = i
-            #         else:
-            #             if frame_offset != i:
-            #                 print "Frame Offset error in logical channel " + str(n)
-            #                 print "Sample Index: " + str(i)
-            #                 print "Error - Exp: " + hex(first_val) + " Rcv " + hex((rcv_val >> 24) & 0xFF) + " " + hex((rcv_val >> 16) & 0xFF) + " " + hex((rcv_val >> 8) & 0xFF) + " " + hex((rcv_val >> 0) & 0xFF)
-            #                 print "Expected frame offset " + str(frame_offset)
-            #                 raw_input("Press a key...")
-            #                 break
-            #         first_val = rcv_val
-            #         if channel_id % 2 ==0:
-            #             self.frame_offset_0 = frame_offset
-            #         else:
-            #             self.frame_offset_1 = frame_offset
-
         self.processed_frame += 1
         if self.processed_frame % 1000 == 0:
             print("Frames processed with no errors: " + str(self.processed_frame))
@@ -373,16 +281,16 @@ class spead_rx(Process):
         # while True:
         #     for packet in cap.sniff_continuously(packet_count=packet_burst):
         #         _pkt = binascii.unhexlify(packet.data.data)
-        #         #print _pkt[0:128]
-        #         #raw_input()
+        #         #print(_pkt[0:128])
+        #         #input()
         #
         #         if len(_pkt) > 8192:
         #             self.spead_header_decode(_pkt, first_channel)
         #             self.data_buff = unpack('I' * (self.payload_length / 4), _pkt[self.offset:])
         #             self.check_buffer(self.logical_channel_id, frame_adder)
         #             checked += 1
-        #         # print len(_pkt)
-        #         # print checked
+        #         # print(len(_pkt))
+        #         # print(checked)
         #         if checked == nof_packets and nof_packets > 0:
         #             return
 
@@ -391,17 +299,14 @@ class spead_rx(Process):
             while True:
                 try:
                     _pkt, _addr = self.sock.recvfrom(1024*10)
-                    # print "pkt"
-                    # print _pkt[0:128]
+                    # print("pkt")
+                    # print(_pkt[0:128])
                     break
                 except socket.timeout:
                     print("socket timeout!")
-                    pass
-                # except:
-                    # pass
             if len(_pkt) > 8192:
                 self.spead_header_decode(_pkt, first_channel)
-                self.data_buff = unpack('I' * (old_div(self.payload_length, 4)), _pkt[self.offset:])
+                self.data_buff = unpack('I' * int(self.payload_length / 4), _pkt[self.offset:])
                 self.check_buffer(self.logical_channel_id, frame_adder, nof_tpms)
                 checked += 1
             if checked == nof_packets and nof_packets > 0:
@@ -422,7 +327,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
 
-    pattern = list(range(1024))
+    pattern = range(1024)
     adders = [0, 1]
     nof_packets = -1
 

@@ -1,9 +1,6 @@
 #! /opt/aavs/python/bin/python
 
 
-from __future__ import division
-from past.utils import old_div
-
 def start_ring_bf(tile):
     for i in [0, 1, 2, 3, 4, 5, 6, 7]:
         tile.tpm.tpm_10g_core[i].set_src_mac(0x620000000002 + i)
@@ -24,10 +21,10 @@ def start_ring_bf(tile):
     tile['fpga2.udp_core.udp_core_inst_0_udp_core_control_udp_core_control_packet_split_size'] = 0x00002328
 
     # place a tone in channel 36 & 39 (ch 2 & 5 of the beamformed region)
-    tile.tpm.test_generator[0].set_tone(0, old_div(4 * 800e6, 1024), 0.5)
-    tile.tpm.test_generator[0].set_tone(1, old_div(4 * 800e6, 1024), 0.5)
-    tile.tpm.test_generator[1].set_tone(0, old_div(5 * 800e6, 1024), 0.4)
-    tile.tpm.test_generator[1].set_tone(1, old_div(5 * 800e6, 1024), 0.4)
+    tile.tpm.test_generator[0].set_tone(0, 4 * 800e6 / 1024, 0.5)
+    tile.tpm.test_generator[0].set_tone(1, 4 * 800e6 / 1024, 0.5)
+    tile.tpm.test_generator[1].set_tone(0, 5 * 800e6 / 1024, 0.4)
+    tile.tpm.test_generator[1].set_tone(1, 5 * 800e6 / 1024, 0.4)
     tile.tpm.test_generator[0].channel_select(0xffff)
     tile.tpm.test_generator[1].channel_select(0xffff)
     # Use debug generator

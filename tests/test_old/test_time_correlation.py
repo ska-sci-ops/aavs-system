@@ -1,9 +1,4 @@
-from __future__ import print_function
-from __future__ import absolute_import
 # Import DAQ and Access Layer libraries
-from builtins import input
-from builtins import str
-from builtins import range
 import pydaq.daq_receiver as daq
 from pyaavs.tile import Tile
 
@@ -14,6 +9,7 @@ from pydaq.persisters.channel import ChannelFormatFileManager
 from pydaq.persisters.beam import BeamFormatFileManager
 from pydaq.persisters import *
 
+from builtins import input
 from sys import stdout
 import test_functions as tf
 import numpy as np
@@ -48,7 +44,6 @@ def correlate_raw(data):
                 print("------------------------------------------------------------------------------------------")
                 input("Press a key")
             else:
-            # print max, idx
                 print("TEST PASSED:")
                 print("Antenna: " + str(a))
                 print("Polarisation " + str(p))
@@ -70,7 +65,7 @@ def data_callback(mode, filepath, tile):
 
     if mode == "burst_raw":
         raw_file = RawFormatFileManager(root_path=os.path.dirname(filepath))
-        data, timestamps = raw_file.read_data(antennas=list(range(16)),  # List of channels to read (not use in raw case)
+        data, timestamps = raw_file.read_data(antennas=range(16),  # List of channels to read (not use in raw case)
                                            polarizations=[0, 1],
                                            n_samples=32*1024)
         print("Raw data: {}".format(data.shape))
