@@ -74,6 +74,24 @@ def offline_beamformer(data):
     return x / nof_samples, y / nof_samples
 
 
+def initialise_daq(daq_config):
+    logging.info("Starting DAQ")
+    receiver.populate_configuration(daq_config)
+    receiver.initialise_daq()
+    receiver.start_continuous_channel_data_consumer(channel_callback)
+    # Wait for DAQ to initialise
+    tf.accurate_sleep(4)
+    logging.info("DAQ initialised")
+
+
+def stop_daq():
+    # Stop DAQ
+    try:
+        receiver.stop_daq()
+    except Exception as e:
+        logging.error("Failed to stop DAQ cleanly: {}".format(e))
+
+
 def get_offline_beam(daq_config, test_station, channel, antennas_per_tile=16):
     """ Grab channel data """
     global buffers_processed
@@ -87,14 +105,14 @@ def get_offline_beam(daq_config, test_station, channel, antennas_per_tile=16):
     test_station.stop_data_transmission()
     tf.accurate_sleep(1)
 
-    # Start DAQ
-    logging.info("Starting DAQ")
-    receiver.populate_configuration(daq_config)
-    receiver.initialise_daq()
-    receiver.start_continuous_channel_data_consumer(channel_callback)
-
-    # Wait for DAQ to initialise
-    tf.accurate_sleep(2)
+    # # Start DAQ
+    # logging.info("Starting DAQ")
+    # receiver.populate_configuration(daq_config)
+    # receiver.initialise_daq()
+    # receiver.start_continuous_channel_data_consumer(channel_callback)
+    #
+    # # Wait for DAQ to initialise
+    # tf.accurate_sleep(2)
 
     # Start sending data
     test_station.send_channelised_data_continuous(channel, daq_config['nof_channel_samples'])
@@ -103,16 +121,17 @@ def get_offline_beam(daq_config, test_station, channel, antennas_per_tile=16):
     # Wait for observation to finish
     while not data_ready:
         tf.accurate_sleep(0.1)
+    data_ready = False
 
     # All done, instruct receiver to stop writing to disk
     receiver.WRITE_TO_DISK = False
     logging.info("Channelised Data acquired")
 
-    # Stop DAQ
-    try:
-        receiver.stop_daq()
-    except Exception as e:
-        logging.error("Failed to stop DAQ cleanly: {}".format(e))
+    # # Stop DAQ
+    # try:
+    #     receiver.stop_daq()
+    # except Exception as e:
+    #     logging.error("Failed to stop DAQ cleanly: {}".format(e))
 
     # Stop data transmission and reset
     test_station.stop_data_transmission()
@@ -145,44 +164,44 @@ def get_offline_beam(daq_config, test_station, channel, antennas_per_tile=16):
     return 10 * np.log10([x, y])
 
         
-def get_realtime_beam(daq_config, channel):
-    """ Grab channel data """
-    global buffers_processed
-    global data_ready
-    
-    # Start DAQ
-    logging.debug("Starting DAQ")
-    receiver.populate_configuration(daq_config)
-    receiver.initialise_daq()
-    receiver.start_station_beam_data_consumer(station_callback)
-        
-    # Wait for observation to finish
-    while not data_ready:
-        tf.accurate_sleep(0.1)
-        
-    # All done, instruct receiver to stop writing to disk
-    logging.info("Station beam acquired")
-        
-    # Stop DAQ
-    try:
-        receiver.stop_daq()
-    except Exception as e:
-        logging.error("Failed to stop DAQ cleanly: {}".format(e))
-    
-    # Stop data transmission and reset
-    data_ready = False
-    
-    # Read integrated station beam and return computed power
-    station_file_mgr = StationBeamFormatFileManager(root_path=daq_config['directory'], daq_mode=FileDAQModes.Integrated)
-    
-    # Data is in pol/sample/channel order.
-    data, _, _ = station_file_mgr.read_data(timestamp=None, n_samples=buffers_processed)
-    beam_power = 10 * np.log10(data[:, -1, channel])
-    
-    # Reset number of buffers processed
-    buffers_processed = 0
-    
-    return beam_power
+# def get_realtime_beam(daq_config, channel):
+#     """ Grab channel data """
+#     global buffers_processed
+#     global data_ready
+#
+#     # Start DAQ
+#     logging.debug("Starting DAQ")
+#     receiver.populate_configuration(daq_config)
+#     receiver.initialise_daq()
+#     receiver.start_station_beam_data_consumer(station_callback)
+#
+#     # Wait for observation to finish
+#     while not data_ready:
+#         tf.accurate_sleep(0.1)
+#
+#     # All done, instruct receiver to stop writing to disk
+#     logging.info("Station beam acquired")
+#
+#     # Stop DAQ
+#     try:
+#         receiver.stop_daq()
+#     except Exception as e:
+#         logging.error("Failed to stop DAQ cleanly: {}".format(e))
+#
+#     # Stop data transmission and reset
+#     data_ready = False
+#
+#     # Read integrated station beam and return computed power
+#     station_file_mgr = StationBeamFormatFileManager(root_path=daq_config['directory'], daq_mode=FileDAQModes.Integrated)
+#
+#     # Data is in pol/sample/channel order.
+#     data, _, _ = station_file_mgr.read_data(timestamp=None, n_samples=buffers_processed)
+#     beam_power = 10 * np.log10(data[:, -1, channel])
+#
+#     # Reset number of buffers processed
+#     buffers_processed = 0
+#
+#     return beam_power
 
 
 class TestFullStation():
@@ -292,6 +311,9 @@ class TestFullStation():
 
         spead_rx_inst = spead_rx(4660, self._daq_eth_if)
         try:
+
+            initialise_daq(daq_config)
+
             errors = 0
             # Mask antennas if required
             one_matrix = np.ones((nof_channels, 4), dtype=np.complex64)
@@ -314,11 +336,12 @@ class TestFullStation():
             while max_delay > 0:
                 self._logger.info("Setting time domain delays, maximum %d" % max_delay)
                 self.set_delay(random_delays, max_delay)
-                tf.accurate_sleep(4)
+                tf.accurate_sleep(1)
 
-                offline_beam_power = get_offline_beam(daq_config, self._test_station, channelised_channel, self._antennas_per_tile)
-                self._logger.info("Offline beamformed channel power: {}".format(str(offline_beam_power)))
-                delete_files(data_directory)
+                for n in range(4):
+                    offline_beam_power = get_offline_beam(daq_config, self._test_station, channelised_channel, self._antennas_per_tile)
+                    self._logger.info("Offline beamformed channel power: {}".format(str(offline_beam_power)))
+                    delete_files(data_directory)
                 offline_power.append(offline_beam_power)
 
                 # realtime_beam_power = get_realtime_beam(daq_config, beamformed_channel)
@@ -357,6 +380,7 @@ class TestFullStation():
             self._logger.error(traceback.format_exc())
 
         finally:
+            stop_daq()
             shutil.rmtree(data_directory, ignore_errors=True)
             return errors
 

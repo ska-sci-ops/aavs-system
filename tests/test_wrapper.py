@@ -156,7 +156,7 @@ class TestWrapper():
         log_file_filtered.close()
 
 
-class UI():
+class UI:
     def __init__(self, test_wrapper):
         self._test_wrapper = test_wrapper
         pass

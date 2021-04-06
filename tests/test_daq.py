@@ -285,7 +285,7 @@ class TestDaq():
                     time.sleep(0.1)
 
                 if self.check_raw(test_pattern, test_adders, data, raw_data_synchronised) > 0:
-                    self.cleanup(tile)
+                    self.clean_up(tile)
                     return 1
 
                 self._logger.info("Raw ADC data iteration %d PASSED!" % (i+1))
@@ -315,7 +315,7 @@ class TestDaq():
                     time.sleep(0.1)
 
                 if self.check_raw(test_pattern, test_adders, data, raw_data_synchronised) > 0:
-                    self.cleanup(tile)
+                    self.clean_up(tile)
                     return 1
 
                 self._logger.info("Raw ADC data synchronized iteration %d PASSED!" %(i+1))
@@ -345,7 +345,7 @@ class TestDaq():
                     time.sleep(0.1)
 
                 if self.check_channel(test_pattern, test_adders, data) > 0:
-                    self.cleanup(tile)
+                    self.clean_up(tile)
                     return 1
 
                 self._logger.info("Channel data iteration %d PASSED!" % (i + 1))
@@ -376,7 +376,7 @@ class TestDaq():
                     time.sleep(0.1)
 
                 if self.check_beam(test_pattern, test_adders, data) > 0:
-                    self.cleanup(tile)
+                    self.clean_up(tile)
                     return 1
 
                 self._logger.info("Tile beam data iteration %d PASSED!" % (i + 1))

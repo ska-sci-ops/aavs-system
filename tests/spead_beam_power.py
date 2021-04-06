@@ -70,6 +70,7 @@ class spead_rx(Process):
     def spead_header_decode(self, pkt, first_channel = -1):
         items = unpack('>' + 'Q'*9, pkt[0:8*9])
         self.is_spead = 0
+        is_csp_packet = False
         # print("--------------------------------")
         for idx in range(len(items)):
             item = items[idx]
@@ -101,6 +102,7 @@ class spead_rx(Process):
                         input("Press a key...")
                         # break
             elif id == 0xb000 and idx == 6:
+                is_csp_packet = True
                 if first_channel >= 0:
                     self.csp_channel_info = val
                     physical_channel_id = val & 0x3FF
@@ -120,6 +122,7 @@ class spead_rx(Process):
                 print("Unexpected item " + hex(item) + " at position " + str(idx))
                 input("Press a key...")
                 break
+        return is_csp_packet
 
     def process_buffer(self, channel_id):
         if self.logical_channel_id == channel_id:
@@ -159,9 +162,9 @@ class spead_rx(Process):
                     pass
 
             if len(_pkt) > 8192:
-                self.spead_header_decode(_pkt)
-                self.data_buff = unpack('b' * self.payload_length, _pkt[self.offset:])
-                self.process_buffer(channel_id)
+                if self.spead_header_decode(_pkt):
+                    self.data_buff = unpack('b' * self.payload_length, _pkt[self.offset:])
+                    self.process_buffer(channel_id)
             if self.nof_processed_samples >= nof_samples:
                 ret_x = int(self.accu_x / self.nof_processed_samples)
                 ret_y = int(self.accu_y / self.nof_processed_samples)
@@ -189,5 +192,6 @@ if __name__ == "__main__":
 
     spead_rx_inst = spead_rx(int(options.port))
     #x, y = spead_rx_inst.get_power(int(options.nof_samples), int(options.logic_channel))
-    print(spead_rx_inst.get_power(256*1024, 0))
+    while True:
+        print(spead_rx_inst.get_power(256*1024, 0))
     #print(x, y)
