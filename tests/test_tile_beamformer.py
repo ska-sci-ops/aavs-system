@@ -56,7 +56,6 @@ class TestTileBeamformer():
     def clean_up(self, tile):
         tf.disable_test_generator_and_pattern(tile)
         daq.stop_daq()
-        del tile
 
     def execute(self, first_channel=0, last_channel=7):
         global data_received
@@ -98,6 +97,8 @@ class TestTileBeamformer():
         #
         tf.disable_test_generator_and_pattern(tile)
         tile.set_channeliser_truncation(5)
+        tile['fpga1.jesd204_if.regfile_channel_disable'] = 0xFFFF
+        tile['fpga2.jesd204_if.regfile_channel_disable'] = 0xFFFF
 
         channels = range(int(first_channel), int(last_channel) + 1)
         single_input_data = np.zeros((2, 16), dtype='complex')
@@ -127,8 +128,8 @@ class TestTileBeamformer():
                 while not data_received:
                     time.sleep(0.1)
 
-                single_input_data[0][i] = tf.get_beam_value(data, 0, c)# - self._beam_start_channel)
-                single_input_data[1][i] = tf.get_beam_value(data, 1, c)# - self._beam_start_channel)
+                single_input_data[0][i] = tf.get_beam_value(data, 0, c)  # - self._beam_start_channel)
+                single_input_data[1][i] = tf.get_beam_value(data, 1, c)  # - self._beam_start_channel)
 
                 inputs = (inputs << 2)
                 self._logger.debug("Antenna %d value before phasing: " % i)
@@ -137,6 +138,8 @@ class TestTileBeamformer():
 
             # Calculate coeffs to phase all antennas to the ref antenna
             ref_value = single_input_data[ref_pol][ref_antenna]
+            self._logger.debug("Ref Antenna: %d", ref_antenna)
+            self._logger.debug("Ref Pol: %d", ref_pol)
             for p in range(2):
                 for n in range(16):
                     coeff[p][n] = ref_value / single_input_data[p][n]
@@ -144,7 +147,7 @@ class TestTileBeamformer():
             self._logger.debug(coeff)
 
             # Setting beamformer coefficients in the TPM
-            tf.set_beamf_coeff(tile, coeff, c) # - self._beam_start_channel)
+            tf.set_beamf_coeff(tile, coeff, c)  # - self._beam_start_channel)
 
             # Loop over the antennas with all antenna masked except one, build antenna response matrix
             inputs = 0x3
@@ -159,8 +162,8 @@ class TestTileBeamformer():
                 while not data_received:
                     time.sleep(0.1)
 
-                single_input_data[0][i] = tf.get_beam_value(data, 0, c) # + self._beam_start_channel)
-                single_input_data[1][i] = tf.get_beam_value(data, 1, c) # + self._beam_start_channel)
+                single_input_data[0][i] = tf.get_beam_value(data, 0, c)  # + self._beam_start_channel)
+                single_input_data[1][i] = tf.get_beam_value(data, 1, c)  # + self._beam_start_channel)
 
                 inputs = (inputs << 2)
                 self._logger.debug("Antenna %d value after phasing: " % i)

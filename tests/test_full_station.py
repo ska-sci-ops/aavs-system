@@ -10,6 +10,7 @@ from pyaavs import station
 from config_manager import ConfigManager
 from numpy import random
 from spead_beam_power import spead_rx
+from spead_beam_power_offline import spead_rx_offline
 import test_functions as tf
 import numpy as np
 import tempfile
@@ -224,12 +225,13 @@ class TestFullStation():
         self._test_station.test_generator_set_tone(1, frequency=100e6, ampl=0.0)
         self._test_station.test_generator_set_noise(ampl=0.35, delay=1024)
         scale = int(np.ceil(np.log2(len(self._test_station.tiles))))
-        if scale == 0:
-            scale = 1
+        scale -= 2
+        if scale < 0:
+            scale = 0
         for tile in self._test_station.tiles:
-            tile['fpga1.beamf_ring.csp_scaling'] = scale + 1
-            tile['fpga2.beamf_ring.csp_scaling'] = scale + 1
-            tile.set_channeliser_truncation(2)
+            tile['fpga1.beamf_ring.csp_scaling'] = scale
+            tile['fpga2.beamf_ring.csp_scaling'] = scale
+            tile.set_channeliser_truncation(3)
 
     def set_delay(self, random_delays, max_delay):
         delays = np.array(random_delays * max_delay, dtype=np.int)
@@ -309,10 +311,11 @@ class TestFullStation():
         daq_config['directory'] = data_directory
         self._logger.info("Using temporary directory {}".format(data_directory))
 
-        spead_rx_inst = spead_rx(4660, self._daq_eth_if)
+        # spead_rx_realtime_inst = spead_rx(4660, self._daq_eth_if)
+        # spead_rx_offline_inst = spead_rx_offline(4660, self._daq_eth_if)
         try:
 
-            initialise_daq(daq_config)
+            # initialise_daq(daq_config)
 
             errors = 0
             # Mask antennas if required
@@ -333,22 +336,47 @@ class TestFullStation():
 
             offline_power = []
             realtime_power = []
+            scale_power = []
             while max_delay > 0:
                 self._logger.info("Setting time domain delays, maximum %d" % max_delay)
                 self.set_delay(random_delays, max_delay)
                 tf.accurate_sleep(1)
 
-                for n in range(4):
-                    offline_beam_power = get_offline_beam(daq_config, self._test_station, channelised_channel, self._antennas_per_tile)
-                    self._logger.info("Offline beamformed channel power: {}".format(str(offline_beam_power)))
-                    delete_files(data_directory)
-                offline_power.append(offline_beam_power)
+                # for n in range(4):
+                #     offline_beam_power = get_offline_beam(daq_config, self._test_station, channelised_channel, self._antennas_per_tile)
+                #     self._logger.info("Offline beamformed channel power: {}".format(str(offline_beam_power)))
+                #     delete_files(data_directory)
 
-                # realtime_beam_power = get_realtime_beam(daq_config, beamformed_channel)
-                realtime_beam_power = np.asarray(spead_rx_inst.get_power(8 * nof_samples, beamformed_channel))
+                target_power = 0
+                scale = 2
+                for tile in self._test_station.tiles:
+                    tile.set_channeliser_truncation(scale)
+                while target_power < 42 or target_power > 50 and scale >= 0:
+                    tf.accurate_sleep(1)
+                    spead_rx_offline_inst = spead_rx_offline(4660, self._daq_eth_if)
+                    self._test_station.send_channelised_data_continuous(channelised_channel, daq_config['nof_channel_samples'])
+                    offline_beam_power = spead_rx_offline_inst.get_power()
+                    self._logger.info("Offline beamformed channel power: {}".format(str(offline_beam_power)))
+                    self._test_station.stop_data_transmission()
+                    del spead_rx_offline_inst
+                    if offline_beam_power[0] > 50:
+                        scale_up = int(offline_beam_power[0] - 50) // 6
+                        scale += scale_up + 1
+                    if offline_beam_power[0] < 42:
+                        scale -= 1
+                    for tile in self._test_station.tiles:
+                        tile.set_channeliser_truncation(abs(scale))
+                    target_power = offline_beam_power[0]
+                offline_power.append(offline_beam_power)
+                scale_power.append(scale)
+                tf.accurate_sleep(2)
+
+                spead_rx_realtime_inst = spead_rx(4660, self._daq_eth_if)
+                realtime_beam_power = np.asarray(spead_rx_realtime_inst.get_power(8 * nof_samples, beamformed_channel))
                 self._logger.info("Realtime beamformed channel power: {}".format(str(realtime_beam_power)))
                 delete_files(data_directory)
                 realtime_power.append(realtime_beam_power)
+                del spead_rx_realtime_inst
 
                 max_delay = int(max_delay/2)
 
@@ -364,7 +392,7 @@ class TestFullStation():
                     max_diff = abs(diff)
 
             self._logger.info("Maximum difference: %f dB" % max_diff)
-            if abs(max_diff) > 0.4:
+            if abs(max_diff) > 0.9:
                 self._logger.error("TEST FAILED!")
                 errors += 1
             else:
@@ -380,7 +408,7 @@ class TestFullStation():
             self._logger.error(traceback.format_exc())
 
         finally:
-            stop_daq()
+            # stop_daq()
             shutil.rmtree(data_directory, ignore_errors=True)
             return errors
 
