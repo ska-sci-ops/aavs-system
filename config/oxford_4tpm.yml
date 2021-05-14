@@ -11,7 +11,7 @@ station:
     beam_integration_time: 1
     channel_integration_time: 1
     beamformer_scaling: 4
-    bitfile: "/home/chiello/aavs/aavs-access-layer-TPM_1_5_MERGE/bitfiles/itpm_v1_1_tpm_test_wrap.bit"
+    bitfile: "/home/chiello/aavs/aavs-system-new/bitfiles/itpm_v1_1_tpm_test_wrap_sbf401_01021788.bit"
     equalize_preadu: No
     pps_delays: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -24,7 +24,11 @@ network:
         # lmc_ip: "10.0.10.100"     # Oxford 100G
         lmc_port: 4660
         tpm_cpld_port: 10000
-        use_teng: False
+        use_teng: True
+
+        integrated_data_ip: "10.0.10.40"
+        integrated_data_port: 4660
+        use_teng_integrated: False
 
     csp_ingest:
         dst_mac: 0x248a07463b5e  # Oxford 40G
