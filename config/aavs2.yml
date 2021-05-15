@@ -24,7 +24,7 @@ station:
     beam_integration_time: -1
     channel_integration_time: 2
     beamformer_scaling: 5
-    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf347.bit"
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf401_01021788.bit"
     default_preadu_attenuation: 10
     equalize_preadu: 16 # modified by MS on 2020-04-16 after discussion during the 2020-04-15 TELECON
     pps_delays: [0, 0, 3, 0, 0, 0, 0, 0, 0, -3, 0, 0, 0, 0, 0, 0]
@@ -48,7 +48,7 @@ network:
         dst_ip: "10.0.10.210"
         dst_port: 4660
         src_mac: Null
-        src_ip: 10.0.10.254
+        src_ip: Null
         src_port: Null
 
 # List of TPM IPs (or names) which will form station
