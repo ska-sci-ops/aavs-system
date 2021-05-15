@@ -42,7 +42,7 @@ network:
         # Integrated data configuration
         integrated_data_port: 4660
         integrated_data_ip: "10.0.10.210"
-        use_teng_integrated: False
+        use_teng_integrated: True
 
     csp_ingest:
         dst_mac: 0x98039b86158e
