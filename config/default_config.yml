@@ -15,7 +15,7 @@
 observation:
     # bandwidth should be a multiple of 6.25e6 Hz corresponding to 8 frequency channels
     bandwidth: 6.25e6
-    # start_frequency_channel should be a multiple of 6.25e6 Hz
+    # start_frequency_channel should be a multiple of 1.5625e6 Hz (2 frequency channels)
     start_frequency_channel: 156.25e6
 
 # Station configuration parameters
