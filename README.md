@@ -12,7 +12,6 @@ This is the base repository for the AAVS software systems, organised as follows:
 - src: Data acqusition backend
 - python/pyaavs/tests: Firmware and software tests
 - web: Monitoring page
-- python/utilities: additional utilities
 
 The deploy script deploy.sh will create the execution environment to run the AAVS software,
 execute ./deploy.sh -h for details.
@@ -23,3 +22,5 @@ Refer to config/default_config.yml for detail.
 
 The test environment is described in a dedicated document located in 
 python/pyaavs/tests/doc, refer to the document in order to configure and use it.
+
+Additional utilities can be installed in python/utilities directory.
