@@ -36,7 +36,10 @@ station:
     # Station beamformer scaling, number of bits rounded off at the station beamformer output, before data are
     # transmitted to CSP.
     beamformer_scaling: 4
-    # Path to FPGA bitfile.
+    # Path to FPGA bitfile. Select the correct bitfile for the TPM version in use, the supported TPM version by a
+    # specific bitfile is part of the bitfile name:
+    # itpm_v1_1 -> TPM 1.2
+    # itpm_v1_5 -> TPM 1.6
     bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf401_01021788.bit"
     # PreADU equalisation. If equalize_preadu = 0, the preADU equalisation is skipped; otherwise the configured value
     # represents the target ADC unit RMS count for the equalisation.
