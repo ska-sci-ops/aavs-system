@@ -51,7 +51,8 @@ def connected(f):
         :rtype: object
         """
         if self.tpm is None:
-            logging.warn("Cannot call function " + f.__name__ + " on unconnected TPM")
+            logging.warning("Cannot call function " + f.__name__ + " on unconnected "
+                                                                   "TPM")
             raise LibraryError(
                 "Cannot call function " + f.__name__ + " on unconnected TPM"
             )

@@ -348,7 +348,7 @@ class Tile(object):
         return self._ip
 
     @connected
-    def get_temperature(self):
+    def get_board_temperature(self):
         """
         Read board temperature.
         :return: board temperature
@@ -357,18 +357,55 @@ class Tile(object):
         return self.tpm.temperature()
 
     @connected
+    def get_mcu_temperature(self):
+        """
+        Read mcu temperature.
+
+        Not yet implemented.
+
+        :return: mcu temperature
+        :rtype: float
+        """
+        return 0.0
+
+    @connected
+    def get_input_voltage(self):
+        """
+        Read 12V input voltage provided by the SMB to powered the TPM.
+
+        Not yet implemented.
+
+        :return: board supply input voltage
+        :rtype: float
+        """
+        return 0.0
+
+    @connected
     def get_voltage(self):
         """
-        Read board voltage.
+        Read 5V board voltage.
         :return: board supply voltage
         :rtype: float
         """
         return self.tpm.voltage()
 
     @connected
+    def get_input_current(self):
+        """
+        Read the input current provided by the SMB to powered the TPM.
+
+        Not yet implemented.
+
+        :return: board supply input current
+        :rtype: float
+        """
+        return 0.0
+
+    @connected
     def get_current(self):
         """
-        Read board current.
+        Read board current. Not yet implemented.
+
         :return: board supply current
         :rtype: float
         """
