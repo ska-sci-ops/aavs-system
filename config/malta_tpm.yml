@@ -10,11 +10,12 @@ station:
     name: "Malta"
     channel_truncation: 3
     beam_integration_time: 1
-    channel_integration_time: -1
+    channel_integration_time: 1
     beamformer_scaling: 4
     bitfile: "/home/lessju/Software/aavs-system/bitfiles/itpm_v1_1_tpm_test_wrap_sbf405_01021793.bit"
     default_preadu_attenuation: -1
     equalize_preadu: No
+    use_internal_pps: True
 
 # Network configuration parameters
 network:
@@ -31,8 +32,6 @@ network:
         use_teng_integrated: False
 
     csp_ingest:
-        # dst_mac: 0xAC1F6B404A4D  # 1Gb MAC
-        # dst_ip: "10.0.10.10" # 1Gb IP
         dst_mac: 0x5065F385AC71  # 40Gb MAC
         dst_ip: "10.0.0.100"  # 40Gb MAC
         dst_port: 4660
