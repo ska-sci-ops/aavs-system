@@ -1,8 +1,8 @@
 # Observation-related configuration, specifying the channel region
 # for the station beamformer
 observation:
-    start_frequency_channel: 75e6 #50e6 #
-    bandwidth: 6.25e6 #300e6 #
+    start_frequency_channel: 156.25e6 #50e6 #75e6 #
+    bandwidth: 6.25e6 #300e6 #6.25e6 #
 
 # Station configuration parameters
 station:
@@ -11,34 +11,38 @@ station:
     beam_integration_time: 1
     channel_integration_time: 1
     beamformer_scaling: 4
-    bitfile: "/home/chiello/aavs/aavs-access-layer-new8/bitfiles/itpm_v1_1_tpm_test_wrap_sbf347.bit"
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf406.bit"
     equalize_preadu: No
     pps_delays: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 # Network configuration parameters
 network:
     lmc:
-        lmc_mac: 0x248a07463b5e  # Oxford 100G
-        lmc_ip:  "10.0.10.100"    # Oxford 100G
-        # lmc_mac: 0xe41d2d214890  # Oxford 40G
-        # lmc_ip: "10.0.10.40"     # Oxford 40G
+        lmc_mac: 0x248a07463b5e  # Oxford 40G
+        lmc_ip:  "10.0.10.40"    # Oxford 40G
+        # lmc_mac: 0xe41d2d214890  # Oxford 100G
+        # lmc_ip: "10.0.10.100"     # Oxford 100G
         lmc_port: 4660
         tpm_cpld_port: 10000
         use_teng: True
 
+        integrated_data_ip: "10.0.10.40"
+        integrated_data_port: 4660
+        use_teng_integrated: False
+
     csp_ingest:
-        dst_mac: 0x248a07463b5e  # Oxford 100G
-        dst_ip:  "10.0.10.100"    # Oxford 100G
-        # dst_mac: 0xe41d2d214890  # Oxford 40G
-        # dst_ip: "10.0.10.40"     # Oxford 40G
+        dst_mac: 0x248a07463b5e  # Oxford 40G
+        dst_ip: "10.0.10.40"     # Oxford 40G
+        # dst_mac: 0xe41d2d214890  # Oxford 100G
+        # dst_ip:  "10.0.10.100"    # Oxford 100G
         dst_port: 4660
         src_mac: Null
-        src_ip: 10.0.10.254
+        src_ip: Null
         src_port: Null
 
 # List of TPM IPs (or names) which will form station
 tiles:
     - "10.0.10.3"
-#    - "10.0.10.4"
+    - "10.0.10.4"
+#    - "10.0.10.5"
 #    - "10.0.10.6"
-#    - "10.0.10.2"
