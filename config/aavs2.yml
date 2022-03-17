@@ -13,7 +13,7 @@ observation:
 #    start_frequency_channel: 46.875e6 # 4 channels below central channel 64
 #    start_frequency_channel: 317.1875e6 # 4 channels below central channel 410
 #    start_frequency_channel: 129.6875e6
-    bandwidth: 6.25e6
+    bandwidth: 50.0e6
 
 # Station configuration parameters
 station:
