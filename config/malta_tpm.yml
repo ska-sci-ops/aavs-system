@@ -12,7 +12,7 @@ station:
     beam_integration_time: 1
     channel_integration_time: 1
     beamformer_scaling: 4
-    bitfile: "/home/lessju/Software/aavs-system/bitfiles/itpm_v1_1_tpm_test_wrap_sbf405_01021793.bit"
+    bitfile: "/home/lessju/Software/aavs-system/bitfiles/itpm_v1_1_tpm_test_wrap_ab000.bit"
     default_preadu_attenuation: -1
     equalize_preadu: No
     use_internal_pps: True
