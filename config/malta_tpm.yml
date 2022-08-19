@@ -9,7 +9,7 @@ station:
     id: 0
     name: "Malta"
     channel_truncation: 3
-    beam_integration_time: 1
+    beam_integration_time: -1
     channel_integration_time: 1
     beamformer_scaling: 4
     bitfile: "/home/lessju/Software/aavs-system/bitfiles/itpm_v1_1_tpm_test_wrap_ab002.bit"
