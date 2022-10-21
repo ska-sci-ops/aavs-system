@@ -224,10 +224,6 @@ pip install -U pip
 # Install ipython
 pip install ipython
 
-# Give python interpreter required capabilities for accessing raw sockets and kernel space
-PYTHON_BINARY=`readlink -f $VENV_INSTALL/python/bin/python`
-sudo setcap cap_net_raw,cap_ipc_lock,cap_sys_nice,cap_sys_admin,cap_kill+ep $PYTHON_BINARY || exit
-
 # Create a temporary setup directory and cd into it
 if [[ ! -d "third_party" ]]; then
   mkdir third_party
@@ -309,6 +305,9 @@ if [ -d $DIR ]; then
 fi
 ln -s $PWD/config $DIR
 
+# Give python interpreter required capabilities for accessing raw sockets and kernel space
+PYTHON_BINARY=`readlink -f $VENV_INSTALL/python/bin/python`
+sudo setcap cap_net_raw,cap_ipc_lock,cap_sys_nice,cap_sys_admin,cap_kill+ep $PYTHON_BINARY || exit
 
 echo ""
 echo "Installation finished. Please check your .bashrc file and source it to update your environment"
