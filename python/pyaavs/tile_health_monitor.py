@@ -23,12 +23,12 @@ def health_monitoring_compatible(func):
     Achieved by attempting to access a register which was added for TPM health monitoring.
     Bitstreams generated prior to ~03/2023 will not support TPM health monitoring.
     """
-    def inner_func(self):
+    def inner_func(self, *args, **kwargs):
         try:
             self['fpga1.pps_manager.pps_errors']
         except Exception as e:  # noqa: F841
             raise LibraryError(f"TPM Health Monitoring not supported by FPGA firmware!")
-        return func(self)
+        return func(self, *args, **kwargs)
     return inner_func
 
 
@@ -37,7 +37,7 @@ def communication_check(func):
     Decorator method to check if communication is established between FPGA and CPLD.
     Non-destructive version of tile tpm_communication_check.
     """
-    def inner_func(self):
+    def inner_func(self, *args, **kwargs):
         try:
             magic0 = self[0x4]
         except Exception as e:  # noqa: F841
@@ -47,7 +47,7 @@ def communication_check(func):
         except Exception as e:  # noqa: F841
             raise BoardError(f"Not possible to communicate with the FPGA1: " + str(e))
         if magic0 == magic1 == 0xA1CE55AD:
-            return func(self)
+            return func(self, *args, **kwargs)
         else:
             if magic0 != 0xA1CE55AD:
                 self.logger.error(f"FPGA0 magic number is not correct {hex(magic0)}, expected: 0xA1CE55AD")
@@ -55,6 +55,11 @@ def communication_check(func):
                 self.logger.error(f"FPGA1 magic number is not correct {hex(magic1)}, expected: 0xA1CE55AD")
             return
     return inner_func
+
+timing_groups = ['clocks', 'clock_managers', 'pps', 'pll']	
+io_groups = ['jesd_interface', 'ddr_interface', 'f2f_interface', 'udp_interface']	
+dsp_groups = ['tile_beamf', 'station_beamf']	
+available_groups = ['temperatures', 'voltages', 'currents', 'alarms', 'adcs'] + timing_groups + io_groups + dsp_groups
 
 
 class TileHealthMonitor:
@@ -70,79 +75,104 @@ class TileHealthMonitor:
         self.enable_clock_monitoring()
         return
 
+    def gen_group_list(self, group):
+        group_list = available_groups if group is None else [x.lower() for x in group]	
+        # Substitute 'io', 'timing' or 'dsp' group with all child groups	
+        group_list = group_list + timing_groups if 'timing' in group_list else group_list	
+        group_list = group_list + io_groups if 'io' in group_list else group_list	
+        group_list = group_list + dsp_groups if 'dsp' in group_list else group_list
+        return group_list
+
     @communication_check
     @health_monitoring_compatible
-    def get_health_status(self):
+    def get_health_status(self, group=None, rate=None):
         """
         Returns the current value of all TPM monitoring points.
         https://confluence.skatelescope.org/x/nDhED
         """
-        health_dict = {
-            'temperature': self.get_fpga_temperature(fpga_id=None), 
-            'voltage': self.get_voltage(fpga_id=None, voltage_name=None),
-            'current': self.get_current(fpga_id=None, current_name=None),
-            'alarms' : None if self.tpm_version() == "tpm_v1_2" else self.tpm.get_global_status_alarms(),
-            'adcs': {
+        group_list = self.gen_group_list(group)
+
+        health_dict = {}
+        if 'temperatures' in group_list:
+            health_dict['temperatures'] = self.get_fpga_temperature(fpga_id=None)
+            health_dict['temperatures']['board'] = round(self.get_temperature(), 2)
+        if 'voltages' in group_list:
+            health_dict['voltages'] = self.get_voltage(fpga_id=None, voltage_name=None)
+        if 'currents' in group_list:
+            health_dict['currents'] = self.get_current(fpga_id=None, current_name=None)
+        if 'alarms' in group_list:
+            health_dict['alarms'] = None if self.tpm_version() == "tpm_v1_2" else self.tpm.get_global_status_alarms()
+        if 'adcs' in group_list:
+            health_dict['adcs'] = {
                 'pll_status': self.check_adc_pll_status(adc_id=None),
                 'sysref_timing_requirements': self.check_adc_sysref_setup_and_hold(adc_id=None, show_info=False),
                 'sysref_counter': self.check_adc_sysref_counter(adc_id=None, show_info=False)
-            },
-            'timing': {
-                'clocks': self.check_clock_status(fpga_id=None, clock_name=None),
-                'clock_managers': self.check_clock_manager_status(fpga_id=None, name=None),
-                'pps': {
+            }
+        if any(x in timing_groups for x in group_list):
+            health_dict['timing'] = {}
+            if 'clocks' in group_list:
+                health_dict['timing']['clocks'] = self.check_clock_status(fpga_id=None, clock_name=None)
+            if 'clock_managers' in group_list:
+                health_dict['timing']['clock_managers'] = self.check_clock_manager_status(fpga_id=None, name=None)
+            if 'pps' in group_list:
+                health_dict['timing']['pps'] = {
                     'status': self.check_pps_status(fpga_id=None)
-                },
-                'pll': self.check_ad9528_pll_status()
-            },
-            'io': {
-                'jesd_if': {
+                }
+            if 'pll' in group_list:
+                health_dict['timing']['pll'] = self.check_ad9528_pll_status()
+        if any(x in io_groups for x in group_list):
+            health_dict['io'] = {}
+            if 'jesd_interface' in group_list:
+                health_dict['io']['jesd_interface'] = {
                     'link_status' : self.check_jesd_link_status(fpga_id=None, core_id=None),
                     'lane_error_count': self.check_jesd_lane_error_counter(fpga_id=None, core_id=None),
                     'lane_status': self.check_jesd_lane_status(fpga_id=None, core_id=None),
                     'resync_count': self.check_jesd_resync_counter(fpga_id=None, show_result=False),
                     'qpll_status': self.check_jesd_qpll_status(fpga_id=None, show_result=False)
-                },
-                'ddr_if': {
+                }
+            if 'ddr_interface' in group_list:
+                health_dict['io']['ddr_interface'] = {
                     'initialisation': self.check_ddr_initialisation(fpga_id=None),
                     'reset_counter': self.check_ddr_reset_counter(fpga_id=None, show_result=False)
-                },
-                'f2f_if': {
+                }
+            if 'f2f_interface' in group_list:
+                health_dict['io']['f2f_interface'] = {
                     'pll_status': self.check_f2f_pll_status(core_id=None, show_result=False),
                     'soft_error': self.check_f2f_soft_errors(),
                     'hard_error': self.check_f2f_hard_errors()
-                },
-                'udp_if': {
+                }
+            if 'udp_interface' in group_list:
+                health_dict['io']['udp_interface'] = {
                     'arp': self.check_udp_arp_table_status(fpga_id=None, show_result=False),
                     'status': self.check_udp_status(fpga_id=None),
                     'crc_error_count': self.check_udp_crc_error_counter(fpga_id=None),
                     'bip_error_count': self.check_udp_bip_error_counter(fpga_id=None),
                     'linkup_loss_count': self.check_udp_linkup_loss_counter(fpga_id=None, show_result=False)
                 }
-            }, 
-            'dsp': {
-                'tile_beamf': self.check_tile_beamformer_status(fpga_id=None),
-                'station_beamf': {
+        if any(x in dsp_groups for x in group_list):
+            health_dict['dsp'] = {}
+            if 'tile_beamf' in group_list:
+                health_dict['dsp']['tile_beamf'] = self.check_tile_beamformer_status(fpga_id=None)
+            if 'station_beamf' in group_list:
+                health_dict['dsp']['station_beamf'] = {
                     'status' : self.check_station_beamformer_status(fpga_id=None),
                     'ddr_parity_error_count': self.check_ddr_parity_error_counter(fpga_id=None)
                 }
-            }
-        }
-        health_dict['temperature']['board'] = round(self.get_temperature(), 2)
         return health_dict
     
     @communication_check
     @health_monitoring_compatible
-    def clear_health_status(self):
-        self.clear_clock_status(fpga_id=None, clock_name=None)
-        self.clear_clock_manager_status(fpga_id=None, name=None)
-        self.clear_pps_status(fpga_id=None)
-        self.clear_jesd_error_counters(fpga_id=None)
-        self.clear_ddr_reset_counter(fpga_id=None)
-        self.clear_f2f_pll_lock_loss_counter(core_id=None)
-        self.clear_udp_status(fpga_id=None)
-        self.clear_tile_beamformer_status(fpga_id=None)
-        self.clear_station_beamformer_status(fpga_id=None)
+    def clear_health_status(self, group=None):
+        group_list = self.gen_group_list(group)
+        self.clear_clock_status(fpga_id=None, clock_name=None) if 'clocks' in group_list else None
+        self.clear_clock_manager_status(fpga_id=None, name=None) if 'clock_managers' in group_list else None
+        self.clear_pps_status(fpga_id=None) if 'pps' in group_list else None
+        self.clear_jesd_error_counters(fpga_id=None) if 'jesd_interface' in group_list else None
+        self.clear_ddr_reset_counter(fpga_id=None)if 'ddr_interface' in group_list else None
+        self.clear_f2f_pll_lock_loss_counter(core_id=None) if 'f2f_interface' in group_list else None
+        self.clear_udp_status(fpga_id=None) if 'udp_interface' in group_list else None
+        self.clear_tile_beamformer_status(fpga_id=None) if 'tile_beamf' in group_list else None
+        self.clear_station_beamformer_status(fpga_id=None) if 'station_beamf' in group_list else None
         return
 
     def get_health_acceptance_values(self):
@@ -1090,7 +1120,7 @@ class TileHealthMonitor:
     def get_exp_health(self):
         EXP_TEMP, EXP_VOLTAGE, EXP_CURRENT = self.get_health_acceptance_values()
         health = {
-            'temperature': EXP_TEMP, 'voltage': EXP_VOLTAGE, 'current': EXP_CURRENT,
+            'temperatures': EXP_TEMP, 'voltages': EXP_VOLTAGE, 'currents': EXP_CURRENT,
             'alarms': None if self.tpm_version() == "tpm_v1_2" else {'I2C_access_alm': 0, 'temperature_alm': 0, 'voltage_alm': 0, 'SEM_wd': 0, 'MCU_wd': 0},
             'adcs': {
                 'pll_status': {'ADC0': True, 'ADC1': True, 'ADC2': True, 'ADC3': True, 'ADC4': True, 'ADC5': True, 'ADC6': True, 'ADC7': True, 'ADC8': True, 'ADC9': True, 'ADC10': True, 'ADC11': True, 'ADC12': True, 'ADC13': True, 'ADC14': True, 'ADC15': True},
@@ -1104,7 +1134,7 @@ class TileHealthMonitor:
                 'pps': {'status': True},
                 'pll': (True, None) if self.tpm_version() == "tpm_v1_2" else (True, 0)}, # This can be changed after MCCS-1247 is complete
             'io':{ 
-                'jesd_if': {
+                'jesd_interface': {
                     'link_status': True, 
                     'lane_error_count': {
                         'FPGA0': {
@@ -1116,12 +1146,12 @@ class TileHealthMonitor:
                     'lane_status' : True, 
                     'resync_count': {'FPGA0': 0, 'FPGA1': 0}, 
                     'qpll_status': {'FPGA0': (True, 0), 'FPGA1': (True, 0)}},
-                'ddr_if': {'initialisation': True, 'reset_counter': {'FPGA0': 0, 'FPGA1': 0}},
-                'f2f_if': {
+                'ddr_interface': {'initialisation': True, 'reset_counter': {'FPGA0': 0, 'FPGA1': 0}},
+                'f2f_interface': {
                     'pll_status': {'Core0': [(True, 0), (True, 0)], 'Core1': [(True, 0), (True, 0)]} if self.tpm_version() == "tpm_v1_2" else {'Core0' : (True, 0)},
                     'soft_error': None if self.tpm_version() == "tpm_v1_2" else 0,
                     'hard_error': None if self.tpm_version() == "tpm_v1_2" else 0},
-                'udp_if': {
+                'udp_interface': {
                     'arp': True, 
                     'status': True, 
                     'crc_error_count': {'FPGA0': 0, 'FPGA1': 0}, 
