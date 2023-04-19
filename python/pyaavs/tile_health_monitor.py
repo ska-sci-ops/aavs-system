@@ -60,12 +60,16 @@ timing_groups = ['clocks', 'clock_managers', 'pps', 'pll']
 io_groups = ['jesd_interface', 'ddr_interface', 'f2f_interface', 'udp_interface']	
 dsp_groups = ['tile_beamf', 'station_beamf']	
 available_groups = ['temperatures', 'voltages', 'currents', 'alarms', 'adcs'] + timing_groups + io_groups + dsp_groups
-
+available_rates = ['very_slow', 'slow', 'fast']
 
 class TileHealthMonitor:
     """
     Tile Health Monitor Mixin Class, must be inherited by Tile Class
     """
+    def init_health_monitoring(self):
+        # All monitoring points default to 'fast' rate
+        self.monitoring_point_rates = dict.fromkeys(self.list_all_monitoring_points(), 'fast')
+        return
 
     @communication_check
     @health_monitoring_compatible
@@ -82,6 +86,46 @@ class TileHealthMonitor:
         group_list = group_list + io_groups if 'io' in group_list else group_list	
         group_list = group_list + dsp_groups if 'dsp' in group_list else group_list
         return group_list
+        
+    def list_all_monitoring_points(self, include_all_categories=False):
+        def find_leaf_dict_recursive(health_dict, key_list=[], monitoring_point_list=[]):
+            for name, value in health_dict.items():
+                key_list.append(name)
+                if not isinstance(value, dict):
+                    monitoring_point_list.append('.'.join(key_list))
+                    key_list.pop()
+                else:
+                    if include_all_categories:
+                        monitoring_point_list.append('.'.join(key_list))
+                    find_leaf_dict_recursive(value, key_list, monitoring_point_list)
+            if key_list:
+                key_list.pop()
+            return monitoring_point_list
+
+        exp_health = self.get_exp_health()
+        monitoring_point_list = find_leaf_dict_recursive(exp_health)
+        # Strip .min, .max and .skip from temperature, voltages and current names
+        for i, point in enumerate(monitoring_point_list):
+            if any(point.startswith(x) and point.endswith(y) for x in ['temperatures.', 'voltages.', 'currents.'] for y in ['.min', '.max', '.skip']):
+                monitoring_point_list[i] = point.rsplit('.', 1)[0]
+        # Uniquify monitoring_point_list
+        monitoring_point_list = list(dict.fromkeys(monitoring_point_list))
+        return monitoring_point_list
+    
+    def list_all_monitoring_categories(self):
+        return self.list_all_monitoring_points(include_all_categories=True)
+    
+    def set_monitoring_point_rate(self, point, rate):
+        point = point.lower()
+        rate = rate.lower()
+        if point not in self.list_all_monitoring_categories():
+            raise LibraryError(f"No monitoring point matching: {point}\nUse:\nlist_all_monitoring_points()\nlist_all_monitoring_categories()\nto see available options.")
+        if rate not in available_rates:
+            raise LibraryError(f"No rate matching: {rate}. Options are {', '.join(available_rates)} (not case sensitive)")
+        for monitoring_point in self.monitoring_point_rates.keys():
+            if monitoring_point.startswith(point):
+                self.monitoring_point_rates[monitoring_point] = rate
+        return
 
     @communication_check
     @health_monitoring_compatible
@@ -194,6 +238,14 @@ class TileHealthMonitor:
         return
 
     def get_health_acceptance_values(self):
+        try:
+            adas_enabled = self.tpm.adas_enabled
+        except Exception as e:
+            adas_enabled = False
+        try:
+            preadus_enabled = self.preadus_enabled
+        except Exception as e:
+            preadus_enabled = False
         EXP_TEMP = {
             "board": { "min": 10.00, "max": 68.00},
             "FPGA0": { "min": 10.00, "max": 95.00},
@@ -212,8 +264,8 @@ class TileHealthMonitor:
             "SW_AVDD3"    : { "min": 3.320, "max": 3.680},
             "VCC_AUX"     : { "min": 1.710, "max": 1.890},
             "VIN"         : { "min": 11.40, "max": 12.60, "skip": True},  # TODO: add support for this measurement
-            "VM_ADA0"     : { "min": 3.030, "max": 3.560, "skip": not self.tpm.adas_enabled},
-            "VM_ADA1"     : { "min": 3.030, "max": 3.560, "skip": not self.tpm.adas_enabled},
+            "VM_ADA0"     : { "min": 3.030, "max": 3.560, "skip": not adas_enabled},
+            "VM_ADA1"     : { "min": 3.030, "max": 3.560, "skip": not adas_enabled},
             "VM_AGP0"     : { "min": 0.900, "max": 1.060},
             "VM_AGP1"     : { "min": 0.900, "max": 1.060},
             "VM_AGP2"     : { "min": 0.900, "max": 1.060},
@@ -227,7 +279,7 @@ class TileHealthMonitor:
             "VM_MAN3V3"   : { "min": 3.030, "max": 3.560},
             "VM_MGT0_AUX" : { "min": 1.650, "max": 1.940},
             "VM_PLL"      : { "min": 3.030, "max": 3.560},
-            "VM_ADA3"     : { "min": 3.030, "max": 3.560, "skip": not self.tpm.adas_enabled},
+            "VM_ADA3"     : { "min": 3.030, "max": 3.560, "skip": not adas_enabled},
             "VM_DDR1_VREF": { "min": 0.620, "max": 0.730},
             "VM_DDR1_VTT" : { "min": 0.620, "max": 0.730},
             "VM_AGP4"     : { "min": 0.900, "max": 1.060},
@@ -238,7 +290,7 @@ class TileHealthMonitor:
             "VM_DDR_VDD"  : { "min": 1.240, "max": 1.460},
             "VM_SW_DVDD"  : { "min": 1.520, "max": 1.780},
             "VM_MGT1_AUX" : { "min": 1.650, "max": 1.940},
-            "VM_ADA2"     : { "min": 3.030, "max": 3.560, "skip": not self.tpm.adas_enabled},
+            "VM_ADA2"     : { "min": 3.030, "max": 3.560, "skip": not adas_enabled},
             "VM_SW_AMP"   : { "min": 3.220, "max": 3.780, "skip": True}, # Not currently turned on
             "VM_CLK1B"    : { "min": 3.030, "max": 3.560}
         }
@@ -259,15 +311,15 @@ class TileHealthMonitor:
             "MON_3V3"     : { "min": 3.130, "max": 3.460, "skip": True}, # Can be removed once MCCS-1348 is complete
             "MON_1V8"     : { "min": 1.710, "max": 1.890, "skip": True}, # Can be removed once MCCS-1348 is complete
             "MON_5V0"     : { "min": 4.690, "max": 5.190},
-            "VM_ADA0"     : { "min": 3.040, "max": 3.560, "skip": not self.tpm.adas_enabled},
-            "VM_ADA1"     : { "min": 3.040, "max": 3.560, "skip": not self.tpm.adas_enabled},
+            "VM_ADA0"     : { "min": 3.040, "max": 3.560, "skip": not adas_enabled},
+            "VM_ADA1"     : { "min": 3.040, "max": 3.560, "skip": not adas_enabled},
             "VM_AGP0"     : { "min": 0.840, "max": 0.990},
             "VM_AGP1"     : { "min": 0.840, "max": 0.990},
             "VM_AGP2"     : { "min": 0.840, "max": 0.990},
             "VM_AGP3"     : { "min": 0.840, "max": 0.990},
             "VM_CLK0B"    : { "min": 3.040, "max": 3.560},
             "VM_DDR0_VTT" : { "min": 0.550, "max": 0.650},
-            "VM_FE0"      : { "min": 3.220, "max": 3.780, "skip": not self.preadus_enabled},
+            "VM_FE0"      : { "min": 3.220, "max": 3.780, "skip": not preadus_enabled},
             "VM_MGT0_AUX" : { "min": 1.660, "max": 1.940},
             "VM_PLL"      : { "min": 3.040, "max": 3.560},
             "VM_AGP4"     : { "min": 0.840, "max": 0.990},
@@ -278,7 +330,7 @@ class TileHealthMonitor:
             "VM_DDR1_VDD" : { "min": 1.100, "max": 1.300},
             "VM_DDR1_VTT" : { "min": 0.550, "max": 0.650},
             "VM_DVDD"     : { "min": 1.010, "max": 1.190},
-            "VM_FE1"      : { "min": 3.220, "max": 3.780, "skip": not self.preadus_enabled},
+            "VM_FE1"      : { "min": 3.220, "max": 3.780, "skip": not preadus_enabled},
             "VM_MGT1_AUX" : { "min": 1.660, "max": 1.940},
             "VM_SW_AMP"   : { "min": 3.220, "max": 3.780},
         }
