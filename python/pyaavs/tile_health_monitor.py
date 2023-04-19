@@ -164,15 +164,33 @@ class TileHealthMonitor:
     @health_monitoring_compatible
     def clear_health_status(self, group=None):
         group_list = self.gen_group_list(group)
-        self.clear_clock_status(fpga_id=None, clock_name=None) if 'clocks' in group_list else None
-        self.clear_clock_manager_status(fpga_id=None, name=None) if 'clock_managers' in group_list else None
-        self.clear_pps_status(fpga_id=None) if 'pps' in group_list else None
-        self.clear_jesd_error_counters(fpga_id=None) if 'jesd_interface' in group_list else None
-        self.clear_ddr_reset_counter(fpga_id=None)if 'ddr_interface' in group_list else None
-        self.clear_f2f_pll_lock_loss_counter(core_id=None) if 'f2f_interface' in group_list else None
-        self.clear_udp_status(fpga_id=None) if 'udp_interface' in group_list else None
-        self.clear_tile_beamformer_status(fpga_id=None) if 'tile_beamf' in group_list else None
-        self.clear_station_beamformer_status(fpga_id=None) if 'station_beamf' in group_list else None
+        if 'clocks' in group_list:
+            self.logger.debug("Clearing clock monitoring points...")
+            self.clear_clock_status(fpga_id=None, clock_name=None)
+        if 'clock_managers' in group_list:
+            self.logger.debug("Clearing FPGA clock manager monitoring points...")
+            self.clear_clock_manager_status(fpga_id=None, name=None)
+        if 'pps' in group_list:
+            self.logger.debug("Clearing pulse per second monitoring points...")
+            self.clear_pps_status(fpga_id=None)
+        if 'jesd_interface' in group_list:
+            self.logger.debug("Clearing FPGA JESD interface monitoring points...")
+            self.clear_jesd_error_counters(fpga_id=None)
+        if 'ddr_interface' in group_list:
+            self.logger.debug("Clearing FPGA DDR interface monitoring points...")
+            self.clear_ddr_reset_counter(fpga_id=None)
+        if 'f2f_interface' in group_list:
+            self.logger.debug("Clearing FPGA to FPGA interface monitoring points...")
+            self.clear_f2f_pll_lock_loss_counter(core_id=None)
+        if 'udp_interface' in group_list:
+            self.logger.debug("Clearing UDP (40Gb) interface monitoring points...")
+            self.clear_udp_status(fpga_id=None)
+        if 'tile_beamf' in group_list:
+            self.logger.debug("Clearing tile beamformer monitoring points...")
+            self.clear_tile_beamformer_status(fpga_id=None)
+        if 'station_beamf' in group_list:
+            self.logger.debug("Clearing station beamformer monitoring points...")
+            self.clear_station_beamformer_status(fpga_id=None)
         return
 
     def get_health_acceptance_values(self):
