@@ -11,7 +11,7 @@ station:
     beam_integration_time: 1
     channel_integration_time: 1
     beamformer_scaling: 4
-    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf406.bit"
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf415.bit"
     equalize_preadu: No
     pps_delays: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -39,6 +39,6 @@ network:
 # List of TPM IPs (or names) which will form station
 tiles:
 #    - "10.0.10.3"
-#    - "10.0.10.4"
+    - "10.0.10.4"
     - "10.0.10.5"
-    - "10.0.10.6"
+#    - "10.0.10.6"
