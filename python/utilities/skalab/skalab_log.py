@@ -160,7 +160,7 @@ class SkalabLog(QtWidgets.QMainWindow):
         self.logger.info("Logging Time is set to UTC")
 
         self.stopThread = False
-        self.procWriteLog = Thread(target=self.procLog)
+        self.procWriteLog = Thread(name="Thread logger",target=self.procLog)
         self.procWriteLog.start()
         self.signalLogInfo.connect(self.writeLogInfo)
         self.signalLogWarning.connect(self.writeLogWarning)

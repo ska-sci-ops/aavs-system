@@ -673,21 +673,6 @@ class Monitor(TileInitialization):
                                                 np.asarray([self.tlm_hdf_monitor[attr]]).shape[0]), axis=0)
                     self.tlm_hdf_monitor[attr][self.tlm_hdf_monitor[attr].shape[0]-1]=np.asarray([data_tile[attr]])                            
 
-    def closeEvent(self, event):
-        result = QtWidgets.QMessageBox.question(self,
-                                                "Confirm Exit...",
-                                                "Are you sure you want to exit ?",
-                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-        event.ignore()
-        if result == QtWidgets.QMessageBox.Yes:
-            event.accept()
-            if type(self.tlm_hdf_monitor) is not None:
-                try:
-                    self.tlm_hdf_monitor.close()
-                except:
-                    pass
-            sleep(1)
-
 
 class MonitorSubrack(Monitor):
     """ Main UI Window class """
@@ -720,7 +705,6 @@ class MonitorSubrack(Monitor):
         self.load_events_subrack()
         self.show()
         self.skipThreadPause = False
-        #self.processTlm = QThread(target=self.readTlm, daemon=True)
         self.processTlm = Thread(name="Subrack Telemetry", target=self.readTlm, daemon=True)
         self.wait_check_subrack = Event()
         self._subrack_lock = Lock()
@@ -929,7 +913,9 @@ class MonitorSubrack(Monitor):
                     self.tlm_hdf_monitor.close()
                 except:
                     pass
-            sleep(1)
+        self.logger.logger.info("Stopping Threads")
+        self.logger.stopLog()    
+        sleep(1) 
 
 if __name__ == "__main__":
     from optparse import OptionParser
