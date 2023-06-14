@@ -17,4 +17,7 @@ slacker
 singleton_decorator
 tabulate
 psutil
+get_nic
+pyqt5 
+typing_extensions
 
