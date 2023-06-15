@@ -82,7 +82,7 @@ class SkalabBase(QtWidgets.QMainWindow):
                 print("Loading " + App + " Profile: " + Profile + " (" + fullPath + ")")
             else:
                 print("\nThe " + Profile + " Profile for the App " + App +
-                      " does not exist.\nGenerating a new one in " + fullPath + "\n")
+                      " does not exist.\nGenerating a new one in " + fullPath)
                 self.make_profile(App=App, Profile=Profile, Path=Path)
             self.wgProfile.qline_configuration_file.setText(fullPath)
             self.profile = self.readConfig(fullPath)
@@ -118,7 +118,7 @@ class SkalabBase(QtWidgets.QMainWindow):
             if os.path.exists(defFile):
                 self.profile = self.readConfig(defFile)
                 print("Copying the Template File", defFile)
-                print(self.readConfig(defFile))
+                #print(self.readConfig(defFile))
                 if not os.path.exists(Path[:-1]):
                     os.makedirs(Path[:-1])
                 if not os.path.exists(Path + Profile):

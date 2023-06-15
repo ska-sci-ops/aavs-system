@@ -232,8 +232,7 @@ class SkaLab(QtWidgets.QMainWindow):
             if os.path.exists(fullpath):
                 print("Loading Skalab Profile: " + profile + " (" + fullpath + ")")
             else:
-                print("\nThe Skalab Profile does not exist.\nGenerating a new one in "
-                      + fullpath + "\n")
+                print("\nThe Skalab Profile does not exist.\nGenerating a new one in " + fullpath)
                 self.make_profile(profile=profile)
             self.profile = parse_profile(fullpath)
             self.profile_name = profile
@@ -247,11 +246,7 @@ class SkaLab(QtWidgets.QMainWindow):
                 msgBox.exec_()
             else:
                 self.config_file = self.profile['Init']['station_file']
-                # self.wg.qline_configfile.setText(self.config_file)
                 self.populate_table_profile()
-                # if 'Extras' in self.profile.keys():
-                #     if 'text_editor' in self.profile['Extras'].keys():
-                #         self.text_editor = self.profile['Extras']['text_editor']
 
     def reload_profile(self, profile):
         self.load_profile(profile=profile)
