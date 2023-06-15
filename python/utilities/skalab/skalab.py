@@ -16,8 +16,8 @@ __copyright__ = "Copyright 2023, Istituto di RadioAstronomia, Radiotelescopi di 
 __author__ = "Andrea Mattana"
 __credits__ = ["Andrea Mattana"]
 __license__ = "GPL"
-__version__ = "1.3.1"
-__release__ = "2023-03-22"
+__version__ = "2.0.1"
+__release__ = "2023-06-15"
 __maintainer__ = "Andrea Mattana"
 
 import shutil
@@ -123,12 +123,21 @@ class SkaLab(QtWidgets.QMainWindow):
         self.pic_ska.setGeometry(1, 1, 1111, 401)
         self.pic_ska.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/bungarra.png"))
 
+        self.pic_ska_auth = QtWidgets.QLabel(self.wg.qwpics_authpic)
+        self.pic_ska_auth.setGeometry(0, 0, 80, 78)
+        self.pic_ska_auth.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/authpic.png"))
+
         self.pic_ska_help = QtWidgets.QLabel(self.wg.qwpics_help)
         self.pic_ska_help.setGeometry(1, 1, 489, 120)
         self.pic_ska_help.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/ska_inaf_logo_mini.png"))
+
         self.wg.qlabel_sw_version.setText("Version: " + __version__)
         self.wg.qlabel_sw_release.setText("Released on: " + __release__)
         self.wg.qlabel_sw_author.setText("Author: " + __author__)
+
+        self.wg.qlabel_sw2_version.setText(__version__)
+        self.wg.qlabel_sw2_release.setText(__release__)
+        self.wg.qlabel_sw2_author.setText(__author__)
 
         # Instantiating Station Tab. This must be always done as first
         QtWidgets.QTabWidget.setTabVisible(self.wg.qtabMain, self.tabStationIndex, True)
@@ -245,7 +254,7 @@ class SkaLab(QtWidgets.QMainWindow):
                 msgBox.setWindowTitle("Error!")
                 msgBox.exec_()
             else:
-                self.config_file = self.profile['Init']['station_file']
+                # self.config_file = self.profile['Init']['station_file']
                 self.populate_table_profile()
 
     def reload_profile(self, profile):
@@ -253,8 +262,8 @@ class SkaLab(QtWidgets.QMainWindow):
         if self.profile.sections():
             if self.profile['Base']['subrack']:
                 self.wgSubrack.load_profile(App="subrack", Profile=self.profile['Base']['subrack'], Path=default_app_dir)
-            if self.profile['Base']['monitor']:
-                self.wgMonitor.load_profile(App="monitor", Profile=self.profile['Base']['monitor'], Path=default_app_dir)
+            # if self.profile['Base']['monitor']:
+            #     self.wgMonitor.load_profile(App="monitor", Profile=self.profile['Base']['monitor'], Path=default_app_dir)
             if self.profile['Base']['live']:
                 self.wgLive.load_profile(App="live", Profile=self.profile['Base']['live'], Path=default_app_dir)
             if self.profile['Base']['playback']:
@@ -343,13 +352,13 @@ class SkaLab(QtWidgets.QMainWindow):
         self.wg.qtable_profile.horizontalHeader().setDefaultSectionSize(365)
         self.wg.qtable_profile.setSortingEnabled(__sortingEnabled)
 
-    def make_profile(self, profile="Default", subrack="Default", live="Default", playback="Default", station="Default", config=""):
+    def make_profile(self, profile="Default", subrack="Default", live="Default", playback="Default", station="Default"):
         conf = configparser.ConfigParser()
         conf['Base'] = {'subrack': subrack,
                         'live': live,
                         'playback': playback,
                         'station': station}
-        conf['Init'] = {'station_file': config}
+        #conf['Init'] = {'station_file': config}
         #conf['Extras'] = {'text_editor': self.text_editor}
         if not os.path.exists(default_app_dir):
             os.makedirs(default_app_dir)
@@ -374,8 +383,8 @@ class SkaLab(QtWidgets.QMainWindow):
                           subrack=self.wgSubrack.profile['Base']['profile'],
                           live=self.wgLive.profile['Base']['profile'],
                           playback=self.wgPlay.profile['Base']['profile'],
-                          station=self.wgStation.profile['Base']['profile'],
-                          config=self.config_file)
+                          station=self.wgStation.profile['Base']['profile']) #  ,
+                          #  config=self.config_file)
         if reload:
             self.load_profile(profile=this_profile)
 
