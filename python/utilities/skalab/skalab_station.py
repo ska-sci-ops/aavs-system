@@ -108,6 +108,7 @@ class SkalabStation(SkalabBase):
                                 bbox=dict(boxstyle="round", fc="w"),
                                 arrowprops=dict(arrowstyle="->"))
             self.annot.set_visible(False)
+        self.populate_help(uifile=uiFile)
 
     def update_annot(self, x, y, text):
         pos = (x, y)

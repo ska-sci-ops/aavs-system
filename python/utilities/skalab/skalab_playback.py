@@ -3,19 +3,16 @@ import datetime
 
 from skalab_base import SkalabBase
 from skalab_log import SkalabLog
-import shutil
 import sys
 import os
 import gc
 import glob
 from pathlib import Path
 
-import configparser
 import numpy as np
-from PyQt5 import QtWidgets, uic, QtCore, QtGui
-from PyQt5.QtCore import Qt
+from PyQt5 import QtWidgets, uic, QtCore
 from skalab_utils import dB2Linear, linear2dB, MiniPlots, read_data, dircheck, findtiles, calc_disk_usage
-from skalab_utils import calcolaspettro, closest, parse_profile, getTextFromFile, moving_average
+from skalab_utils import calcolaspettro, closest, moving_average
 from pyaavs import station
 from pydaq.persisters import FileDAQModes, RawFormatFileManager
 COLORI = ["b", "g"]
@@ -161,7 +158,7 @@ class Playback(SkalabBase):
         self.wg.ctrl_raw.hide()
         self.wg.ctrl_rms.hide()
         self.wg.ctrl_spectra.show()
-        self.populate_help()
+        self.populate_help(uifile=uiFile)
 
     def load_events(self):
         self.wg.qbutton_browse.clicked.connect(lambda: self.browse_data_folder())
@@ -206,13 +203,6 @@ class Playback(SkalabBase):
             msgBox.setText("PLAYBACK: Please SELECT a valid configuration file first...")
             msgBox.setWindowTitle("Error!")
             msgBox.exec_()
-
-    def populate_help(self, uifile="Gui/skalab_playback.ui"):
-        with open(uifile) as f:
-            data = f.readlines()
-        helpkeys = [d[d.rfind('name="Help_'):].split('"')[1] for d in data if 'name="Help_' in d]
-        for k in helpkeys:
-            self.wg.findChild(QtWidgets.QTextEdit, k).setText(getTextFromFile(k.replace("_", "/")+".html"))
 
     def play_tpm_update(self):
         # Update TPM list
@@ -690,7 +680,7 @@ class Playback(SkalabBase):
             msgBox.exec_()
 
     def cb_show_spectra_grid(self, state):
-        if state == Qt.Checked:
+        if state == QtCore.Qt.Checked:
             self.show_spectra_grid = True
             self.miniPlots.showGrid(show_grid=True)
         else:
@@ -698,7 +688,7 @@ class Playback(SkalabBase):
             self.miniPlots.showGrid(show_grid=False)
 
     def cb_show_raw_grid(self, state):
-        if state == Qt.Checked:
+        if state == QtCore.Qt.Checked:
             self.show_raw_grid = True
             self.rawPlots.showGrid(show_grid=True)
         else:
@@ -706,7 +696,7 @@ class Playback(SkalabBase):
             self.rawPlots.showGrid(show_grid=False)
 
     def cb_show_power_grid(self, state):
-        if state == Qt.Checked:
+        if state == QtCore.Qt.Checked:
             self.show_power_grid = True
             self.powerPlots.showGrid(show_grid=True)
         else:
@@ -714,7 +704,7 @@ class Playback(SkalabBase):
             self.powerPlots.showGrid(show_grid=False)
 
     def cb_show_rms_grid(self, state):
-        if state == Qt.Checked:
+        if state == QtCore.Qt.Checked:
             self.show_rms_grid = True
             self.rmsPlots.showGrid(show_grid=True)
         else:
@@ -723,7 +713,7 @@ class Playback(SkalabBase):
 
     def cb_show_xline(self, state):
         times = [0] #if self.wg.qradio_avg.isChecked() else range(self.nof_files)
-        if state == Qt.Checked:
+        if state == QtCore.Qt.Checked:
             for k in times:
                 self.miniPlots.hide_line("b", True)
             self.miniPlots.hide_annotation(["b"], self.wg.qcheck_rms.isChecked())
@@ -734,7 +724,7 @@ class Playback(SkalabBase):
 
     def cb_show_yline(self, state):
         times = [0] #if self.wg.qradio_avg.isChecked() else range(self.nof_files)
-        if state == Qt.Checked:
+        if state == QtCore.Qt.Checked:
             for k in times:
                 self.miniPlots.hide_line("g", True)
             self.miniPlots.hide_annotation(["g"], self.wg.qcheck_rms.isChecked())
@@ -745,7 +735,7 @@ class Playback(SkalabBase):
 
     def cb_show_rms(self, state):
         times = [0] #if self.wg.qradio_avg.isChecked() else range(len(self.lines))
-        if state == Qt.Checked:
+        if state == QtCore.Qt.Checked:
             self.show_rms = True
             for k in times:
                 self.miniPlots.hide_annotation(["b"], visu=self.wg.qcheck_xpol_sp.isChecked())

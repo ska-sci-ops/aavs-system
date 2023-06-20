@@ -2,6 +2,7 @@ import os
 import configparser
 import shutil
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from skalab_utils import getTextFromFile
 
 
 class SkalabBase(QtWidgets.QMainWindow):
@@ -25,6 +26,13 @@ class SkalabBase(QtWidgets.QMainWindow):
     #     confparser = configparser.ConfigParser()
     #     confparser.read(config)
     #     return confparser
+
+    def populate_help(self, uifile="Gui/skalab_subrack.ui"):
+        with open(uifile) as f:
+            data = f.readlines()
+        helpkeys = [d[d.rfind('name="Help_'):].split('"')[1] for d in data if 'name="Help_' in d]
+        for k in helpkeys:
+            self.wg.findChild(QtWidgets.QTextEdit, k).setText(getTextFromFile(k.replace("_", "/")+".html"))
 
     def load(self):
         if not self.connected:

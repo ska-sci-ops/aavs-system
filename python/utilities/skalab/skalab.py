@@ -98,17 +98,11 @@ class SkaLab(QtWidgets.QMainWindow):
     def __init__(self, uiFile, profile="Default"):
         """ Initialise main window """
         super(SkaLab, self).__init__()
-        #super(SkalabBase, self).__init__(App="", Profile="", Path="")
         # Load window file
         self.wg = uic.loadUi(uiFile)
         self.setCentralWidget(self.wg)
         self.resize(1210, 970)
         self.setWindowTitle("The SKA in LAB Project")
-        # self.profile = {'App': {'subrack': "",
-        #                         'live': "",
-        #                         'playback': "",
-        #                         'station': ""},
-        #                 'Init': {'station_setup': ""}}
         self.profile_name = ""
         self.profile_file = ""
         self.load_profile(profile)
@@ -125,15 +119,11 @@ class SkaLab(QtWidgets.QMainWindow):
 
         self.pic_ska_auth = QtWidgets.QLabel(self.wg.qwpics_authpic)
         self.pic_ska_auth.setGeometry(0, 0, 80, 78)
-        self.pic_ska_auth.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/authpic.png"))
+        self.pic_ska_auth.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/People/AMattana.png"))
 
         self.pic_ska_help = QtWidgets.QLabel(self.wg.qwpics_help)
-        self.pic_ska_help.setGeometry(1, 1, 489, 120)
-        self.pic_ska_help.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/ska_inaf_logo_mini.png"))
-
-        self.wg.qlabel_sw_version.setText("Version: " + __version__)
-        self.wg.qlabel_sw_release.setText("Released on: " + __release__)
-        self.wg.qlabel_sw_author.setText("Author: " + __author__)
+        self.pic_ska_help.setGeometry(1, 1, 380, 118)
+        self.pic_ska_help.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/ska_inaf_logo.png"))
 
         self.wg.qlabel_sw2_version.setText(__version__)
         self.wg.qlabel_sw2_release.setText(__release__)
@@ -292,7 +282,7 @@ class SkaLab(QtWidgets.QMainWindow):
             data = f.readlines()
         helpkeys = [d[d.rfind('name="Help_'):].split('"')[1] for d in data if 'name="Help_' in d]
         for k in helpkeys:
-            self.wg.findChild(QtWidgets.QTextEdit, k).setText(getTextFromFile(k.replace("_", "/")+".html"))
+            self.wg.findChild(QtWidgets.QTextEdit, k).setHtml(getTextFromFile(k.replace("_", "/")+".html"))
 
     def populate_table_profile(self):
         #self.wg.qtable_profile = QtWidgets.QTableWidget(self.wg.qtabMain)

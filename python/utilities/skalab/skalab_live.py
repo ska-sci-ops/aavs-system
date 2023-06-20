@@ -19,7 +19,7 @@ import numpy as np
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import Qt
 import pydaq.daq_receiver as daq
-from skalab_utils import MiniPlots, calcolaspettro, closest, MyDaq, get_if_name, BarPlot, ChartPlots, getTextFromFile
+from skalab_utils import MiniPlots, calcolaspettro, closest, MyDaq, get_if_name, BarPlot, ChartPlots
 from skalab_utils import parse_profile, ts_to_datestring, dt_to_timestamp, Archive, COLORI, decodeChannelList
 from skalab_preadu import Preadu, PreaduGui, bound
 from pyaavs.station import Station
@@ -217,7 +217,7 @@ class Live(SkalabBase):
         self.qwRms.setGeometry(QtCore.QRect(0, 0, w, h))
         self.qwRmsMainLayout.insertWidget(0, self.qwRms)
 
-        self.populate_help()
+        self.populate_help(uifile=uiFile)
 
     def load_events(self):
         # Live Plots Connections
@@ -244,13 +244,6 @@ class Live(SkalabBase):
         self.wg.qradio_preadu.toggled.connect(lambda: self.check_preadu())
         self.wg.qcombo_chart.currentIndexChanged.connect(lambda: self.switchChart())
         self.wg.qcombo_tpm.currentIndexChanged.connect(lambda: self.updatePreadu())
-
-    def populate_help(self, uifile="Gui/skalab_live.ui"):
-        with open(uifile) as f:
-            data = f.readlines()
-        helpkeys = [d[d.rfind('name="Help_'):].split('"')[1] for d in data if 'name="Help_' in d]
-        for k in helpkeys:
-            self.wg.findChild(QtWidgets.QTextEdit, k).setText(getTextFromFile(k.replace("_", "/")+".html"))
 
     def savePicture(self):
         fd = QtWidgets.QFileDialog()

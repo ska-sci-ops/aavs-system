@@ -13,7 +13,7 @@ import configparser
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from hardware_client import WebHardwareClient
 from skalab_utils import BarPlot, ChartPlots, colors, dt_to_timestamp
-from skalab_utils import ts_to_datestring, parse_profile, COLORI, getTextFromFile
+from skalab_utils import ts_to_datestring, parse_profile, COLORI
 from threading import Thread
 from time import sleep
 import datetime
@@ -189,10 +189,8 @@ class Subrack(SkalabBase):
         self.processTlm.start()
         # print("Start Thread Subrack readTlm")
 
-
         self.wg.qplot_chart_tpm.setVisible(False)
-
-        self.populate_help()
+        self.populate_help(uifile=uiFile)
 
     def load_events(self):
         self.wg.qbutton_connect.clicked.connect(lambda: self.connect())
@@ -227,13 +225,6 @@ class Subrack(SkalabBase):
                 self.query_deny = list(self.profile['Query']['deny'].split(","))
             # if 'tiles' in self.profile['Query'].keys():
             #     self.query_tiles = list(self.profile['Query']['tiles'].split(","))
-
-    def populate_help(self, uifile="Gui/skalab_subrack.ui"):
-        with open(uifile) as f:
-            data = f.readlines()
-        helpkeys = [d[d.rfind('name="Help_'):].split('"')[1] for d in data if 'name="Help_' in d]
-        for k in helpkeys:
-            self.wg.findChild(QtWidgets.QTextEdit, k).setText(getTextFromFile(k.replace("_", "/")+".html"))
 
     def cmdSwitchTpm(self, slot):
         if self.connected:
