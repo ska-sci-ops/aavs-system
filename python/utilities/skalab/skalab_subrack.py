@@ -528,7 +528,6 @@ class Subrack(SkalabBase):
             for tlmk in self.tlm_keys:
                 if tlmk in self.query_once:
                     data = self.client.get_attribute(tlmk)
-                    self.logger.debug("GET_ATT: " + tlmk + " --> " + data)
                     if data["status"] == "OK":
                         self.system[tlmk] = data["value"]
                     else:
