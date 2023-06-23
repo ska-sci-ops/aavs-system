@@ -169,6 +169,9 @@ class SkalabLog(QtWidgets.QMainWindow):
     def info(self, msg):
         self.logger.info(msg)
 
+    def debug(self, msg):
+        self.logger.debug(msg)
+
     def warning(self, msg):
         self.logger.warning(msg)
 

@@ -193,7 +193,7 @@ class Subrack(SkalabBase):
         self.populate_help(uifile=uiFile)
 
     def load_events(self):
-        self.wg.qbutton_connect.clicked.connect(lambda: self.connect())
+        self.wg.qbutton_connect.clicked.connect(lambda: self.connection())
         self.wg.qbutton_check_ips.clicked.connect(lambda: self.checkIps())
         for n, t in enumerate(self.qbutton_tpm):
             t.clicked.connect(lambda state, g=n: self.cmdSwitchTpm(g))
@@ -472,7 +472,7 @@ class Subrack(SkalabBase):
             msgBox.exec_()
             return None
 
-    def connect(self):
+    def connection(self):
         if not self.wg.qline_ip.text() == "":
             if not self.connected:
                 self.logger.info("Connecting to Subrack %s:%d..." % (self.ip, int(self.port)))
