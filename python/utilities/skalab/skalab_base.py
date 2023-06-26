@@ -3,6 +3,9 @@ import configparser
 import shutil
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from skalab_utils import getTextFromFile
+from pathlib import Path
+
+default_app_dir = str(Path.home()) + "/.skalab/"
 
 
 class SkalabBase(QtWidgets.QMainWindow):
@@ -21,11 +24,6 @@ class SkalabBase(QtWidgets.QMainWindow):
         self.wgProfile.qbutton_apply.clicked.connect(lambda: self.apply())
         self.load_profile(App=App, Profile=Profile, Path=Path)
         self.wgProfile.qtable_conf.cellDoubleClicked.connect(self.editValue)
-
-    # def parseProfile(self, config=""):
-    #     confparser = configparser.ConfigParser()
-    #     confparser.read(config)
-    #     return confparser
 
     def populate_help(self, uifile="Gui/skalab_subrack.ui"):
         with open(uifile) as f:
@@ -314,3 +312,54 @@ class SkalabBase(QtWidgets.QMainWindow):
         self.wgProfile.qtable_conf.setItem(int(self.wgProfile.qline_row.text()),
                                            int(self.wgProfile.qline_col.text()),
                                            item)
+
+
+if __name__ == "__main__":
+    from optparse import OptionParser
+    import sys
+
+    parser = OptionParser(usage="usage: %skalab_base [options]")
+    parser.add_option("--app", action="store", dest="app",
+                      type="str", default="Test", help="Application Name")
+    parser.add_option("--profile", action="store", dest="profile",
+                      type="str", default="Default", help="Profile Name")
+    parser.add_option("--path", action="store", dest="path",
+                      type="str", default=default_app_dir, help="Profile Path")
+    (opt, args) = parser.parse_args(sys.argv[1:])
+
+    app = QtWidgets.QApplication(sys.argv)
+    wg = QtWidgets.QMainWindow()
+    wg.resize(1200, 900)
+    wg.setWindowTitle("SKALAB Configuration Wizard")
+
+    pic_wizard = QtWidgets.QLabel(wg)
+    pic_wizard.setGeometry(30, 20, 100, 100)
+    pic_wizard.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/wizard.png"))
+
+    label = QtWidgets.QLabel(wg)
+    label.setGeometry(160, 50, 500, 50)
+    label.setText("Configuration Wizard")
+    font = QtGui.QFont()
+    font.setBold(True)
+    font.setWeight(75)
+    font.setPointSize(16)
+    label.setFont(font)
+
+    label = QtWidgets.QLabel(wg)
+    label.setGeometry(420, 52, 500, 50)
+    label.setText("Please check and solve any path conflicts")
+    font = QtGui.QFont()
+    font.setBold(False)
+    font.setItalic(True)
+    # font.setWeight(75)
+    font.setPointSize(10)
+    label.setFont(font)
+
+    wgConf = QtWidgets.QWidget(wg)
+    wgConf.setGeometry(QtCore.QRect(10, 120, 1080, 780))
+    sbase = SkalabBase(App=opt.app, Profile=opt.profile, Path=opt.path, parent=wgConf)
+
+    # sbase.testFunc()
+    wg.show()
+    wg.raise_()
+    sys.exit(app.exec_())
