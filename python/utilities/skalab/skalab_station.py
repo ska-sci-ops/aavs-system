@@ -16,7 +16,7 @@ from pyaavs.tile_wrapper import Tile
 from pyfabil import TPMGeneric
 from pyfabil.base.definitions import LibraryError, BoardError, PluginError, InstrumentError
 import subprocess
-
+from pyaavs.station import configuration
 from skalab_utils import MapPlot
 
 default_app_dir = str(Path.home()) + "/.skalab/"
@@ -301,6 +301,7 @@ class SkalabStation(SkalabBase):
         if not self.config_file == "":
             # self.wgPlay.config_file = self.config_file
             # self.wgLive.config_file = self.config_file
+            station.configuration = configuration.copy()
             station.load_configuration_file(self.config_file)
             self.wg.qline_configfile.setText(self.config_file)
             self.station_name = station.configuration['station']['name']
@@ -501,7 +502,10 @@ class SkalabStation(SkalabBase):
         self.wg.qtable_tpm.clearSpans()
         #self.wg.qtable_tpm.setGeometry(QtCore.QRect(20, 180, 511, 141))
         self.wg.qtable_tpm.setObjectName("conf_qtable_tpm")
-        self.wg.qtable_tpm.setColumnCount(2)
+        self.wg.qtable_tpm.setColumnCount(1)
+        if 'time_delays' in station.configuration.keys():
+            if station.configuration['time_delays'] is not None:
+                self.wg.qtable_tpm.setColumnCount(2)
         self.wg.qtable_tpm.setRowCount(len(station.configuration['tiles']))
         for i in range(len(station.configuration['tiles'])):
             self.wg.qtable_tpm.setVerticalHeaderItem(i, QtWidgets.QTableWidgetItem("TPM-%02d" % (i + 1)))
@@ -512,23 +516,25 @@ class SkalabStation(SkalabBase):
         item.setFont(font)
         item.setTextAlignment(QtCore.Qt.AlignCenter)
         self.wg.qtable_tpm.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem("DELAYS")
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        item.setFont(font)
-        item.setTextAlignment(QtCore.Qt.AlignCenter)
-        self.wg.qtable_tpm.setHorizontalHeaderItem(1, item)
         for n, i in enumerate(station.configuration['tiles']):
             item = QtWidgets.QTableWidgetItem(str(i))
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             item.setFlags(QtCore.Qt.ItemIsEnabled)
             self.wg.qtable_tpm.setItem(n, 0, item)
-        for n, i in enumerate(station.configuration['time_delays']):
-            item = QtWidgets.QTableWidgetItem(str(i))
-            item.setTextAlignment(QtCore.Qt.AlignCenter)
-            item.setFlags(QtCore.Qt.ItemIsEnabled)
-            self.wg.qtable_tpm.setItem(n, 1, item)
+        if 'time_delays' in station.configuration.keys():
+            if station.configuration['time_delays'] is not None:
+                item = QtWidgets.QTableWidgetItem("DELAYS")
+                font = QtGui.QFont()
+                font.setBold(True)
+                font.setWeight(75)
+                item.setFont(font)
+                item.setTextAlignment(QtCore.Qt.AlignCenter)
+                self.wg.qtable_tpm.setHorizontalHeaderItem(1, item)
+                for n, i in enumerate(station.configuration['time_delays']):
+                    item = QtWidgets.QTableWidgetItem(str(i))
+                    item.setTextAlignment(QtCore.Qt.AlignCenter)
+                    item.setFlags(QtCore.Qt.ItemIsEnabled)
+                    self.wg.qtable_tpm.setItem(n, 1, item)
         self.wg.qtable_tpm.horizontalHeader().setStretchLastSection(True)
         self.wg.qtable_tpm.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.wg.qtable_tpm.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
