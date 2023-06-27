@@ -193,7 +193,7 @@ class Subrack(SkalabBase):
         self.populate_help(uifile=uiFile)
 
     def load_events(self):
-        self.wg.qbutton_connect.clicked.connect(lambda: self.connection())
+        self.wg.qbutton_connect.clicked.connect(lambda: self.connect())
         self.wg.qbutton_check_ips.clicked.connect(lambda: self.checkIps())
         for n, t in enumerate(self.qbutton_tpm):
             t.clicked.connect(lambda state, g=n: self.cmdSwitchTpm(g))
@@ -457,22 +457,7 @@ class Subrack(SkalabBase):
             self.plotMgnTemp.set_xlabel("No data available")
         self.plotMgnTemp.updatePlot()
 
-    def setup_hdf5(self):
-        if not self.profile['Subrack']['data_path'] == "":
-            fname = self.profile['Subrack']['data_path']
-            if not fname[-1] == "/":
-                fname = fname + "/"
-            fname += datetime.datetime.strftime(datetime.datetime.utcnow(), "subrack_tlm_%Y-%m-%d_%H%M%S.h5")
-            return h5py.File(fname, 'a')
-        else:
-            msgBox = QtWidgets.QMessageBox()
-            msgBox.setText("Please Select a valid path to save the Subrack data and save it into the current profile")
-            msgBox.setWindowTitle("Error!")
-            msgBox.setIcon(QtWidgets.QMessageBox.Critical)
-            msgBox.exec_()
-            return None
-
-    def connection(self):
+    def connect(self):
         if not self.wg.qline_ip.text() == "":
             if not self.connected:
                 self.logger.info("Connecting to Subrack %s:%d..." % (self.ip, int(self.port)))
@@ -624,11 +609,9 @@ class Subrack(SkalabBase):
     def setup_hdf5(self):
         if not self.profile['Subrack']['data_path'] == "":
             fname = self.profile['Subrack']['data_path']
-            if not fname[-1] == "/":
-                fname = fname + "/"
-                if os.path.exists(fname) != True:
-                    self.logger.info("Generating directory for Subrack HDF5 Telemetry Files on " + fname)
-                    os.makedirs(str(Path.home()) + fname)
+            path = Path(fname)
+            self.logger.info("Generating directory for Subrack HDF5 Telemetry Files on " + fname)
+            path.mkdir(parents=True, exist_ok=True)
             fname += datetime.datetime.strftime(datetime.datetime.utcnow(), "subrack_tlm_%Y-%m-%d_%H%M%S.h5")
             self.logger.info("Started recording Subrack HDF5 Telemetry Files in " + fname)
             return h5py.File(fname, 'a')

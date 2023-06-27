@@ -20,6 +20,7 @@ __version__ = "2.0.1"
 __release__ = "2023-06-15"
 __maintainer__ = "Andrea Mattana"
 
+import gc
 import shutil
 import sys
 import os
@@ -37,6 +38,7 @@ from skalab_subrack import Subrack
 from skalab_monitor import Monitor
 from skalab_station import SkalabStation
 from skalab_utils import parse_profile, getTextFromFile
+from skalab_base import ConfWizard
 from pathlib import Path
 import logging
 logger = logging.getLogger()
@@ -413,12 +415,13 @@ if __name__ == "__main__":
     from optparse import OptionParser
     from sys import argv, stdout
 
+    app = QtWidgets.QApplication(sys.argv)
     parser = OptionParser(usage="usage: %station_subrack [options]")
     parser.add_option("--profile", action="store", dest="profile",
                       type="str", default="Default", help="Skalab Profile to load")
     (opt, args) = parser.parse_args(argv[1:])
 
-    app = QtWidgets.QApplication(sys.argv)
+    profile = "Default"
     if os.path.exists(default_app_dir + "startup.ini"):
         autoload = parse_profile(default_app_dir + "startup.ini")
         if autoload.sections():
@@ -426,5 +429,45 @@ if __name__ == "__main__":
     else:
         profile = opt.profile
 
+    fullpath = default_app_dir + profile + "/" + profile_filename
+    if not os.path.exists(fullpath):
+        conf = configparser.ConfigParser()
+        conf['Base'] = {'subrack': "Default",
+                        'live': "Default",
+                        'playback': "Default",
+                        'station': "Default"}
+        if not os.path.exists(default_app_dir):
+            print("\nCouldn't find SKALAB configuration files directory,\nGenerating a new one in " + default_app_dir)
+            os.makedirs(default_app_dir)
+        conf_path = default_app_dir + profile
+        if not os.path.exists(conf_path):
+            os.makedirs(conf_path)
+        print("\nGenerating a new SKALAB default configuration file: " + fullpath)
+        conf_path = conf_path + "/skalab.ini"
+        with open(conf_path, 'w') as configfile:
+            conf.write(configfile)
+
+        profiles = parse_profile(fullpath)
+        print("\nCouldn't find SKALAB Modules configuration files,\nthe WIZARD assistant will help you generating them...")
+        msgBox = QtWidgets.QMessageBox()
+        msgBox.setText("\n\n                          Welcome to SKALAB!                        " +
+                       "\n\n\n   the WIZARD assistant will help you generating the            " +
+                       "\n                SKALAB Modules configuration files                 " +
+                       "\n\n   EDIT the proposed configuration for each module             " +
+                       "\n\n           CLOSE the wizard window when finished             \n\n")
+        msgBox.setWindowTitle("SKALAB Setup")
+        msgBox.setIcon(QtWidgets.QMessageBox.Information)
+        msgBox.exec_()
+        if profiles.sections():
+            for module_name in profiles['Base']:
+                if not os.path.exists(default_app_dir + profiles['Base'][module_name] + "/" + module_name + ".ini"):
+                    wg = ConfWizard(App=module_name, Profile=profiles['Base'][module_name], Path=default_app_dir)
+                    wg.wg.show()
+                    wg.wg.raise_()
+                    done = app.exec_()
+                    wg.wg.close()
+                    del wg
+                    gc.collect()
+    print("\nStarting SKALAB...\n")
     window = SkaLab("Gui/skalab_main.ui", profile=profile)
     sys.exit(app.exec_())

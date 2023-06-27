@@ -26,9 +26,9 @@
   <widget class="QComboBox" name="qcombo_profile">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>140</x>
      <y>20</y>
-     <width>161</width>
+     <width>191</width>
      <height>31</height>
     </rect>
    </property>
@@ -98,9 +98,9 @@
   <widget class="QLineEdit" name="qline_configuration_file">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>140</x>
      <y>80</y>
-     <width>601</width>
+     <width>631</width>
      <height>31</height>
     </rect>
    </property>

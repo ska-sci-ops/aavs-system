@@ -1,11 +1,73 @@
 import os
 import configparser
 import shutil
+import time
+
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from skalab_utils import getTextFromFile
 from pathlib import Path
+import sys
 
 default_app_dir = str(Path.home()) + "/.skalab/"
+
+
+class ConfWizard(QtWidgets.QMainWindow):
+    def __init__(self, App="", Profile="", Path=""):
+        super(ConfWizard).__init__()
+        self.open = True
+
+        self.wg = QtWidgets.QMainWindow()
+        self.wg.resize(1200, 900)
+        self.wg.setWindowTitle("SKALAB Configuration Wizard")
+
+        pic_wizard = QtWidgets.QLabel(self.wg)
+        pic_wizard.setGeometry(30, 20, 100, 100)
+        pic_wizard.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/wizard.png"))
+
+        label = QtWidgets.QLabel(self.wg)
+        label.setGeometry(150, 35, 500, 50)
+        label.setText("Configuration Wizard")
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        font.setPointSize(16)
+        label.setFont(font)
+
+        label = QtWidgets.QLabel(self.wg)
+        label.setGeometry(150, 60, 500, 50)
+        label.setText("Please check and solve any path conflicts")
+        font = QtGui.QFont()
+        font.setBold(False)
+        font.setItalic(True)
+        # font.setWeight(75)
+        font.setPointSize(10)
+        label.setFont(font)
+
+        label = QtWidgets.QLabel(self.wg)
+        label.setGeometry(560, 30, 200, 50)
+        label.setText("SKALAB Module")
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setPointSize(18)
+        label.setFont(font)
+        label.setStyleSheet("color: #2d6da8")
+        label.setAlignment(QtCore.Qt.AlignCenter)
+
+        label = QtWidgets.QLabel(self.wg)
+        label.setGeometry(560, 55, 200, 50)
+        label.setText(App)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setPointSize(16)
+        font.setItalic(True)
+        label.setFont(font)
+        label.setStyleSheet("color: green")
+        label.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.wgConf = QtWidgets.QWidget(self.wg)
+        self.wgConf.setGeometry(QtCore.QRect(10, 120, 1080, 780))
+        self.sbase = SkalabBase(App=App, Profile=Profile, Path=Path, parent=self.wgConf)
+        self.wg.show()
 
 
 class SkalabBase(QtWidgets.QMainWindow):
@@ -90,6 +152,7 @@ class SkalabBase(QtWidgets.QMainWindow):
                 print("\nThe " + Profile + " Profile for the App " + App +
                       " does not exist.\nGenerating a new one in " + fullPath)
                 self.make_profile(App=App, Profile=Profile, Path=Path)
+
             self.wgProfile.qline_configuration_file.setText(fullPath)
             self.profile = self.readConfig(fullPath)
             self.clear()
@@ -316,7 +379,6 @@ class SkalabBase(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     from optparse import OptionParser
-    import sys
 
     parser = OptionParser(usage="usage: %skalab_base [options]")
     parser.add_option("--app", action="store", dest="app",
@@ -328,38 +390,8 @@ if __name__ == "__main__":
     (opt, args) = parser.parse_args(sys.argv[1:])
 
     app = QtWidgets.QApplication(sys.argv)
-    wg = QtWidgets.QMainWindow()
-    wg.resize(1200, 900)
-    wg.setWindowTitle("SKALAB Configuration Wizard")
+    wiz = ConfWizard(App=opt.app, Profile=opt.profile, Path=opt.path)
 
-    pic_wizard = QtWidgets.QLabel(wg)
-    pic_wizard.setGeometry(30, 20, 100, 100)
-    pic_wizard.setPixmap(QtGui.QPixmap(os.getcwd() + "/Pictures/wizard.png"))
-
-    label = QtWidgets.QLabel(wg)
-    label.setGeometry(160, 50, 500, 50)
-    label.setText("Configuration Wizard")
-    font = QtGui.QFont()
-    font.setBold(True)
-    font.setWeight(75)
-    font.setPointSize(16)
-    label.setFont(font)
-
-    label = QtWidgets.QLabel(wg)
-    label.setGeometry(420, 52, 500, 50)
-    label.setText("Please check and solve any path conflicts")
-    font = QtGui.QFont()
-    font.setBold(False)
-    font.setItalic(True)
-    # font.setWeight(75)
-    font.setPointSize(10)
-    label.setFont(font)
-
-    wgConf = QtWidgets.QWidget(wg)
-    wgConf.setGeometry(QtCore.QRect(10, 120, 1080, 780))
-    sbase = SkalabBase(App=opt.app, Profile=opt.profile, Path=opt.path, parent=wgConf)
-
-    # sbase.testFunc()
-    wg.show()
-    wg.raise_()
+    wiz.wg.show()
+    wiz.wg.raise_()
     sys.exit(app.exec_())
