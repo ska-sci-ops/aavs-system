@@ -1,72 +1,28 @@
 import os.path
-import socket
 import sys
 import gc
 import copy
-from pyaavs.tile_wrapper import Tile
-from pyaavs import station
-from pyfabil import TPMGeneric
-from pyfabil.base.definitions import LibraryError, BoardError, PluginError, InstrumentError
-from PyQt5 import QtWidgets, uic, QtCore, QtGui
-from hardware_client import WebHardwareClient
-from skalab_base import SkalabBase
-from skalab_log import SkalabLog
-from skalab_utils import dt_to_timestamp, ts_to_datestring, parse_profile, COLORI, Led, getTextFromFile, colors
-from threading import Thread, Event, Lock
-from time import sleep
-from future.utils import iteritems
-import datetime
-from pathlib import Path
 import h5py
 import numpy as np
 import logging
 import yaml
+import datetime
 
+import skalab_monitor_tab
+from pyaavs.tile_wrapper import Tile
+from pyaavs import station
+from PyQt5 import QtWidgets, uic, QtCore, QtGui
+from hardware_client import WebHardwareClient
+from skalab_monitor_tab import TileInitialization
+from skalab_log import SkalabLog
+from skalab_utils import dt_to_timestamp, ts_to_datestring, parse_profile, COLORI, Led, getTextFromFile, colors
+from threading import Thread, Event, Lock
+from time import sleep
+from pathlib import Path
 
 default_app_dir = str(Path.home()) + "/.skalab/"
 default_profile = "Default"
 profile_filename = "monitor.ini"
-# configuration = {'tiles': None,
-#                  'time_delays': None,
-#                  'station': {
-#                      'id': 0,
-#                      'name': "Unnamed",
-#                      "number_of_antennas": 256,
-#                      'program': False,
-#                      'initialise': False,
-#                      'program_cpld': False,
-#                      'enable_test': False,
-#                      'start_beamformer': False,
-#                      'bitfile': None,
-#                      'channel_truncation': 5,
-#                      'channel_integration_time': -1,
-#                      'beam_integration_time': -1,
-#                      'equalize_preadu': 0,
-#                      'default_preadu_attenuation': 0,
-#                      'beamformer_scaling': 4,
-#                      'pps_delays': 0},
-#                  'observation': {
-#                      'bandwidth': 8 * (400e6 / 512.0),
-#                      'start_frequency_channel': 50e6},
-#                  'network': {
-#                      'lmc': {
-#                          'tpm_cpld_port': 10000,
-#                          'lmc_ip': "10.0.10.99",
-#                          'use_teng': True,
-#                          'lmc_port': 4660,
-#                          'lmc_mac': 0x248A078F9D38,
-#                          'integrated_data_ip': "10.0.0.2",
-#                          'integrated_data_port': 5000,
-#                          'use_teng_integrated': True},
-#                      'csp_ingest': {
-#                          'src_ip': "10.0.10.254",
-#                          'dst_mac': 0x248A078F9D38,
-#                          'src_port': None,
-#                          'dst_port': 4660,
-#                          'dst_ip': "10.0.10.200",
-#                          'src_mac': None}
-#                     }
-#                  }
 
 subrack_attribute = {
                 "backplane_temperatures": [None]*4,
@@ -75,6 +31,10 @@ subrack_attribute = {
                 "power_supply_powers": [None]*4,
                 "subrack_fan_speeds": [None]*8,
                 "subrack_fan_speeds_percent": [None]*8,
+                "power_supply_status": [None]*4,
+                "board_pll_lock":[None]*2,
+                "cpld_pll_lock":[None]*2,
+                "pll_source":[None]*2
                 }
 
 
@@ -104,328 +64,39 @@ def populateTable(qtable, attribute):
     a=1
     return
 
-def populateSubrackPs(frame, attribute):
+def populateSubrack(self,wg, attribute):
     j=0
+    size_x = 120
+    size_y = 60
     for k in attribute:
         for v in range(0,len(attribute[k]),2):
-            size_x = 400 if (k == "subrack_fan_speeds_percent" ) else 120
-            size_y = 10 if k == "subrack_fan_speeds_percent" else 47
-            if k == "subrack_fan_speeds": 
-                size_x = 400
-                size_y = 25
-            subrack_attribute[k][v] = QtWidgets.QLineEdit(frame)
-            subrack_attribute[k][v+1]= QtWidgets.QLineEdit(frame)
-            subrack_attribute[k][v].setGeometry(QtCore.QRect(  size_x+45*v, 10 +  (size_y*(j)),  70,19))
-            subrack_attribute[k][v+1].setGeometry(QtCore.QRect(size_x+45*v, 30 +  (size_y*(j)),  70,19))
+            if (k == "subrack_fan_speeds_percent"):
+                subrack_attribute[k][v] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),3,v)
+                subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),4,v)
+                j-=0.25
+                continue
+            if (k == "subrack_fan_speeds"):
+                subrack_attribute[k][v] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),1,v)
+                subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),2,v) 
+                j-=0.25
+                continue   
+            subrack_attribute[k][v] = QtWidgets.QLineEdit(wg.frame_subrack_attr)
+            subrack_attribute[k][v+1]= QtWidgets.QLineEdit(wg.frame_subrack_attr)
+            subrack_attribute[k][v].setGeometry(QtCore.QRect(  size_x+45*v, 10 +  20+(size_y*(j)),  70,19))
+            subrack_attribute[k][v+1].setGeometry(QtCore.QRect(size_x+45*v, 30 +  20+(size_y*(j)),  70,19))
         j+=1
 
-def populateWarningAlarmTable(true_table, warning, alarm):
-    true_table.setEditTriggers(QtWidgets.QTableWidget.AllEditTriggers)
-    row = len(alarm.keys())
-    item = QtWidgets.QTableWidgetItem()
-    item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
-    for i in range(row):
-        attr = list(alarm)[i]
-        true_table.setRowCount(row)
-        row_name = QtWidgets.QTableWidgetItem(list(warning.keys())[i])
-        true_table.setVerticalHeaderItem(i, row_name)
-        true_table.setItem(i , 0, QtWidgets.QTableWidgetItem(str(warning[attr][0])))
-        true_table.setItem(i , 1, QtWidgets.QTableWidgetItem(str(warning[attr][1])))
-        true_table.setItem(i , 2, QtWidgets.QTableWidgetItem(str(alarm[attr][0]))  )
-        true_table.setItem(i , 3, QtWidgets.QTableWidgetItem(str(alarm[attr][1])) )
-    true_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-    
-               
-def addLed(frame):
-    qled_alert = []
-    for i in range(8):
-        qled_alert += [Led(frame)]
-        qled_alert[i].setGeometry(QtCore.QRect(140, 80 + (66 * (i)), 30, 30))
-        qled_alert[i].setObjectName("qled_warn_alar%d" % i)
-    return qled_alert
 
-def populateSlots(frame):
+def populateSlots(grid):
     qbutton_tpm = []
     for i in range(8):
-        qbutton_tpm += [QtWidgets.QPushButton(frame)]
+        qbutton_tpm.append(QtWidgets.QPushButton("TPM #%d" % (i + 1)))
+        grid.addWidget(qbutton_tpm[i],int(i/4), int(i/4)*(-4)+i)
         qbutton_tpm[i].setGeometry(QtCore.QRect(10, 80 + (66 * (i)), 80, 30))
         qbutton_tpm[i].setObjectName("qbutton_tpm_%d" % i)
-        qbutton_tpm[i].setText("TPM #%d" % (i + 1))
+        #qbutton_tpm[i].setText("TPM #%d" % (i + 1))
         qbutton_tpm[i].setEnabled(False)
-    return qbutton_tpm
-
-
-class TileInitialization(SkalabBase):
-
-    signal_station_init = QtCore.pyqtSignal()
-
-    def __init__(self, profile, swpath="") -> None:
-        super(TileInitialization, self).__init__(App="monitor", Profile=profile, Path=swpath, parent=self.wgProBox)
-        self.config_file = self.profile['Init']['station_file']
-        self.wg.qline_configfile.setText(self.config_file)
-        if 'Extras' in self.profile.keys():
-            if 'text_editor' in self.profile['Extras'].keys():
-                self.text_editor = self.profile['Extras']['text_editor']
-        if self.config_file:  
-            station.load_configuration_file(self.config_file)
-            self.station_name = station.configuration['station']['name']
-            self.nof_tiles = len(station.configuration['tiles'])
-            self.nof_antennas = int(station.configuration['station']['number_of_antennas'])
-            self.bitfile = station.configuration['station']['bitfile']
-            if len(self.bitfile) > 52:
-                self.wg.qlabel_bitfile.setText("..." + self.bitfile[-52:])
-            else:
-                self.wg.qlabel_bitfile.setText(self.bitfile)
-            self.truncation = int(station.configuration['station']['channel_truncation'])
-            self.populate_table_station()
-            self.loadEventStation()
-            
-
-    def loadEventStation(self):
-        self.wg.qbutton_station_init.clicked.connect(lambda: self.station_init())
-
-    def do_station_init(self):
-        station.configuration['station']['initialise'] = True
-        station.configuration['station']['program'] = True
-        try:
-            self.tpm_station = station.Station(station.configuration)
-            self.wg.qbutton_station_init.setEnabled(False)
-            self.tpm_station.connect()
-            station.configuration['station']['initialise'] = False
-            station.configuration['station']['program'] = False
-            if self.tpm_station.properly_formed_station:
-                self.wg.qbutton_station_init.setStyleSheet("background-color: rgb(78, 154, 6);")
-                for k in self.tpm_slot_ip.keys():
-                    self.tpm_initialized[k-1] = True
-                self.wait_check_tpm.set()
-                # Switch On the PreADUs
-                for tile in self.tpm_station.tiles:
-                    tile["board.regfile.enable.fe"] = 1
-                    sleep(0.1)
-                sleep(1)
-                self.tpm_station.set_preadu_attenuation(0)
-                monitor_logger.info("TPM PreADUs Powered ON")
-
-
-            else:
-                self.wg.qbutton_station_init.setStyleSheet("background-color: rgb(204, 0, 0);")
-            self.wg.qbutton_station_init.setEnabled(True)
-            del self.tpm_station
-            gc.collect()
-        except:
-            self.wg.qbutton_station_init.setEnabled(True)
-        self.tpm_station = None
-
-
-    def station_init(self):
-        result = QtWidgets.QMessageBox.question(self.wg.monitor_tab, "Confirm Action -IP",
-                                            "Are you sure to Program and Init the Station?",
-                                            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-        if result == QtWidgets.QMessageBox.Yes:
-            if self.config_file:
-                # Create station
-                station.load_configuration_file(self.config_file)
-                # Check wether the TPM are ON or OFF
-                station_on = True
-                tpm_ip_list = list(station.configuration['tiles'])
-                tpm_ip_from_subrack = MonitorSubrack.getTiles(self)
-                if tpm_ip_from_subrack:
-                    tpm_ip_from_subrack_short = [x for x in tpm_ip_from_subrack if not x == '0']
-                    if not len(tpm_ip_list) == len(tpm_ip_from_subrack_short):
-                        msgBox = QtWidgets.QMessageBox()
-                        message = "STATION\nOne or more TPMs forming the station are OFF\nPlease check the power!"
-                        msgBox.setText(message)
-                        msgBox.setWindowTitle("ERROR: TPM POWERED OFF")
-                        msgBox.setIcon(QtWidgets.QMessageBox.Critical)
-                        details = "STATION IP LIST FROM CONFIG FILE (%d): " % len(tpm_ip_list)
-                        for i in tpm_ip_list:
-                            details += "\n%s" % i
-                        details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack_short)
-                        for i in tpm_ip_from_subrack_short:
-                            details += "\n%s" % i
-                        msgBox.setDetailedText(details)
-                        msgBox.exec_()
-                        monitor_logger.info(self.wgSubrack.telemetry)
-                        return
-                    else:
-                        if not np.array_equal(tpm_ip_list, tpm_ip_from_subrack_short):
-                            msgBox = QtWidgets.QMessageBox()
-                            message = "STATION\nIPs provided by the Subrack are different from what defined in the " \
-                                    "config file.\nINIT will use the new assigned IPs."
-                            msgBox.setText(message)
-                            msgBox.setWindowTitle("WARNING: IP mismatch")
-                            msgBox.setIcon(QtWidgets.QMessageBox.Warning)
-                            details = "STATION IP LIST FROM CONFIG FILE (%d): " % len(tpm_ip_list)
-                            for i in tpm_ip_list:
-                                details += "\n%s" % i
-                            details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack_short)
-                            for i in tpm_ip_from_subrack_short:
-                                details += "\n%s" % i
-                            msgBox.setDetailedText(details)
-                            msgBox.exec_()
-                            station.configuration['tiles'] = list(tpm_ip_from_subrack_short)
-                            self.wgLive.setupNewTilesIPs(list(tpm_ip_from_subrack))
-                for tpm_ip in station.configuration['tiles']:
-                    try:
-                        tpm = TPMGeneric()
-                        tpm_version = tpm.get_tpm_version(socket.gethostbyname(tpm_ip), 10000)
-                    except (BoardError, LibraryError):
-                        station_on = False
-                        break
-                if station_on:
-                    self.signal_station_init.emit()
-                else:
-                    msgBox = QtWidgets.QMessageBox()
-                    msgBox.setText("STATION\nOne or more TPMs forming the station is unreachable\n"
-                                "Please check the power or the connection!")
-                    msgBox.setWindowTitle("ERROR: TPM UNREACHABLE")
-                    msgBox.setIcon(QtWidgets.QMessageBox.Critical)
-                    details = "STATION IP LIST FROM CONFIG FILE (%d): " % len(tpm_ip_list)
-                    for i in tpm_ip_list:
-                        details += "\n%s" % i
-                    details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack)
-                    for i in tpm_ip_from_subrack:
-                        details += "\n%s" % i
-                    msgBox.setDetailedText(details)
-                    msgBox.exec_()
-            else:
-                msgBox = QtWidgets.QMessageBox()
-                msgBox.setText("SKALAB: Please LOAD a configuration file first...")
-                msgBox.setWindowTitle("Error!")
-                msgBox.setIcon(QtWidgets.QMessageBox.Critical)
-                msgBox.exec_()
-
-    def apply_config_file(self,input_dict, output_dict):
-        """ Recursively copy value from input_dict to output_dict"""
-        for k, v in iteritems(input_dict):
-            if type(v) is dict:
-                self.apply_config_file(v, output_dict[k])
-            elif k not in list(output_dict.keys()):
-                logging.warning("{} not a valid configuration item. Skipping".format(k))
-            else:
-                output_dict[k] = v
-
-    def populate_table_station(self):
-        # TABLE STATION
-        self.wg.qtable_station.clearSpans()
-        #self.wg.qtable_station.setGeometry(QtCore.QRect(20, 140, 171, 31))
-        self.wg.qtable_station.setObjectName("conf_qtable_station")
-        self.wg.qtable_station.setColumnCount(1)
-        self.wg.qtable_station.setRowCount(len(station.configuration['station'].keys()) - 1)
-        n = 0
-        for i in station.configuration['station'].keys():
-            if not i == "bitfile":
-                self.wg.qtable_station.setVerticalHeaderItem(n, QtWidgets.QTableWidgetItem(i.upper()))
-                n = n + 1
-
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        item.setFont(font)
-        item.setText("SECTION: STATION")
-        self.wg.qtable_station.setHorizontalHeaderItem(0, item)
-        __sortingEnabled = self.wg.qtable_station.isSortingEnabled()
-        self.wg.qtable_station.setSortingEnabled(False)
-        n = 0
-        for i in station.configuration['station'].keys():
-            if not i == "bitfile":
-                item = QtWidgets.QTableWidgetItem(str(station.configuration['station'][i]))
-                item.setFlags(QtCore.Qt.ItemIsEnabled)
-                self.wg.qtable_station.setItem(n, 0, item)
-                n = n + 1
-        self.wg.qtable_station.horizontalHeader().setStretchLastSection(True)
-        self.wg.qtable_station.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.wg.qtable_station.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.wg.qtable_station.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-
-        # TABLE TPM
-        self.wg.qtable_tpm.clearSpans()
-        #self.wg.qtable_tpm.setGeometry(QtCore.QRect(20, 180, 511, 141))
-        self.wg.qtable_tpm.setObjectName("conf_qtable_tpm")
-        self.wg.qtable_tpm.setColumnCount(2)
-        self.wg.qtable_tpm.setRowCount(len(station.configuration['tiles']))
-        for i in range(len(station.configuration['tiles'])):
-            self.wg.qtable_tpm.setVerticalHeaderItem(i, QtWidgets.QTableWidgetItem("TPM-%02d" % (i + 1)))
-        item = QtWidgets.QTableWidgetItem("IP ADDR")
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        item.setFont(font)
-        item.setTextAlignment(QtCore.Qt.AlignCenter)
-        self.wg.qtable_tpm.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem("DELAYS")
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        item.setFont(font)
-        item.setTextAlignment(QtCore.Qt.AlignCenter)
-        self.wg.qtable_tpm.setHorizontalHeaderItem(1, item)
-        for n, i in enumerate(station.configuration['tiles']):
-            item = QtWidgets.QTableWidgetItem(str(i))
-            item.setTextAlignment(QtCore.Qt.AlignCenter)
-            item.setFlags(QtCore.Qt.ItemIsEnabled)
-            self.wg.qtable_tpm.setItem(n, 0, item)
-        for n, i in enumerate(station.configuration['time_delays']):
-            item = QtWidgets.QTableWidgetItem(str(i))
-            item.setTextAlignment(QtCore.Qt.AlignCenter)
-            item.setFlags(QtCore.Qt.ItemIsEnabled)
-            self.wg.qtable_tpm.setItem(n, 1, item)
-        self.wg.qtable_tpm.horizontalHeader().setStretchLastSection(True)
-        self.wg.qtable_tpm.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.wg.qtable_tpm.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.wg.qtable_tpm.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-
-        # TABLE NETWORK
-        self.wg.qtable_network.clearSpans()
-        #self.wg.qtable_network.setGeometry(QtCore.QRect(600, 230, 511, 481))
-        self.wg.qtable_network.setObjectName("conf_qtable_network")
-        self.wg.qtable_network.setColumnCount(1)
-
-        total_rows = len(station.configuration['network'].keys()) * 2 - 1
-        for i in station.configuration['network'].keys():
-            total_rows += len(station.configuration['network'][i])
-        self.wg.qtable_network.setRowCount(total_rows)
-        item = QtWidgets.QTableWidgetItem("SECTION: NETWORK")
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        item.setFont(font)
-        item.setTextAlignment(QtCore.Qt.AlignCenter)
-        item.setFlags(QtCore.Qt.ItemIsEnabled)
-        self.wg.qtable_network.setHorizontalHeaderItem(0, item)
-        n = 0
-        for i in station.configuration['network'].keys():
-            if n:
-                item = QtWidgets.QTableWidgetItem(" ")
-                item.setTextAlignment(QtCore.Qt.AlignCenter)
-                item.setFlags(QtCore.Qt.ItemIsEnabled)
-                self.wg.qtable_network.setVerticalHeaderItem(n, item)
-                item = QtWidgets.QTableWidgetItem(" ")
-                item.setTextAlignment(QtCore.Qt.AlignCenter)
-                item.setFlags(QtCore.Qt.ItemIsEnabled)
-                self.wg.qtable_network.setItem(n, 0, item)
-                n = n + 1
-            self.wg.qtable_network.setVerticalHeaderItem(n, QtWidgets.QTableWidgetItem(str(i).upper()))
-            item = QtWidgets.QTableWidgetItem(" ")
-            item.setFlags(QtCore.Qt.ItemIsEnabled)
-            self.wg.qtable_network.setItem(n, 0, item)
-            n = n + 1
-            for k in sorted(station.configuration['network'][i].keys()):
-                self.wg.qtable_network.setVerticalHeaderItem(n, QtWidgets.QTableWidgetItem(str(k).upper()))
-                if "MAC" in str(k).upper() and not str(station.configuration['network'][i][k]) == "None":
-                    item = QtWidgets.QTableWidgetItem(hex(station.configuration['network'][i][k]).upper())
-                else:
-                    item = QtWidgets.QTableWidgetItem(str(station.configuration['network'][i][k]))
-                item.setTextAlignment(QtCore.Qt.AlignLeft)
-                item.setFlags(QtCore.Qt.ItemIsEnabled)
-                self.wg.qtable_network.setItem(n, 0, item)
-                n = n + 1
-        self.wg.qtable_network.horizontalHeader().setStretchLastSection(True)
-        self.wg.qtable_network.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.wg.qtable_network.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.wg.qtable_network.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-
+    return qbutton_tpm          
 
 class Monitor(TileInitialization):
 
@@ -450,10 +121,12 @@ class Monitor(TileInitialization):
         self.tlm_hdf_monitor = None
         self.tpm_initialized = [False] * 8
         # Populate table
-        populateSubrackPs(self.wg.sub_frame, subrack_attribute)
+        populateSubrack(self, self.wg, subrack_attribute)
         self.populate_table_profile()
-        self.qled_alert = addLed(self.wg.frame_subrack)
-        self.qbutton_tpm = populateSlots(self.wg.frame_subrack)
+        self.qled_alert = Led(self.wg.frame_subrack)
+        self.wg.grid_led.addWidget(self.qled_alert)
+        self.qled_alert.setObjectName("qled_warn_alar")
+        self.qbutton_tpm = populateSlots(self.wg.grid_tpm)
         self.populateTileInstance()
         self.loadWarningAlarmValues()
         self.tile_table_attr = copy.deepcopy(self.tpm_alarm)
@@ -462,7 +135,8 @@ class Monitor(TileInitialization):
         self.alarm = dict(self.tile_table_attr, **subrack_attribute)
         for k in self.alarm.keys():
             self.alarm[k] = [False]*8
-        populateTable(self.wg.qtable_tile, self.tile_table_attr)
+            #load_tpm_1_6_lookup
+        #populateTable(self.wg.qtable_tile, self.tile_table_attr)
         
         # Start thread
         self.show()
@@ -475,7 +149,6 @@ class Monitor(TileInitialization):
         self.check_tpm_tm.start()
 
     def writeLog(self,message,priority):
-    #TODO Change with match-case statement when update to Python3.10
         if priority == "info":
             self.logger.info(message)
         elif priority == "warning":
@@ -484,7 +157,8 @@ class Monitor(TileInitialization):
             self.logger.error(message)
     
     def loadEventsMonitor(self):
-        self.wg.qbutton_clear_led.clicked.connect(lambda: self.clearValues())
+        self.wg.qbutton_clear_subrack.clicked.connect(lambda: self.clearValues())
+        self.wg.qbutton_clear_tpm.clicked.connect(lambda: self.clearValues())
         self.wgProfile.qbutton_load.clicked.connect(lambda: self.loadNewTable())
         self.wg.check_savedata.toggled.connect(self.setupHdf5) # TODO ADD toggled
 
@@ -538,7 +212,7 @@ class Monitor(TileInitialization):
             if self.alarm_values[attr][0]   == None: self.alarm_values[attr][0]   = -float('inf')
             if self.warning[attr][1] == None: self.warning[attr][1] =  float('inf')
             if self.alarm_values[attr][1]   == None: self.alarm_values[attr][1]   =  float('inf')   
-        populateWarningAlarmTable(self.wg.true_table, self.warning, self.alarm_values)
+        skalab_monitor_tab.populateWarningAlarmTable(self.wg.true_table, self.warning, self.alarm_values)
 
     def tpmStatusChanged(self):
         self.wait_check_tpm.clear()
@@ -671,8 +345,7 @@ class Monitor(TileInitialization):
                 else:
                     self.tlm_hdf_monitor[attr].resize((self.tlm_hdf_monitor[attr].shape[0] +
                                                 np.asarray([self.tlm_hdf_monitor[attr]]).shape[0]), axis=0)
-                    self.tlm_hdf_monitor[attr][self.tlm_hdf_monitor[attr].shape[0]-1]=np.asarray([data_tile[attr]])                            
-
+                    self.tlm_hdf_monitor[attr][self.tlm_hdf_monitor[attr].shape[0]-1]=np.asarray([data_tile[attr]])                  
 
 class MonitorSubrack(Monitor):
     """ Main UI Window class """
@@ -944,8 +617,7 @@ if __name__ == "__main__":
         window = MonitorSubrack(uiFile="Gui/skalab_monitor.ui", size=[1190, 936],
                                  profile=opt.profile,
                                  swpath=default_app_dir)
-        window.resize(700, 494)
-        window.setFixedSize(1500,930)
+        window.setFixedSize(1350,950)
         window.dst_port = station.configuration['network']['lmc']['lmc_port']
         window.lmc_ip = station.configuration['network']['lmc']['lmc_ip']
         window.cpld_port = station.configuration['network']['lmc']['tpm_cpld_port']
@@ -1004,10 +676,6 @@ if __name__ == "__main__":
                             tstamp = dt_to_timestamp(datetime.datetime.utcnow())
                             attributes = {}
                             monitor_logger.info("\nTstamp: %d\tDateTime: %s\n" % (tstamp, ts_to_datestring(tstamp)))
-                            for att in subAttr:
-                                attributes[att] = client.get_attribute(att)["value"]
-                                monitor_logger.info(att, attributes[att])
-                            sleep(opt.interval)
                     except KeyboardInterrupt:
                         monitor_logger.warning("\nTerminated by the user.\n")
                 client.disconnect()
