@@ -15,9 +15,9 @@
 __copyright__ = "Copyright 2023, Istituto di RadioAstronomia, Radiotelescopi di Medicina, INAF, Italy"
 __author__ = "Andrea Mattana"
 __credits__ = ["Andrea Mattana"]
-__license__ = "GPL"
-__version__ = "2.0.1"
-__release__ = "2023-06-15"
+__license__ = "BSD3"
+__version__ = "2.0.2"
+__release__ = "2023-06-29"
 __maintainer__ = "Andrea Mattana"
 
 import gc
@@ -51,47 +51,47 @@ profile_filename = "skalab.ini"
 
 COLORI = ["b", "g"]
 
-configuration = {'tiles': None,
-                 'time_delays': None,
-                 'station': {
-                     'id': 0,
-                     'name': "Unnamed",
-                     "number_of_antennas": 256,
-                     'program': False,
-                     'initialise': False,
-                     'program_cpld': False,
-                     'enable_test': False,
-                     'start_beamformer': False,
-                     'bitfile': None,
-                     'channel_truncation': 5,
-                     'channel_integration_time': -1,
-                     'beam_integration_time': -1,
-                     'equalize_preadu': 0,
-                     'default_preadu_attenuation': 0,
-                     'beamformer_scaling': 4,
-                     'pps_delays': 0},
-                 'observation': {
-                     'bandwidth': 8 * (400e6 / 512.0),
-                     'start_frequency_channel': 50e6},
-                 'network': {
-                     'lmc': {
-                         'tpm_cpld_port': 10000,
-                         'lmc_ip': "10.0.10.200",
-                         'use_teng': True,
-                         'lmc_port': 4660,
-                         'lmc_mac': 0x248A078F9D38,
-                         'integrated_data_ip': "10.0.0.2",
-                         'integrated_data_port': 5000,
-                         'use_teng_integrated': True},
-                     'csp_ingest': {
-                         'src_ip': "10.0.10.254",
-                         'dst_mac': 0x248A078F9D38,
-                         'src_port': None,
-                         'dst_port': 4660,
-                         'dst_ip': "10.0.10.200",
-                         'src_mac': None}
-                    }
-                 }
+
+def runWizard(fullpath=""):
+    if not os.path.exists(fullpath):
+        conf = configparser.ConfigParser()
+        conf['Base'] = {'subrack': "Default",
+                        'live': "Default",
+                        'playback': "Default",
+                        'station': "Default"}
+        if not os.path.exists(default_app_dir):
+            print("\nCouldn't find SKALAB configuration files directory,\nGenerating a new one in " + default_app_dir)
+            os.makedirs(default_app_dir)
+        conf_path = default_app_dir + profile
+        if not os.path.exists(conf_path):
+            os.makedirs(conf_path)
+        print("\nGenerating a new SKALAB default configuration file: " + fullpath)
+        conf_path = conf_path + "/skalab.ini"
+        with open(conf_path, 'w') as configfile:
+            conf.write(configfile)
+    profiles = parse_profile(fullpath)
+
+    msgBox = QtWidgets.QMessageBox()
+    msgBox.setText("\n\n                       Welcome to SKALAB v." + __version__ + "                     " +
+                   "\n\n\n   the WIZARD assistant will help you generating the            " +
+                   "\n                SKALAB Modules configuration files                 " +
+                   "\n\n   EDIT the proposed configuration for each module             " +
+                   "\n\n    click DONE to validate it and go to the next step             \n\n")
+    msgBox.setWindowTitle("SKALAB Setup")
+    msgBox.setIcon(QtWidgets.QMessageBox.Information)
+    # msgBox.setWindowIcon(QtGui.QIcon('Pictures/wizard.png'))
+    msgBox.exec_()
+    if profiles.sections():
+        for n, module_name in enumerate(profiles['Base']):
+            # if not os.path.exists(default_app_dir + profiles['Base'][module_name] + "/" + module_name + ".ini"):
+            wg = ConfWizard(App=module_name, Profile=profiles['Base'][module_name], Path=default_app_dir,
+                            msg="Step %d/%d" % (n + 1, len(profiles['Base'])))
+            wg.wg.show()
+            wg.wg.raise_()
+            done = app.exec_()
+            wg.wg.close()
+            del wg
+            gc.collect()
 
 
 class SkaLab(QtWidgets.QMainWindow):
@@ -300,6 +300,7 @@ class SkaLab(QtWidgets.QMainWindow):
         # Header Horizontal
         item = QtWidgets.QTableWidgetItem()
         item.setTextAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignVCenter)
+        item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
@@ -314,8 +315,10 @@ class SkaLab(QtWidgets.QMainWindow):
         for k in self.profile.sections():
             # Empty Row
             item = QtWidgets.QTableWidgetItem()
+            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
             self.wg.qtable_profile.setVerticalHeaderItem(row, item)
             item = self.wg.qtable_profile.verticalHeaderItem(row)
+            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
             item.setText(" ")
             item = QtWidgets.QTableWidgetItem()
             item.setText(" ")
@@ -328,16 +331,19 @@ class SkaLab(QtWidgets.QMainWindow):
             font.setWeight(75)
             item.setFont(font)
             item.setText("[" + k + "]")
+            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
             self.wg.qtable_profile.setVerticalHeaderItem(row, item)
             row = row + 1
 
             for s in self.profile[k].keys():
                 item = QtWidgets.QTableWidgetItem()
+                item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
                 self.wg.qtable_profile.setVerticalHeaderItem(row, item)
                 item = self.wg.qtable_profile.verticalHeaderItem(row)
                 item.setText(s)
                 item = QtWidgets.QTableWidgetItem()
                 item.setText(self.profile[k][s])
+                item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
                 self.wg.qtable_profile.setItem(row, 0, item)
                 row = row + 1
 
@@ -416,9 +422,9 @@ if __name__ == "__main__":
     from sys import argv, stdout
 
     app = QtWidgets.QApplication(sys.argv)
-    parser = OptionParser(usage="usage: %station_subrack [options]")
-    parser.add_option("--profile", action="store", dest="profile",
-                      type="str", default="Default", help="Skalab Profile to load")
+    parser = OptionParser(usage="usage: %skalab [options]")
+    parser.add_option("--wizard", action="store_true", dest="wizard",
+                      default=False, help="Run the configuration Wizard")
     (opt, args) = parser.parse_args(argv[1:])
 
     profile = "Default"
@@ -426,48 +432,12 @@ if __name__ == "__main__":
         autoload = parse_profile(default_app_dir + "startup.ini")
         if autoload.sections():
             profile = autoload['Base']["autoload_profile"]
-    else:
-        profile = opt.profile
 
     fullpath = default_app_dir + profile + "/" + profile_filename
-    if not os.path.exists(fullpath):
-        conf = configparser.ConfigParser()
-        conf['Base'] = {'subrack': "Default",
-                        'live': "Default",
-                        'playback': "Default",
-                        'station': "Default"}
-        if not os.path.exists(default_app_dir):
-            print("\nCouldn't find SKALAB configuration files directory,\nGenerating a new one in " + default_app_dir)
-            os.makedirs(default_app_dir)
-        conf_path = default_app_dir + profile
-        if not os.path.exists(conf_path):
-            os.makedirs(conf_path)
-        print("\nGenerating a new SKALAB default configuration file: " + fullpath)
-        conf_path = conf_path + "/skalab.ini"
-        with open(conf_path, 'w') as configfile:
-            conf.write(configfile)
 
-        profiles = parse_profile(fullpath)
-        print("\nCouldn't find SKALAB Modules configuration files,\nthe WIZARD assistant will help you generating them...")
-        msgBox = QtWidgets.QMessageBox()
-        msgBox.setText("\n\n                          Welcome to SKALAB!                        " +
-                       "\n\n\n   the WIZARD assistant will help you generating the            " +
-                       "\n                SKALAB Modules configuration files                 " +
-                       "\n\n   EDIT the proposed configuration for each module             " +
-                       "\n\n           CLOSE the wizard window when finished             \n\n")
-        msgBox.setWindowTitle("SKALAB Setup")
-        msgBox.setIcon(QtWidgets.QMessageBox.Information)
-        msgBox.exec_()
-        if profiles.sections():
-            for module_name in profiles['Base']:
-                if not os.path.exists(default_app_dir + profiles['Base'][module_name] + "/" + module_name + ".ini"):
-                    wg = ConfWizard(App=module_name, Profile=profiles['Base'][module_name], Path=default_app_dir)
-                    wg.wg.show()
-                    wg.wg.raise_()
-                    done = app.exec_()
-                    wg.wg.close()
-                    del wg
-                    gc.collect()
+    if (not os.path.exists(fullpath)) or opt.wizard:
+        runWizard(fullpath=fullpath)
+
     print("\nStarting SKALAB...\n")
     window = SkaLab("Gui/skalab_main.ui", profile=profile)
     sys.exit(app.exec_())

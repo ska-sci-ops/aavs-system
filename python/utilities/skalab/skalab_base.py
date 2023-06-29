@@ -12,7 +12,7 @@ default_app_dir = str(Path.home()) + "/.skalab/"
 
 
 class ConfWizard(QtWidgets.QMainWindow):
-    def __init__(self, App="", Profile="", Path=""):
+    def __init__(self, App="", Profile="", Path="", msg=""):
         super(ConfWizard).__init__()
         self.open = True
 
@@ -64,10 +64,29 @@ class ConfWizard(QtWidgets.QMainWindow):
         label.setStyleSheet("color: green")
         label.setAlignment(QtCore.Qt.AlignCenter)
 
+        label = QtWidgets.QLabel(self.wg)
+        label.setGeometry(880, 40, 200, 50)
+        label.setText(msg)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setPointSize(27)
+        font.setItalic(True)
+        label.setFont(font)
+        label.setStyleSheet("color: black")
+        label.setAlignment(QtCore.Qt.AlignCenter)
+
         self.wgConf = QtWidgets.QWidget(self.wg)
         self.wgConf.setGeometry(QtCore.QRect(10, 120, 1080, 780))
         self.sbase = SkalabBase(App=App, Profile=Profile, Path=Path, parent=self.wgConf)
+        self.qbuttonDone = QtWidgets.QPushButton(self.wg)
+        self.qbuttonDone.setGeometry(QtCore.QRect(930, 140, 89, 31))
+        self.qbuttonDone.setText("DONE")
+        self.qbuttonDone.raise_()
+        self.qbuttonDone.clicked.connect(lambda: self.validate())
         self.wg.show()
+
+    def validate(self):
+        self.wg.close()
 
 
 class SkalabBase(QtWidgets.QMainWindow):
@@ -390,7 +409,7 @@ if __name__ == "__main__":
     (opt, args) = parser.parse_args(sys.argv[1:])
 
     app = QtWidgets.QApplication(sys.argv)
-    wiz = ConfWizard(App=opt.app, Profile=opt.profile, Path=opt.path)
+    wiz = ConfWizard(App=opt.app, Profile=opt.profile, Path=opt.path, msg="Step 1/1")
 
     wiz.wg.show()
     wiz.wg.raise_()
