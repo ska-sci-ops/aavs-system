@@ -218,6 +218,9 @@ class Live(SkalabBase):
         self.qwRmsMainLayout.insertWidget(0, self.qwRms)
 
         self.populate_help(uifile=uiFile)
+        station.load_configuration_file(self.config_file)
+        self.stationIps = station.configuration['tiles']
+        self.updateComboIps(self.stationIps)
 
     def load_events(self):
         # Live Plots Connections
@@ -439,13 +442,14 @@ class Live(SkalabBase):
     def connect(self):
         if not self.connected:
             # Load station configuration
+            self.config_file = self.profile['Live']['station_file']
             station.load_configuration_file(self.config_file)
             self.station_configuration = station.configuration
             if self.newTilesIPs is not None:
                 station.configuration['tiles'] = self.newTilesIPs
-            # Test
-            #if True:
+                self.updateComboIps(self.newTilesIPs)
             try:
+                # if True:
                 # Create station
                 self.tpm_station = Station(station.configuration)
                 # Connect station (program, initialise and configure if required)

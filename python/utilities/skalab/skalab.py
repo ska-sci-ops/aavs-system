@@ -148,7 +148,6 @@ class SkaLab(QtWidgets.QMainWindow):
                            swpath=default_app_dir)
         self.wgLive.signalTemp.connect(self.wgLive.updateTempPlot)
         self.wgLive.signalRms.connect(self.wgLive.updateRms)
-
         self.wgLiveLayout.addWidget(self.wgLive)
         self.wg.qwLive.setLayout(self.wgLiveLayout)
 
