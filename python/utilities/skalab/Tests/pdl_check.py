@@ -2,7 +2,7 @@ import sys
 sys.path.append("../")
 import os.path
 import time
-from tqdm import tqdm
+# from tqdm import tqdm
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
