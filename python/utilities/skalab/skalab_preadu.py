@@ -982,6 +982,11 @@ class preAduAAVS3:
             self.rx += [AAVS3OpticalRx()]
             self.rx[i].sn = i
         self.spi_remap = np.arange(32)
+        self.spi_remap = [1, 0, 3, 2, 5, 4, 7, 6,
+                          17, 16, 19, 18, 21, 20, 23, 22,
+                          30, 31, 28, 29, 26, 27, 24, 25,
+                          14, 15, 12, 13, 10, 11, 8, 9]
+
 
     def set_rx_attenuation(self, nrx, att):
         self.rx[self.spi_remap[nrx]].set_attenuation(bound(att))
