@@ -472,7 +472,7 @@ class AAVS3OpticalRx(Rx):
 
     @staticmethod
     def op_set_attenuation(code, att):
-        return (code & 0b1) + (att << 2)
+        return bin(att * 4)
 
     @staticmethod
     def op_get_attenuation(code):
@@ -982,7 +982,6 @@ class preAduAAVS3:
             self.rx += [AAVS3OpticalRx()]
             self.rx[i].sn = i
         self.spi_remap = np.arange(32)
-
 
     def set_rx_attenuation(self, nrx, att):
         self.rx[self.spi_remap[nrx]].set_attenuation(bound(att))
