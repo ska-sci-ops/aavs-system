@@ -452,7 +452,7 @@ class AAVS3OpticalRx(Rx):
     def __init__(self, code=0, bit_string=None, type=None, version=None, fw_map=None, sn=0):
         if bit_string is None:
             self.bit_string = {}
-            self.bit_string['b0'] = "Attenuation 0.125dB"
+            self.bit_string['b0'] = "not used"
             self.bit_string['b1'] = "Attenuation 0.25dB"
             self.bit_string['b2'] = "Attenuation 0.5dB"
             self.bit_string['b3'] = "Attenuation 1dB"
@@ -472,11 +472,11 @@ class AAVS3OpticalRx(Rx):
 
     @staticmethod
     def op_set_attenuation(code, att):
-        return att << 3
+        return (code & 0b1) + (att << 1)
 
     @staticmethod
     def op_get_attenuation(code):
-        return code >> 3
+        return (code & 0b11111110) >> 1
 
 
 class InafSkaRfRx(Rx):
