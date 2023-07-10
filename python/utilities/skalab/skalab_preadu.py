@@ -1064,6 +1064,7 @@ class Preadu(object):
             print(self.tpm.get_ip() + " PREADU: New Gen with Wrong SPI Map selected")
         elif self.preadu_version == "3.2":
             self.preadu = preAduAAVS3()
+            self.rf_map = read_routing_table("./SignalMap/TPM_AAVS3.txt")
             print(self.tpm.get_ip() + " PREADU: AAVS3 with Embedded Optical WDM Receivers selected")
 
         for spimap in self.rf_map:
@@ -1148,6 +1149,7 @@ class Preadu(object):
             print(self.tpm.get_ip() + " PREADU: New Gen with Wrong SPI Map selected")
         elif self.preadu_version == "3.2":
             self.preadu = preAduAAVS3()
+            self.rf_map = read_routing_table("./SignalMap/TPM_AAVS3.txt")
             print(self.tpm.get_ip() + " PREADU: AAVS3 with Embedded Optical WDM Receivers selected")
         for spimap in self.rf_map:
             self.preadu.set_spi_conf(nrx=int(spimap[0]), preadu_id=int(spimap[3]), channel_filter=int(spimap[4]),
@@ -1177,7 +1179,7 @@ class PreaduGui(object):
 
         self.inputs = CHANNELS
         self.rf_map = read_routing_table("./SignalMap/TPM_AAVS1.txt")
-        if self.preadu_version == "3.1":
+        if float(self.preadu_version) > 3:
             self.rf_map = read_routing_table("./SignalMap/TPM_AAVS3.txt")
         self.tpmConf = {}
         self.guiConf = {}
