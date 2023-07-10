@@ -472,11 +472,11 @@ class AAVS3OpticalRx(Rx):
 
     @staticmethod
     def op_set_attenuation(code, att):
-        return int(att * 4)
+        return int(att * 2)
 
     @staticmethod
     def op_get_attenuation(code):
-        return code / 4.
+        return code / 2.
 
 
 class InafSkaRfRx(Rx):
