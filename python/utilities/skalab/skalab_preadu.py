@@ -1341,7 +1341,10 @@ class PreaduGui(object):
                 update_flag_termination(self.records[num], self.staticRx.rx[self.guiConf[num]['version']].op_is_terminated(self.guiConf[num]['code']))
 
     def action_plus(self, num):
-        valore = int(self.records[num]['att'].text()) + 1
+        if self.preadu_version == "3.2":
+            valore = float(self.records[num]['att'].text()) + 0.25
+        else:
+            valore = float(self.records[num]['att'].text()) + 1
         if valore > 31:
             valore = 31
         self.records[num]['code'].setFont(font_bold())
@@ -1350,7 +1353,10 @@ class PreaduGui(object):
         self.records[num]['att'].setText(str(self.staticRx.rx[self.guiConf[num]['version']].op_get_attenuation(self.guiConf[num]['code'])))
 
     def action_minus(self, num):
-        valore = int(self.records[num]['att'].text()) - 1
+        if self.preadu_version == "3.2":
+            valore = float(self.records[num]['att'].text()) - 0.25
+        else:
+            valore = float(self.records[num]['att'].text()) - 1
         if valore < 0:
             valore = 0
         self.guiConf[num]['code'] = self.staticRx.rx[self.guiConf[num]['version']].op_set_attenuation(self.guiConf[num]['code'], bound(valore))
