@@ -283,9 +283,13 @@ if __name__ == "__main__":
     preadu = None
     rf_map = read_routing_table("../SignalMap/TPM_AAVS1.txt")
     if board_version == 3.1:
+        preadu = preAdu2019()
+        rf_map = read_routing_table("../SignalMap/TPM_PreADU2019.txt")
+        print("PreADU 3.1 with Optical Receivers selected (v2019 with SPI bug)")
+    if board_version == 3.2:
         preadu = preAduAAVS3()
         rf_map = read_routing_table("../SignalMap/TPM_AAVS3.txt")
-        print("PreADU 3.1 with Optical Receivers selected (pre-AAVS3)")
+        print("PreADU 3.2 with Optical Receivers selected (AAVS3 and AA*)")
     elif board_version == 2.0:
         preadu = preAduRf()
         print("PreADU 2.0 (RF) without optical receivers")
