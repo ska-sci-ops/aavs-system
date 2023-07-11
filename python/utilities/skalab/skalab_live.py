@@ -761,7 +761,7 @@ class Live(SkalabBase):
                                 else:
                                     attenuation = 0
                                 dsa = self.wpreadu.staticRx.rx[self.preaduConf[t][i]['version']].op_get_attenuation(self.preaduConf[t][i]['code'])
-                                new_dsa = bound(int(round(dsa + attenuation)))
+                                new_dsa = bound(round(dsa + attenuation, 2))
                                 self.preaduConf[t][i]['code'] = self.wpreadu.staticRx.rx[self.preaduConf[t][i]['version']].op_set_attenuation(self.preaduConf[t][i]['code'], new_dsa)
                         self.writing_preadu = True
                         self.eq_armed = True
@@ -779,7 +779,7 @@ class Live(SkalabBase):
                                 if power == (-np.inf):
                                     power = -30
                                 dsa = self.wpreadu.staticRx.rx[self.preaduConf[t][i]['version']].op_get_attenuation(self.preaduConf[t][i]['code'])
-                                new_dsa = bound(int(round(dsa + (power - target))))
+                                new_dsa = bound(round(dsa + (power - target)), 2)
                                 self.preaduConf[t][i]['code'] = self.wpreadu.staticRx.rx[self.preaduConf[t][i]['version']].op_set_attenuation(self.preaduConf[t][i]['code'], new_dsa)
                                 #logging.debug("TPM-%02d INPUT-%02d, Level: %3.1f, Old DSA %d, New DSA %d" % (b+1, i, power, dsa, new_dsa))
                                 #logging.debug(i, self.preadu.preadu.get_register_value(nrx=i), self.preaduConf[b][i]['dsa'])

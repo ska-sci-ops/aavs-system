@@ -371,7 +371,7 @@ class AAVSOpticalRx(DualBandRx):
 
     @staticmethod
     def op_set_attenuation(code, att):
-        return (code & 0b111) + (att << 3)
+        return (code & 0b111) + (round(att) << 3)
 
     @staticmethod
     def op_get_attenuation(code):
@@ -434,7 +434,7 @@ class NewSKAOpticalRx(Rx):
 
     @staticmethod
     def op_set_attenuation(code, att):
-        return (code & 0b111) + (att << 3)
+        return (code & 0b111) + (round(att) << 3)
 
     @staticmethod
     def op_get_attenuation(code):
@@ -517,11 +517,11 @@ class InafSkaRfRx(Rx):
     @staticmethod
     def op_set_attenuation(code, att):
         code = code & 0b00010101
-        code = code + ((att & 0b1) << 6)  # 1dB
-        code = code + (att & 0b10)  # 2dB
-        code = code + ((att & 0b100) << 1) # 4dB
-        code = code + ((att & 0b1000) << 2)  # 8dB
-        code = code + ((att & 0b10000) << 3)  # 16dB
+        code = code + ((round(att) & 0b1) << 6)  # 1dB
+        code = code + (round(att) & 0b10)  # 2dB
+        code = code + ((round(att) & 0b100) << 1) # 4dB
+        code = code + ((round(att) & 0b1000) << 2)  # 8dB
+        code = code + ((round(att) & 0b10000) << 3)  # 16dB
         return code
 
     @staticmethod
