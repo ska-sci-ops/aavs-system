@@ -781,7 +781,7 @@ class Live(SkalabBase):
                                 dsa = self.wpreadu.staticRx.rx[self.preaduConf[t][i]['version']].op_get_attenuation(self.preaduConf[t][i]['code'])
                                 new_dsa = bound(round(dsa + (power - target), 2))
                                 self.preaduConf[t][i]['code'] = self.wpreadu.staticRx.rx[self.preaduConf[t][i]['version']].op_set_attenuation(self.preaduConf[t][i]['code'], new_dsa)
-                                logging.info("TPM-%02d INPUT-%02d, Level: %3.2f, Target: %3.2f, Old DSA %3.2f, New DSA %3.2f" % (t+1, i, power, target, dsa, new_dsa))
+                                # logging.info("TPM-%02d INPUT-%02d, Level: %3.2f, Target: %3.2f, Old DSA %3.2f, New DSA %3.2f" % (t+1, i, power, target, dsa, new_dsa))
                             self.eq_armed = True
                             self.writing_preadu = True
                             while self.writing_preadu:

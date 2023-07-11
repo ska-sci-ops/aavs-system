@@ -362,7 +362,7 @@ if __name__ == "__main__":
                     power = 10 * np.log10(np.power((rms[rx_id] * (1.7 / 256.)), 2) / 400.) + 30 + 12
                 if power == (-np.inf):
                     power = -30
-                dsa = bound(int(round(dsa + (power - float(opts.eqvalue)))))
+                dsa = bound(round(dsa + (power - float(opts.eqvalue)), 2))
                 preadu.set_rx_attenuation(nrx=rx_id, att=dsa)
                 tpm_station.tiles[opts.tpm - 1].tpm.tpm_preadu[preadu_id].channel_filters[channel_filter] = \
                     preadu.get_register_value(nrx=rx_id)
