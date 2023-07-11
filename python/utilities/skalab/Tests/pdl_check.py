@@ -115,10 +115,10 @@ def runRms(chan=0, tpm=0, duration=10, interval=0.01, ylim="", autoy=False, titl
         fw_map = preadu.get_spi_conf(nrx=id)
         #print(fw_map)
         if fw_map['pol'].upper() == "RF-2":
-            dsa_x_ann = ax2.annotate("DSA: %02d dB" % (preadu.get_rx_attenuation(nrx=id)), (3, 20), fontsize=16, color='b')
+            dsa_x_ann = ax2.annotate("DSA: %3.2f dB" % (preadu.get_rx_attenuation(nrx=id)), (3, 20), fontsize=16, color='b')
             level_x_ann = ax2.annotate("LEVEL: - dBm", (18, 20), fontsize=16, color='b')
         else:
-            dsa_y_ann = ax2.annotate("DSA: %02d dB" % (preadu.get_rx_attenuation(nrx=id)), (65, 20), fontsize=16, color='g')
+            dsa_y_ann = ax2.annotate("DSA: %3.2f dB" % (preadu.get_rx_attenuation(nrx=id)), (65, 20), fontsize=16, color='g')
             level_y_ann = ax2.annotate("LEVEL: - dBm", (80, 20), fontsize=16, color='g')
     ax2.set_axis_off()
     fig.tight_layout()
