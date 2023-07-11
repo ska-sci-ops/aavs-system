@@ -1060,7 +1060,7 @@ class Preadu(object):
             print(self.tpm.get_ip() + " PREADU: SADino with Mixed RF and AAVS1 Like RF Rxs selected")
         elif self.preadu_version == "3.1":
             self.preadu = preAdu2019()
-            self.rf_map = read_routing_table("./SignalMap/TPM_AAVS3.txt")
+            self.rf_map = read_routing_table("./SignalMap/TPM_PreADU2019.txt")
             print(self.tpm.get_ip() + " PREADU: New Gen with Wrong SPI Map selected")
         elif self.preadu_version == "3.2":
             self.preadu = preAduAAVS3()
@@ -1145,7 +1145,7 @@ class Preadu(object):
             print(self.tpm.get_ip() + " PREADU: SADino with Mixed RF and AAVS1 Like RF Rxs selected")
         elif self.preadu_version == "3.1":
             self.preadu = preAdu2019()
-            self.rf_map = read_routing_table("./SignalMap/TPM_AAVS3.txt")
+            self.rf_map = read_routing_table("./SignalMap/TPM_PreADU2019.txt")
             print(self.tpm.get_ip() + " PREADU: New Gen with Wrong SPI Map selected")
         elif self.preadu_version == "3.2":
             self.preadu = preAduAAVS3()
@@ -1180,7 +1180,10 @@ class PreaduGui(object):
         self.inputs = CHANNELS
         self.rf_map = read_routing_table("./SignalMap/TPM_AAVS1.txt")
         if float(self.preadu_version) > 3:
-            self.rf_map = read_routing_table("./SignalMap/TPM_AAVS3.txt")
+            if self.preadu_version == "3.1":
+                self.rf_map = read_routing_table("./SignalMap/TPM_PreADU2019.txt")
+            else:
+                self.rf_map = read_routing_table("./SignalMap/TPM_AAVS3.txt")
         self.tpmConf = {}
         self.guiConf = {}
 
