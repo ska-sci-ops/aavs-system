@@ -243,8 +243,15 @@ if __name__ == "__main__":
                      30, 31, 28, 29, 26, 27, 24, 25,
                      14, 15, 12, 13, 10, 11, 8, 9]
         signal_map_file = "../SignalMap/TPM_AAVS1.txt"
-    elif opts.version == "3.1":
-        print("Using RMS Mapping for TPM 1.6 with PreADU>=3.0")
+    elif float(opts.version) == 3.1:
+        print("Using RMS Mapping for TPM 1.6 with PreADU==3.1 (2019)")
+        fibre_remap = [15, 14, 13, 12, 11, 10, 9, 8,
+                       6, 7, 4, 5, 2, 3, 0, 1,
+                       31, 30, 29, 28, 27, 26, 25, 24,
+                       22, 23, 20, 21, 18, 19, 16, 17]
+        signal_map_file = "../SignalMap/TPM_PreADU2019.txt"
+    elif float(opts.version) > 3.1:
+        print("Using RMS Mapping for TPM 1.6 with PreADU>=3.2")
         fibre_remap = [15, 14, 13, 12, 11, 10, 9, 8,
                        6, 7, 4, 5, 2, 3, 0, 1,
                        31, 30, 29, 28, 27, 26, 25, 24,
