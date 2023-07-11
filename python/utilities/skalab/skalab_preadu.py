@@ -472,7 +472,7 @@ class AAVS3OpticalRx(Rx):
 
     @staticmethod
     def op_set_attenuation(code, att):
-        return int(att * 8) & 0b11111110
+        return round(att * 8) & 0b11111110
 
     @staticmethod
     def op_get_attenuation(code):
