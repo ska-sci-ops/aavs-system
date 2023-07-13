@@ -342,7 +342,7 @@ if __name__ == "__main__":
     #         print(p, c, tpm_station.tiles[opts.tpm - 1].tpm.tpm_preadu[p].channel_filters[c] >> 3)
     #print()
 
-    for k in range(2):
+    for q in range(2):
         for n, pol in enumerate(pol):
             rx_id = fibre_remap[(opts.channel - 1) * 2 + n]
             fw_map = preadu.get_spi_conf(nrx=rx_id)
@@ -356,7 +356,7 @@ if __name__ == "__main__":
             # Equalization
             if not opts.eqvalue == "":
                 print("[%d/2] Equalization of TPM-%02d Input Channel Fibre %02d to RF Power %3.1f dBm" %
-                      (k, opts.tpm, opts.channel, float(opts.eqvalue)))
+                      (q+1, opts.tpm, opts.channel, float(opts.eqvalue)))
                 for k in range(3):
                     rms = get_rms(tile=tpm_station.tiles[opts.tpm - 1], version=board_version)
                     with np.errstate(divide='ignore', invalid='ignore'):
