@@ -342,40 +342,39 @@ if __name__ == "__main__":
     #         print(p, c, tpm_station.tiles[opts.tpm - 1].tpm.tpm_preadu[p].channel_filters[c] >> 3)
     #print()
 
-    for n_iter in range(2):
-        for n, pol in enumerate(pol):
-            rx_id = fibre_remap[(opts.channel - 1) * 2 + n]
-            fw_map = preadu.get_spi_conf(nrx=rx_id)
-            #preadu_id, channel_filter, rfpol = preadu.get_spi_conf(nrx=rx_id)
-            preadu_id = int(fw_map['preadu_id'])
-            channel_filter = int(fw_map['channel_filter'])
-            dsa = preadu.get_rx_attenuation(nrx=rx_id)
-            # print("RX # %d" % rx_id, "PreADU Id: %d" % preadu_id,
-            #       " Channel Filter: %d" % channel_filter, "  -->  ",
-            #       fw_map['pol'], " DSA: %02d dB" % dsa)
-            # Equalization
-            if not opts.eqvalue == "":
-                print("[%d/2] Equalization of TPM-%02d Input Channel Fibre %02d to RF Power %3.1f dBm" %
-                      (n_iter+1, opts.tpm, opts.channel, float(opts.eqvalue)))
-                for k in range(3):
-                    rms = get_rms(tile=tpm_station.tiles[opts.tpm - 1], version=board_version)
-                    with np.errstate(divide='ignore', invalid='ignore'):
-                        power = 10 * np.log10(np.power((rms[rx_id] * (1.7 / 256.)), 2) / 400.) + 30 + 12
-                    if power == (-np.inf):
-                        power = -30
-                    dsa = bound(round(dsa + (power - float(opts.eqvalue)), 2))
-                    preadu.set_rx_attenuation(nrx=rx_id, att=dsa)
-                    tpm_station.tiles[opts.tpm - 1].tpm.tpm_preadu[preadu_id].channel_filters[channel_filter] = \
-                        preadu.get_register_value(nrx=rx_id)
-                    tpm_station.tiles[opts.tpm - 1].tpm.tpm_preadu[preadu_id].write_configuration()
-                    time.sleep(1)
-                    # print("PreADU Id: %d" % preadu_id, " Channel Filter: %d" % channel_filter, "  -->  ", pol,
-                    #       " DSA: %02d dB\n" % preadu.get_rx_attenuation(nrx=rx_id))
-            rms = get_rms(tile=tpm_station.tiles[opts.tpm - 1], version=board_version)
-            if fw_map['pol'].upper() == "RF-2":
-                dsa_x = dsa
-            else:
-                dsa_y = dsa
+    for n, pol in enumerate(pol):
+        rx_id = fibre_remap[(opts.channel - 1) * 2 + n]
+        fw_map = preadu.get_spi_conf(nrx=rx_id)
+        #preadu_id, channel_filter, rfpol = preadu.get_spi_conf(nrx=rx_id)
+        preadu_id = int(fw_map['preadu_id'])
+        channel_filter = int(fw_map['channel_filter'])
+        dsa = preadu.get_rx_attenuation(nrx=rx_id)
+        # print("RX # %d" % rx_id, "PreADU Id: %d" % preadu_id,
+        #       " Channel Filter: %d" % channel_filter, "  -->  ",
+        #       fw_map['pol'], " DSA: %02d dB" % dsa)
+        # Equalization
+        if not opts.eqvalue == "":
+            print("Equalization of TPM-%02d Input Channel Fibre %02d to RF Power %3.1f dBm" %
+                  (opts.tpm, opts.channel, float(opts.eqvalue)))
+            for k in range(3):
+                rms = get_rms(tile=tpm_station.tiles[opts.tpm - 1], version=board_version)
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    power = 10 * np.log10(np.power((rms[rx_id] * (1.7 / 256.)), 2) / 400.) + 30 + 12
+                if power == (-np.inf):
+                    power = -30
+                dsa = bound(round(dsa + (power - float(opts.eqvalue)), 2))
+                preadu.set_rx_attenuation(nrx=rx_id, att=dsa)
+                tpm_station.tiles[opts.tpm - 1].tpm.tpm_preadu[preadu_id].channel_filters[channel_filter] = \
+                    preadu.get_register_value(nrx=rx_id)
+                tpm_station.tiles[opts.tpm - 1].tpm.tpm_preadu[preadu_id].write_configuration()
+                time.sleep(1)
+                # print("PreADU Id: %d" % preadu_id, " Channel Filter: %d" % channel_filter, "  -->  ", pol,
+                #       " DSA: %02d dB\n" % preadu.get_rx_attenuation(nrx=rx_id))
+        rms = get_rms(tile=tpm_station.tiles[opts.tpm - 1], version=board_version)
+        if fw_map['pol'].upper() == "RF-2":
+            dsa_x = dsa
+        else:
+            dsa_y = dsa
         #print()
 
     if opts.daq:
