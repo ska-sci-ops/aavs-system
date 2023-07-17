@@ -39,4 +39,4 @@ network:
 
 # List of TPM IPs (or names) which will form station
 tiles:
-    - "10.0.10.105"
+    - "10.0.10.108"
