@@ -1,8 +1,8 @@
 # Observation-related configuration, specifying the channel region
 # for the station beamformer
 observation:
-    start_frequency_channel: 156.25e6 #50e6 #75e6 #
-    bandwidth: 6.25e6 #300e6 #6.25e6 #
+    start_frequency_channel: 156.25e6
+    bandwidth: 6.25e6
 
 # Station configuration parameters
 station:
@@ -13,25 +13,25 @@ station:
     beamformer_scaling: 4
     bitfile: "/opt/aavs/bitfiles/itpm_v1_5_tpm_test_wrap_sbf415.bit"
     equalize_preadu: No
-    default_preadu_attenuation: -1
+    #default_preadu_attenuation: -1  # Uncomment to stop preadu switch-on routine in initialisation
     pps_delays: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 # Network configuration parameters
 network:
     lmc:
-        lmc_mac: 0x000000000000  # Oxford 40G
-        lmc_ip:  "10.0.3.1"    # Oxford 40G
+        lmc_mac: 0x000000000000
+        lmc_ip:  "10.0.10.236"
         lmc_port: 4660
         tpm_cpld_port: 10000
-        use_teng: True
+        use_teng: False
 
-        integrated_data_ip: "10.0.3.1"
+        integrated_data_ip: "10.10.3.1"
         integrated_data_port: 4660
-        use_teng_integrated: True
+        use_teng_integrated: False
 
     csp_ingest:
-        dst_mac: 0x000000000000  # Oxford 40G
-        dst_ip: "10.0.3.1"     # Oxford 40G
+        dst_mac: 0x000000000000
+        dst_ip: "10.10.3.1"
         dst_port: 4660
         src_mac: Null
         src_ip: Null
@@ -39,5 +39,4 @@ network:
 
 # List of TPM IPs (or names) which will form station
 tiles:
-    - "10.0.10.43"
-    - "10.0.10.45"
+    - "10.0.10.108"
