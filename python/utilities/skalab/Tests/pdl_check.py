@@ -13,11 +13,15 @@ from skalab_utils import MyDaq, get_if_name, closest, calcolaspettro, linear2dB
 import pydaq.daq_receiver as daq
 from skalab_preadu import *
 
+from pathlib import Path
+
+
 def bound(value, low=0, high=31):
     '''
         Bound the PreADU DSA values between 0 and 31
     '''
     return max(low, min(high, value))
+
 
 def read_routing_table(map_file):
     mappa = []
@@ -387,24 +391,28 @@ if __name__ == "__main__":
         path = opts.dir
         if not path[-1] == "/":
             path += "/"
-        if not os.path.exists(path + "DATA"):
-            os.mkdir(path + "DATA")
+        # if not os.path.exists(path + "DATA"):
+        #     os.mkdir(path + "DATA")
         data_ora = datetime.datetime.strftime(datetime.datetime.utcnow(), "%Y-%m-%d_%H%M%S")
         if not opts.title == "":
             fname = path + "DATA/%s_PDL_%s.txt" % (data_ora, opts.title)
         else:
             fname = path + "DATA/%s_PDL_%s_INPUT-%02d.txt" % (data_ora, opts.title, opts.channel)
+        pname = Path(fname)
+        pname.mkdir(parents=True, exist_ok=True)
         with open(fname, "w") as f:
             f.write("Timestamp\tPol-Y\tPol-X\tDSA (Y-X)\t%d\t%d\n" % (dsa_y, dsa_x))
             for i in range(len(data['tstamp'])):
                 f.write("%f\t%6.3f\t%6.3f\n" % (data['tstamp'][i], data['Pol-Y'][i], data['Pol-X'][i]))
-        if not os.path.exists(path + "PICTURES"):
-            os.mkdir(path + "PICTURES")
+        # if not os.path.exists(path + "PICTURES"):
+        #     os.mkdir(path + "PICTURES")
         #plt.title("PDL of Fibre #%d are --> Pol-X %3.2f dB,  Pol-Y %3.2f dB" % (opts.channel, pdl_x, pdl_y))
         if not opts.title == "":
             fname = path + "PICTURES/%s_PDL_%s.png" % (data_ora, opts.title)
         else:
             fname = path + "PICTURES/%s_PDL_%s_INPUT-%02d.png" % (data_ora, opts.title, opts.channel)
+        pname = Path(fname)
+        pname.mkdir(parents=True, exist_ok=True)
         plt.savefig(fname)
         plt.show()
     else:

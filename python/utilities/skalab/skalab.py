@@ -16,8 +16,8 @@ __copyright__ = "Copyright 2023, Istituto di RadioAstronomia, Radiotelescopi di 
 __author__ = "Andrea Mattana"
 __credits__ = ["Andrea Mattana"]
 __license__ = "BSD3"
-__version__ = "2.0.2"
-__release__ = "2023-06-29"
+__version__ = "2.0.3"
+__release__ = "2023-08-04"
 __maintainer__ = "Andrea Mattana"
 
 import gc
@@ -143,7 +143,7 @@ class SkaLab(QtWidgets.QMainWindow):
 
         QtWidgets.QTabWidget.setTabVisible(self.wg.qtabMain, self.tabLiveIndex, True)
         self.wgLiveLayout = QtWidgets.QVBoxLayout()
-        self.wgLive = Live(self.config_file, "Gui/skalab_live.ui", size=[1190, 936],
+        self.wgLive = Live(uiFile="Gui/skalab_live.ui", size=[1190, 936],
                            profile=self.profile['Base']['live'],
                            swpath=default_app_dir)
         self.wgLive.signalTemp.connect(self.wgLive.updateTempPlot)

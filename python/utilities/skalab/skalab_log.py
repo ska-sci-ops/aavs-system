@@ -260,9 +260,11 @@ if __name__ == "__main__":
     wg = QtWidgets.QMainWindow()
     wg.resize(1000, 600)
 
-    if not os.path.exists(default_app_dir):
-        os.mkdir(default_app_dir)
+    # if not os.path.exists(default_app_dir):
+    #     os.mkdir(default_app_dir)
     fname = default_app_dir + "/testlog"
+    pname = Path(fname)
+    pname.mkdir(parents=True, exist_ok=True)
 
     slog = SkalabLog(parent=wg, logname=__name__)
     # slog.signalLogInfo.connect(slog.writeLogInfo)

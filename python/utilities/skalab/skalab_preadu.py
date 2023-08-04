@@ -1426,7 +1426,7 @@ class PreaduGui(object):
         self.adjustControls()
 
     def adjustControls(self):
-        if float(self.preadu_version.split(".")[0]) > 2:
+        if float(self.preadu_version) >= 3:
             table_names = "ADU#  Code      Attenuation           Rx             Fibre       RMS           dBm"
             self.label_legend_1.setText(table_names)
             self.label_legend_2.setText(table_names)

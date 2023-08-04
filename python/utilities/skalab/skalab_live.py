@@ -84,8 +84,9 @@ class Live(SkalabBase):
     signalRms = QtCore.pyqtSignal()
     signalTemp = QtCore.pyqtSignal()
 
-    def __init__(self, config="", uiFile="", profile="Default", size=[1190, 936], swpath=default_app_dir):
+    def __init__(self, uiFile="", profile="Default", size=[1190, 936], swpath=default_app_dir):
         """ Initialise main window """
+        self.connected = False
         self.wg = uic.loadUi(uiFile)
 
         self.wgProBox = QtWidgets.QWidget(self.wg.qtab_conf)
@@ -96,7 +97,6 @@ class Live(SkalabBase):
         super(Live, self).__init__(App="live", Profile=profile, Path=swpath, parent=self.wgProBox)
         self.logger = SkalabLog(parent=self.wg.qw_log, logname=__name__, profile=self.profile)
         # Load window file
-        self.connected = False
         self.setCentralWidget(self.wg)
         self.resize(size[0], size[1])
         self.populate_table_profile()
@@ -185,7 +185,7 @@ class Live(SkalabBase):
         #self.procMonitor = Thread(target=self.procRunMonitor)
         #self.procMonitor.start()
 
-        self.config_file = config
+        self.config_file = self.profile['Live']['station_file']
         self.show_rms = False
         self.show_spectra_grid = self.wg.qcheck_spectra_grid.isChecked()
 
@@ -252,7 +252,7 @@ class Live(SkalabBase):
         fd = QtWidgets.QFileDialog()
         fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
         options = fd.options()
-        base_path = self.profile['Live']['default_path_save_pictures']
+        base_path = self.profile['Live']['default_path_save_pictures']['value']
         result = fd.getSaveFileName(caption="Select a File Name to save the picture...",
                                     directory=base_path,
                                     filter="Image Files (*.png *.jpg *.bmp *.svg)",
@@ -442,7 +442,7 @@ class Live(SkalabBase):
     def connect(self):
         if not self.connected:
             # Load station configuration
-            self.config_file = self.profile['Live']['station_file']
+            self.config_file = self.profile['Live']['station_file']['value']
             station.load_configuration_file(self.config_file)
             self.station_configuration = station.configuration
             if self.newTilesIPs is not None:
@@ -551,7 +551,7 @@ class Live(SkalabBase):
                     self.logger.logger.error("Failed to get DAQ data!")
                     pass
                 cycle = 0.0
-                while cycle < (int(self.profile['Live']['query_interval']) - 1) and not self.skipThreadPause:
+                while cycle < (int(self.profile['Live']['query_interval']['value']) - 1) and not self.skipThreadPause:
                     sleep(0.1)
                     cycle = cycle + 0.1
                 self.skipThreadPause = False
@@ -580,16 +580,16 @@ class Live(SkalabBase):
                             "receiver_ports": int_data_port,
                             "receiver_ip": int_data_ip.encode(),
                             "nof_tiles": nof_tiles,
-                            'directory': self.profile['Data']['integrated_spectra_path']}
+                            'directory': self.profile['Data']['integrated_spectra_path']['value']}
                         #logging.debug(daq_config)
-                        if os.path.exists(self.profile['Data']['integrated_spectra_path']):
+                        if os.path.exists(self.profile['Data']['integrated_spectra_path']['value']):
                             self.initMonitor = False
                             self.monitor_daq = monit_daq
                             self.monitor_daq.populate_configuration(daq_config)
                             self.logger.logger.info("Integrated Data Conf %s:%s on NIC %s" % (int_data_ip, int_data_port, int_data_if))
                             self.monitor_daq.initialise_daq()
                             self.monitor_daq.start_integrated_channel_data_consumer()
-                            self.monitor_file_manager = ChannelFormatFileManager(root_path=self.profile['Data']['integrated_spectra_path'],
+                            self.monitor_file_manager = ChannelFormatFileManager(root_path=self.profile['Data']['integrated_spectra_path']['value'],
                                                                                  daq_mode=FileDAQModes.Integrated)
                             self.monitor_tstart = dt_to_timestamp(datetime.datetime.utcnow())
                             self.wg.qlabel_tstamp_int_spectra.setText("Started at " +
@@ -629,7 +629,7 @@ class Live(SkalabBase):
                 #     # self.preadu.Busy = False
                 #     pass
                 cycle = 0.0
-                while cycle < float(self.profile['Live']['query_interval']) and not self.stopThreads:
+                while cycle < float(self.profile['Live']['query_interval']['value']) and not self.stopThreads:
                     sleep(0.1)
                     cycle = cycle + 0.1
                     if self.connected:
@@ -675,7 +675,7 @@ class Live(SkalabBase):
 
     def plotMonitor(self, forcePlot=False):
         if self.monitor_daq is not None:
-            ipath = self.profile['Data']['integrated_spectra_path']
+            ipath = self.profile['Data']['integrated_spectra_path']['value']
             if ipath[-1] != "/":
                 ipath += "/"
             if glob.glob(ipath + "*channel_integ_*hdf5"):
@@ -825,16 +825,16 @@ class Live(SkalabBase):
 
     def setupDAQ(self):
         self.tpm_nic_name == ""
-        if not self.profile['Data']['daq_path'] == "":
+        if not self.profile['Data']['daq_path']['value'] == "":
             self.tpm_nic_name = get_if_name(self.station_configuration['network']['lmc']['lmc_ip'])
             if self.tpm_nic_name == "":
                 self.logger.logger.error("Connection Error! (ETH Card name ERROR)")
         if not self.tpm_nic_name == "":
-            if os.path.exists(self.profile['Data']['daq_path']):
+            if os.path.exists(self.profile['Data']['daq_path']['value']):
                 self.mydaq = MyDaq(daq, self.tpm_nic_name, self.tpm_station, len(self.station_configuration['tiles']),
-                                   directory=self.profile['Data']['daq_path'])
+                                   directory=self.profile['Data']['daq_path']['value'])
                 self.logger.logger.info("DAQ Initialized, NIC: %s, NofTiles: %d, Data Directory: %s" %
-                      (self.tpm_nic_name, len(self.station_configuration['tiles']), self.profile['Data']['daq_path']))
+                      (self.tpm_nic_name, len(self.station_configuration['tiles']), self.profile['Data']['daq_path']['value']))
             else:
                 self.logger.logger.error("DAQ Error: a valid data directory is required.")
 
@@ -845,7 +845,7 @@ class Live(SkalabBase):
 
     def setupArchiveTemperatures(self):
         if self.connected:
-            self.temp_path = self.profile['Data']['temperatures_path']
+            self.temp_path = self.profile['Data']['temperatures_path']['value']
             if not self.temp_path == "":
                 if not self.temp_path[-1] == "/":
                     self.temp_path = self.temp_path + "/"
@@ -1290,7 +1290,7 @@ if __name__ == "__main__":
     live_logger = logging.getLogger(__name__)
     if not opt.nogui:
         app = QtWidgets.QApplication(sys.argv)
-        window = Live(config=opt.config, uiFile="Gui/skalab_live.ui", swpath=default_app_dir)
+        window = Live(uiFile="Gui/skalab_live.ui", profile=opt.profile, swpath=default_app_dir)
         window.signalTemp.connect(window.updateTempPlot)
         window.signalRms.connect(window.updateRms)
         sys.exit(app.exec_())
