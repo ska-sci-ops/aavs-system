@@ -95,6 +95,7 @@ class SkalabBase(QtWidgets.QMainWindow):
         super().__init__()
         self.connected = False
         self.profile = {}
+        self.jprofile = {}
         self.wgProfile = uic.loadUi("Gui/skalab_profile.ui", parent)
         self.wgProfile.qbutton_load.clicked.connect(lambda: self.load())
         self.wgProfile.qbutton_saveas.clicked.connect(lambda: self.save_as_profile())
@@ -220,6 +221,7 @@ class SkalabBase(QtWidgets.QMainWindow):
 
             self.wgProfile.qline_configuration_file.setText(fullPath)
             self.profile = self.readConfig(fullPath)
+            self.jprofile = self.readJson("Templates/" + App.lower() + ".json")
             self.clear()
             self.populate_table_profile()
             self.updateProfileCombo(current=Profile)
@@ -370,6 +372,12 @@ class SkalabBase(QtWidgets.QMainWindow):
                     self.wgProfile.qline_row.setText(str(row))
                     self.wgProfile.qline_col.setText(str(col))
                     self.wgProfile.qline_edit_key.setText(key.text())
+                    for s in self.jprofile.keys():
+                        print(self.jprofile[s].keys())
+                        if key.text() in self.jprofile[s].keys():
+                            self.wgProfile.qlabel_type.setText(str(self.jprofile[s][key.text()]['type']))
+                            self.wgProfile.qlabel_desc.setText(str(self.jprofile[s][key.text()]['desc']))
+                            break
                     NewIndex = self.wgProfile.qtable_conf.currentIndex().siblingAtColumn(0)
                     self.wgProfile.qline_edit_value.setText(NewIndex.data())
                     item = self.wgProfile.qtable_conf.item(row, col)
@@ -434,6 +442,7 @@ class SkalabBase(QtWidgets.QMainWindow):
         self.wgProfile.qline_col.setText("")
 
     def apply(self):
+        # TODO: add here the check
         item = QtWidgets.QTableWidgetItem(self.wgProfile.qline_edit_newvalue.text())
         item.setTextAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         item.setFlags(QtCore.Qt.ItemIsEnabled)
