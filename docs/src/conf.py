@@ -56,9 +56,9 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = 'developer.skatelescope.org'
-copyright = '2020, SKA Organization'
-author = 'Marco Bartolini'
+project = 'AAVS system'
+copyright = '2023, SKA Organization'
+author = 'John Holden'
 
 
 # For autodoc path to pyaavs
@@ -125,3 +125,5 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'developerskatelescopeorgdoc'
+
+
