@@ -8,9 +8,7 @@ build:
     python: "3.10"
   jobs:
     post_install:
-      - pushd pytohn
-      - pip install -r requirements.pip
-      - popd
+      - pip install -r python/requirements.pip
 
 sphinx:
   configuration: docs/src/conf.py
