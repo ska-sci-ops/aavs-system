@@ -1,0 +1,16 @@
+version: 2
+
+build:
+  os: ubuntu-22.04
+  apt_packages:
+    - plantuml
+  tools:
+    python: "3.10"
+  jobs:
+    post_install:
+      - pushd pytohn
+      - pip install -r requirements.pip
+      - popd
+
+sphinx:
+  configuration: docs/src/conf.py
