@@ -17,7 +17,9 @@ Welcome to AAVS System's documentation!
    :maxdepth: 2
    :caption: Python classes:
    
+   station
    tile
+   tile_health_monitor
    tile_1_6
    tpm_test_firmware
    tpm_test_firmware_1_6
