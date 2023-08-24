@@ -17,10 +17,15 @@ Structure
 The top level class of AAVS system is station class. The hierarchy of AAVS system is as follows:
 
     * Station object: represents a set of synchronised tiles (TPMs)
+
         * Tile object: controls a tile, controls interaction between board plugins and FPGA firmware plugin
+
             * Tpm object: load hardware plugins and define interaction between them
+
                 * Hardware plugins: control a specific piece of hardware, e.g. PLL, ADC, etc ...
+
             * tpm_test_firmware plugin: methods related to a single FPGA firmware, load firmware plugins, controls interaction between them (in AAVS)
+            
                 * Firmware plugins: control a specific firmware module, e.g. JESD ADC interface, tile beamformer, station beamformer, etc ...
 
 
