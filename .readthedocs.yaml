@@ -1,0 +1,15 @@
+version: 2
+
+build:
+  os: ubuntu-22.04
+  apt_packages:
+    - plantuml
+  tools:
+    python: "3.10"
+  jobs:
+    post_install:
+      - pip install -r python/requirements.pip
+      - pip install git+https://lessju@bitbucket.org/lessju/pyfabil.git@master --force-reinstall
+
+sphinx:
+  configuration: docs/src/conf.py

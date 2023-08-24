@@ -3,17 +3,28 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-
-.. HOME SECTION ==================================================
-
-.. Hidden toctree to manage the sidebar navigation.
+Welcome to AAVS System's documentation!
+========================================
 
 .. toctree::
-  :maxdepth: 2
-  :caption: Home
-  :hidden:
+   :maxdepth: 2
+   :caption: Overview:
+   
+   overview
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Python classes:
+   
+   station
+   tile
+   tile_health_monitor
+   tile_1_6
+   tpm_test_firmware
+   tpm_test_firmware_1_6
+   
+   
 .. README =============================================================
 
 .. This project most likely has it's own README. We include it here.
@@ -22,23 +33,5 @@
    :maxdepth: 2
    :caption: Readme
 
-   ../../README
+   README
 
-.. COMMUNITY SECTION ==================================================
-
-..
-
-.. toctree::
-  :maxdepth: 2
-  :caption: Package name
-  :hidden:
-
-  package/guide
-
-
-Project-name documentation HEADING
-==================================
-
-These are all the packages, functions and scripts that form part of the project.
-
-- :doc:`package/guide`
