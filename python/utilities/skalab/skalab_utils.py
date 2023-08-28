@@ -3,7 +3,7 @@ import datetime
 import subprocess
 import calendar
 import time
-
+import copy
 import h5py
 import numpy as np
 import configparser
@@ -24,7 +24,270 @@ from PyQt5.QtSvg import QSvgRenderer
 from PyQt5.QtWidgets import QWidget
 
 COLORI = ["b", "g", "k", "r", "orange", "magenta", "darkgrey", "turquoise"] * 4
+TILE_MONITORING_POINTS = {
+        "temperatures": {"board": None, "FPGA0": None, "FPGA1": None},
+        "voltages": {
+            "VREF_2V5": None,
+            "MGT_AVCC": None,
+            "VM_SW_AMP": None,
+            "MGT_AVTT": None,
+            "SW_AVDD1": None,
+            "SW_AVDD2": None,
+            "AVDD3": None,
+            "MAN_1V2": None,
+            "DDR0_VREF": None,
+            "DDR1_VREF": None,
+            "VM_DRVDD": None,
+            "VIN": None,
+            "MON_3V3": None,
+            "MON_1V8": None,
+            "MON_5V0": None,
+            "VM_FE0": None,
+            "VM_FE1": None,
+            "VM_DDR0_VTT": None,
+            "VM_AGP0": None,
+            "VM_AGP1": None,
+            "VM_AGP2": None,
+            "VM_AGP3": None,
+            "VM_AGP4": None,
+            "VM_AGP5": None,
+            "VM_AGP6": None,
+            "VM_AGP7": None,
+            "VM_CLK0B": None,
+            "VM_CLK1B": None,
+            "VM_MGT0_AUX": None,
+            "VM_MGT1_AUX": None,
+            "VM_ADA0": None,
+            "VM_ADA1": None,
+            "VM_PLL": None,
+            "VM_DDR1_VTT": None,
+            "VM_DDR1_VDD": None,
+            "VM_DVDD": None,
+        },
+        "currents": {"FE0_mVA": None, "FE1_mVA": None},
+        "alarms": {
+            "I2C_access_alm": 0,
+            "temperature_alm": 0,
+            "voltage_alm": 0,
+            "SEM_wd": 0,
+            "MCU_wd": 0,
+        },
+        "adcs": {
+            "pll_status": {
+                "ADC0": None,
+                "ADC1": None,
+                "ADC2": None,
+                "ADC3": None,
+                "ADC4": None,
+                "ADC5": None,
+                "ADC6": None,
+                "ADC7": None,
+                "ADC8": None,
+                "ADC9": None,
+                "ADC10": None,
+                "ADC11": None,
+                "ADC12": None,
+                "ADC13": None,
+                "ADC14": None,
+                "ADC15": None,
+            },
+            "sysref_timing_requirements": {
+                "ADC0": None,
+                "ADC1": None,
+                "ADC2": None,
+                "ADC3": None,
+                "ADC4": None,
+                "ADC5": None,
+                "ADC6": None,
+                "ADC7": None,
+                "ADC8": None,
+                "ADC9": None,
+                "ADC10": None,
+                "ADC11": None,
+                "ADC12": None,
+                "ADC13": None,
+                "ADC14": None,
+                "ADC15": None,
+            },
+            "sysref_counter": {
+                "ADC0": None,
+                "ADC1": None,
+                "ADC2": None,
+                "ADC3": None,
+                "ADC4": None,
+                "ADC5": None,
+                "ADC6": None,
+                "ADC7": None,
+                "ADC8": None,
+                "ADC9": None,
+                "ADC10": None,
+                "ADC11": None,
+                "ADC12": None,
+                "ADC13": None,
+                "ADC14": None,
+                "ADC15": None,
+            },
+        },
+        "timing": {
+            "clocks": {
+                "FPGA0": {"JESD": None, "DDR": None, "UDP": None},
+                "FPGA1": {"JESD": None, "DDR": None, "UDP": None},
+            },
+            "clock_managers": {
+                "FPGA0": {"C2C_MMCM": None, "JESD_MMCM": None, "DSP_MMCM": None},
+                "FPGA1": {"C2C_MMCM": None, "JESD_MMCM": None, "DSP_MMCM": None},
+            },
+            "pps": {"status": None},
+            "pll": None,
+        },
+        "io": {
+            "jesd_interface": {
+                "link_status": None,
+                "lane_error_count": {
+                    "FPGA0": {
+                        "Core0": {
+                            "lane0": None,
+                            "lane1": None,
+                            "lane2": None,
+                            "lane3": None,
+                            "lane4": None,
+                            "lane5": None,
+                            "lane6": None,
+                            "lane7": None,
+                        },
+                        "Core1": {
+                            "lane0": None,
+                            "lane1": None,
+                            "lane2": None,
+                            "lane3": None,
+                            "lane4": None,
+                            "lane5": None,
+                            "lane6": None,
+                            "lane7": None,
+                        },
+                    },
+                    "FPGA1": {
+                        "Core0": {
+                            "lane0": None,
+                            "lane1": None,
+                            "lane2": None,
+                            "lane3": None,
+                            "lane4": None,
+                            "lane5": None,
+                            "lane6": None,
+                            "lane7": None,
+                        },
+                        "Core1": {
+                            "lane0": None,
+                            "lane1": None,
+                            "lane2": None,
+                            "lane3": None,
+                            "lane4": None,
+                            "lane5": None,
+                            "lane6": None,
+                            "lane7": None,
+                        },
+                    },
+                },
+                "lane_status": True,
+                "resync_count": {"FPGA0": None, "FPGA1": None},
+                "qpll_status": {"FPGA0": None, "FPGA1": None},
+            },
+            "ddr_interface": {
+                "initialisation": None,
+                "reset_counter": {"FPGA0": None, "FPGA1": None},
+            },
+            "f2f_interface": {
+                "pll_status": None,
+                "soft_error": None,
+                "hard_error": None,
+            },
+            "udp_interface": {
+                "arp": None,
+                "status": None,
+                "linkup_loss_count": {"FPGA0": None, "FPGA1": None},
+                "crc_error_count": {"FPGA0": None, "FPGA1": None},
+                "bip_error_count": {
+                    "FPGA0": {
+                        "lane0": None,
+                        "lane1": None,
+                        "lane2": None,
+                        "lane3": None,
+                    },
+                    "FPGA1": {
+                        "lane0": None,
+                        "lane1": None,
+                        "lane2": None,
+                        "lane3": None,
+                    },
+                },
+            },
+        },
+        "dsp": {
+            "tile_beamf": None,
+            "station_beamf": {
+                "status": None,
+                "ddr_parity_error_count": {
+                    "FPGA0": 0,
+                    "FPGA1": 0,
+                },
+            },
+        },
+    }
 
+def merge_dicts(dict_a, dict_b):
+        """
+        Merge two nested dictionaries, taking values from b when available.
+
+        This is necessary for nested dictionaries of thresholds
+
+        :param dict_a: the dictionary to take from if not in dictionary b
+        :param dict_b: the dictionary to preferentially take from
+        :return: the merged dictionary
+        """
+        output = copy.deepcopy(dict_a)
+        for key in dict_b:
+            if isinstance(dict_b[key], dict):
+                output[key] = merge_dicts(dict_a[key], dict_b[key])
+            else:
+                output[key] = dict_b[key]
+        return output
+
+
+def unfold_dictionary(dizion):
+    attr = list() 
+    transformed_list = [] 
+    transformed_list1 = []   
+    exp_values = []
+    exp_values1 = []
+    for key,value in dizion.items():
+        if key != 'iso_datetime':
+            attr[len(attr):len(attr)] = list(dizion[key].keys())
+            try:
+                for group in dizion[key].values():
+                    l = 0
+                    for item in group.values():
+                        exp_value = item.get('exp_value')
+                        if exp_value is not None:
+                            l+=1
+                            exp_values.append(exp_value)
+                    temp_list = exp_values[-l:]
+                    del exp_values[len(exp_values)-l:]
+                    exp_values.append(temp_list)
+            except:
+                for sub_value in dizion[key].values():
+                    exp_value = sub_value.get('exp_value')
+                    if exp_value is not None:
+                        exp_values1.append(exp_value)
+
+    transformed_list = [[d['min'], d['max']] for d in exp_values1]
+    transformed_list1 = [sum([list(d.values()) for d in sublist], []) for sublist in exp_values]
+
+    transformed_list.extend(transformed_list1)
+    alarm_values  = dict(zip(attr, transformed_list))
+    result_list = [[value - (value * 2 / 100) if value is not None else None for value in sublist] for sublist in transformed_list]
+    warning_values = dict(zip(attr, result_list))
+    return alarm_values, warning_values
 
 def parse_profile(config=""):
     confparser = configparser.ConfigParser()

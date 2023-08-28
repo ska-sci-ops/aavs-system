@@ -7,15 +7,16 @@ import numpy as np
 import logging
 import yaml
 import datetime
+import importlib.resources
 
 import skalab_monitor_tab
 from pyaavs.tile_wrapper import Tile
 from pyaavs import station
-from PyQt5 import QtWidgets, uic, QtCore, QtGui
+from PyQt5 import QtWidgets, uic, QtCore
 from hardware_client import WebHardwareClient
 from skalab_monitor_tab import TileInitialization
 from skalab_log import SkalabLog
-from skalab_utils import dt_to_timestamp, ts_to_datestring, parse_profile, COLORI, Led, getTextFromFile, colors
+from skalab_utils import dt_to_timestamp, ts_to_datestring, parse_profile, COLORI, Led, getTextFromFile, colors, unfold_dictionary, merge_dicts, TILE_MONITORING_POINTS
 from threading import Thread, Event, Lock
 from time import sleep
 from pathlib import Path
@@ -38,31 +39,42 @@ subrack_attribute = {
                 }
 
 
-def populateTable(qtable, attribute):
-    "Create table"
-    horHeaders = []
-    qtable.setRowCount(8)
-    qtable.setColumnCount(len(attribute))
-    for key in attribute.keys():
-            horHeaders.append(key)
-    qtable.setHorizontalHeaderLabels(horHeaders)
-    qtable.horizontalHeader().setDefaultSectionSize(100)
-    "Fill table"
-    j = 0
-    for k in attribute:
-        for v in range(0,16,2):
-            layout = 0
-            layout=QtWidgets.QVBoxLayout()
-            attribute[k][v] = QtWidgets.QLineEdit(qtable)
-            attribute[k][v+1]= QtWidgets.QLineEdit(qtable)
-            layout.addWidget(attribute[k][v])
-            layout.addWidget(attribute[k][v+1])
-            cellWidget = QtWidgets.QWidget()
-            cellWidget.setLayout(layout)
-            qtable.setCellWidget(int(v/2),j,cellWidget)
-        j+=1
-    a=1
-    return
+def populateTable(frame, attributes,top):
+    "Create Subrack table"
+    qtable = []
+    size_a = len(attributes)
+    for j in range(size_a):
+        sub_attr = []
+        qtable.append(getattr(frame, f"table{top[j]}"))
+        sub_attr = list(list(attributes[j].values())[0].keys())
+        qtable[j].setRowCount(len(sub_attr))
+        qtable[j].setColumnCount(2)
+        qtable[j].setVerticalHeaderLabels(sub_attr)  
+        qtable[j].setHorizontalHeaderLabels(("Value", "Warning/Alarm"))    
+    return qtable
+
+    # qtable.setRowCount(8)
+    # qtable.setColumnCount(len(attribute))
+    # for key in attribute.keys():
+    #         horHeaders.append(key)
+    # qtable.setHorizontalHeaderLabels(horHeaders)
+    # qtable.horizontalHeader().setDefaultSectionSize(100)
+    # "Fill table"
+    # j = 0
+    # for k in attribute:
+    #     for v in range(0,16,2):
+    #         layout = 0
+    #         layout=QtWidgets.QVBoxLayout()
+    #         attribute[k][v] = QtWidgets.QLineEdit(qtable)
+    #         attribute[k][v+1]= QtWidgets.QLineEdit(qtable)
+    #         layout.addWidget(attribute[k][v])
+    #         layout.addWidget(attribute[k][v+1])
+    #         cellWidget = QtWidgets.QWidget()
+    #         cellWidget.setLayout(layout)
+    #         qtable.setCellWidget(int(v/2),j,cellWidget)
+    #     j+=1
+    # a=1
+    # return
 
 def populateSubrack(self,wg, attribute):
     j=0
@@ -80,8 +92,8 @@ def populateSubrack(self,wg, attribute):
                 subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),2,v) 
                 j-=0.25
                 continue   
-            subrack_attribute[k][v] = QtWidgets.QLineEdit(wg.frame_subrack_attr)
-            subrack_attribute[k][v+1]= QtWidgets.QLineEdit(wg.frame_subrack_attr)
+            subrack_attribute[k][v] = QtWidgets.QLineEdit(wg.frame_subrack)
+            subrack_attribute[k][v+1]= QtWidgets.QLineEdit(wg.frame_subrack)
             subrack_attribute[k][v].setGeometry(QtCore.QRect(  size_x+45*v, 10 +  20+(size_y*(j)),  70,19))
             subrack_attribute[k][v+1].setGeometry(QtCore.QRect(size_x+45*v, 30 +  20+(size_y*(j)),  70,19))
         j+=1
@@ -102,11 +114,16 @@ class Monitor(TileInitialization):
 
     signal_update_tpm_attribute = QtCore.pyqtSignal(dict,int)
     signal_update_log = QtCore.pyqtSignal(str,str)
-
+    with open(r'tpm_monitoring_min_max.yaml') as file:
+        MIN_MAX_MONITORING_POINTS = (
+            yaml.load(file, Loader=yaml.Loader)["tpm_monitoring_points"] or {})
+    res  = merge_dicts(MIN_MAX_MONITORING_POINTS, TILE_MONITORING_POINTS)
+   
     def __init__(self, config="", uiFile="", profile="", size=[1170, 919], swpath=""):
         """ Initialise main window """
         # Load window file
         self.wg = uic.loadUi(uiFile)
+        
         self.wgProBox = QtWidgets.QWidget(self.wg.qtab_conf)
         self.wgProBox.setGeometry(QtCore.QRect(1, 1, 800, 860))
         self.wgProBox.setVisible(True)
@@ -121,20 +138,20 @@ class Monitor(TileInitialization):
         self.tlm_hdf_monitor = None
         self.tpm_initialized = [False] * 8
         # Populate table
-        populateSubrack(self, self.wg, subrack_attribute)
+        #populateSubrack(self, self.wg, subrack_attribute)
         self.populate_table_profile()
-        self.qled_alert = Led(self.wg.frame_subrack)
+        self.qled_alert = Led(self.wg.overview_frame)
         self.wg.grid_led.addWidget(self.qled_alert)
         self.qled_alert.setObjectName("qled_warn_alar")
         self.qbutton_tpm = populateSlots(self.wg.grid_tpm)
         self.populateTileInstance()
-        self.loadWarningAlarmValues()
-        self.tile_table_attr = copy.deepcopy(self.tpm_alarm)
-        for i in self.tile_table_attr.keys():
-            self.tile_table_attr[i] = [None] * 16            
-        self.alarm = dict(self.tile_table_attr, **subrack_attribute)
-        for k in self.alarm.keys():
-            self.alarm[k] = [False]*8
+        self.loadTopLevelAttributes()
+        #self.tile_table_attr = copy.deepcopy(self.tpm_alarm)
+        # for i in self.tile_table_attr.keys():
+        #     self.tile_table_attr[i] = [None] * 16            
+        # self.alarm = dict(self.tile_table_attr, **subrack_attribute)
+        # for k in self.alarm.keys():
+        #     self.alarm[k] = [False]*8
             #load_tpm_1_6_lookup
         #populateTable(self.wg.qtable_tile, self.tile_table_attr)
         
@@ -187,6 +204,7 @@ class Monitor(TileInitialization):
         self.tpm_on_off = [False] * 8
         self.tpm_active = [None] * 8
         #self.tpm_slot_ip = list(station.configuration['tiles'])
+        # Comparing ip to assign slot number to ip: file .ini and .yaml
         self.tpm_slot_ip = eval(self.profile['Monitor']['tiles_slot_ip'])
         self.tpm_ip_check= list(station.configuration['tiles'])
         for k, j in self.tpm_slot_ip.items():
@@ -198,21 +216,24 @@ class Monitor(TileInitialization):
             del self.tpm_slot_ip[a]
         self.bitfile = station.configuration['station']['bitfile']
 
-    def loadWarningAlarmValues(self):
-        self.subrack_warning = self.profile['Subrack Warning']
-        self.tpm_warning = self.profile['TPM Warning']
-        self.warning = dict(self.tpm_warning, **self.subrack_warning)
-        self.subrack_alarm = self.profile['Subrack Alarm']
-        self.tpm_alarm = self.profile['TPM Alarm']
-        self.alarm_values = dict(self.tpm_alarm, **self.subrack_alarm)
-        for attr in self.warning:
-            self.warning[attr] = eval(self.warning[attr])
-            self.alarm_values[attr] = eval(self.alarm_values[attr])
-            if self.warning[attr][0] == None: self.warning[attr][0] = -float('inf')
-            if self.alarm_values[attr][0]   == None: self.alarm_values[attr][0]   = -float('inf')
-            if self.warning[attr][1] == None: self.warning[attr][1] =  float('inf')
-            if self.alarm_values[attr][1]   == None: self.alarm_values[attr][1]   =  float('inf')   
-        skalab_monitor_tab.populateWarningAlarmTable(self.wg.true_table, self.warning, self.alarm_values)
+    def loadTopLevelAttributes(self):
+        self.warning_factor = [None,None]
+        self.warning_factor[0] = eval((self.profile['Warning Factor']['subrack_warning_parameter']))
+        self.warning_factor[1] = eval((self.profile['Warning Factor']['tpm_warning_parameter']))
+        self.top_attr = list(self.profile['Monitor']['top_level_attributes'].split(","))
+        # self.tpm_warning = self.profile['TPM Warning']
+        # self.warning = dict(self.tpm_warning, **self.subrack_warning)
+        # self.subrack_alarm = self.profile['Subrack Alarm']
+        # self.tpm_alarm = self.profile['TPM Alarm']
+        # self.alarm_values = dict(self.tpm_alarm, **self.subrack_alarm)
+        # for attr in self.warning:
+        #     self.warning[attr] = eval(self.warning[attr])
+        #     self.alarm_values[attr] = eval(self.alarm_values[attr])
+        #     if self.warning[attr][0] == None: self.warning[attr][0] = -float('inf')
+        #     if self.alarm_values[attr][0]   == None: self.alarm_values[attr][0]   = -float('inf')
+        #     if self.warning[attr][1] == None: self.warning[attr][1] =  float('inf')
+        #     if self.alarm_values[attr][1]   == None: self.alarm_values[attr][1]   =  float('inf')   
+        # skalab_monitor_tab.populateWarningAlarmTable(self.wg.true_table, self.warning, self.alarm_values)
 
     def tpmStatusChanged(self):
         self.wait_check_tpm.clear()
@@ -427,8 +448,27 @@ class MonitorSubrack(Monitor):
                 self.client = WebHardwareClient(self.ip, self.port)
                 if self.client.connect():
                     self.logger.info("Successfully connected")
-                    self.tlm_keys = self.client.execute_command("list_attributes")["retvalue"]
-                    self.logger.info("Querying list of Subrack API attributes")
+                    self.logger.info("Querying list of Subrack API attributes...")
+                    for i in range(len(self.top_attr)):
+                        diz = self.client.execute_command(command="get_health_dictionary",parameters=self.top_attr[i])["retvalue"]
+                        del diz['iso_datetime']
+                        if not(self.top_attr[i] in diz.keys()):
+                            res = {}
+                            for key, value in diz.items():
+                                if isinstance(value, dict):
+                                    for subkey, subvalue in value.items():
+                                        if isinstance(subvalue, dict) and self.top_attr[i] in subvalue:
+                                            res[subkey] = {
+                                                'unit': subvalue[self.top_attr[i]]['unit'],
+                                                'exp_value': subvalue[self.top_attr[i]]['exp_value']
+                                            }  
+                            diz = {self.top_attr[i]:res}
+                        else:
+                            diz = {self.top_attr[i]: diz[self.top_attr[i]]}
+                        self.tlm_keys.append(diz)                                                                                
+                    self.logger.info("Populate monitoring table...")
+                    
+                    populateTable(self.wg,self.tlm_keys,self.top_attr)
                     for tlmk in self.tlm_keys:
                         if tlmk in self.query_once:
                             data = self.client.get_attribute(tlmk)
@@ -447,6 +487,8 @@ class MonitorSubrack(Monitor):
                     self.connected = True
 
                     self.tlm_hdf = self.setupHdf5()
+                    data = self.client.execute_command(command="get_health_dictionary")
+                    [alarm,warning] = unfold_dictionary(data['retvalue'])
                     with self._subrack_lock:
                         telemetry = self.getTelemetry()
                         self.telemetry = dict(telemetry)
