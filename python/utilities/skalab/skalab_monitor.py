@@ -25,33 +25,26 @@ default_app_dir = str(Path.home()) + "/.skalab/"
 default_profile = "Default"
 profile_filename = "monitor.ini"
 
-subrack_attribute = {
-                "backplane_temperatures": [None]*4,
-                "board_temperatures": [None]*4,
-                "power_supply_fan_speeds": [None]*4,
-                "power_supply_powers": [None]*4,
-                "subrack_fan_speeds": [None]*8,
-                "subrack_fan_speeds_percent": [None]*8,
-                "power_supply_status": [None]*4,
-                "board_pll_lock":[None]*2,
-                "cpld_pll_lock":[None]*2,
-                "pll_source":[None]*2
+standard_subrack_attribute = {
+                "tpm_supply_fault": [None]*8,
+                "tpm_present": [None]*8,
+                "tpm_on_off": [None]*8
                 }
 
 
 def populateTable(frame, attributes,top):
     "Create Subrack table"
     qtable = []
+    sub_attr = []
     size_a = len(attributes)
     for j in range(size_a):
-        sub_attr = []
         qtable.append(getattr(frame, f"table{top[j]}"))
-        sub_attr = list(list(attributes[j].values())[0].keys())
-        qtable[j].setRowCount(len(sub_attr))
+        sub_attr.append(list(list(attributes[j].values())[0].keys()))
+        qtable[j].setRowCount(len(sub_attr[j]))
         qtable[j].setColumnCount(2)
-        qtable[j].setVerticalHeaderLabels(sub_attr)  
+        qtable[j].setVerticalHeaderLabels(sub_attr[j])  
         qtable[j].setHorizontalHeaderLabels(("Value", "Warning/Alarm"))    
-    return qtable
+    return qtable, sub_attr
 
     # qtable.setRowCount(8)
     # qtable.setColumnCount(len(attribute))
@@ -163,7 +156,7 @@ class Monitor(TileInitialization):
         self.check_tpm_tm = Thread(name= "TPM telemetry", target=self.monitoringTpm, daemon=True)
         self._tpm_lock = Lock()
         self.wait_check_tpm = Event()
-        self.check_tpm_tm.start()
+        #self.check_tpm_tm.start()
 
     def writeLog(self,message,priority):
         if priority == "info":
@@ -236,17 +229,18 @@ class Monitor(TileInitialization):
         # skalab_monitor_tab.populateWarningAlarmTable(self.wg.true_table, self.warning, self.alarm_values)
 
     def tpmStatusChanged(self):
-        self.wait_check_tpm.clear()
-        with self._tpm_lock:
-            for k in range(8):
-                if self.tpm_on_off[k] and not self.tpm_active[k]:
-                    self.tpm_active[k] = Tile(self.tpm_slot_ip[k+1], self.cpld_port, self.lmc_ip, self.dst_port)
-                    self.tpm_active[k].program_fpgas(self.bitfile)
-                    self.tpm_active[k].connect()
-                elif not self.tpm_on_off[k] and self.tpm_active[k]:
-                    self.tpm_active[k] = None
-        if any(self.tpm_initialized):
-            self.wait_check_tpm.set()
+        # self.wait_check_tpm.clear()
+        # with self._tpm_lock:
+        #     for k in range(8):
+        #         if self.tpm_on_off[k] and not self.tpm_active[k]:
+        #             self.tpm_active[k] = Tile(self.tpm_slot_ip[k+1], self.cpld_port, self.lmc_ip, self.dst_port)
+        #             self.tpm_active[k].program_fpgas(self.bitfile)
+        #             self.tpm_active[k].connect()
+        #         elif not self.tpm_on_off[k] and self.tpm_active[k]:
+        #             self.tpm_active[k] = None
+        # if any(self.tpm_initialized):
+        #     self.wait_check_tpm.set()
+        pass
             
 
     def monitoringTpm(self):
@@ -300,40 +294,36 @@ class Monitor(TileInitialization):
                                 self.qled_alert[int(i/2)].Colour=Led.Orange
                                 self.qled_alert[int(i/2)].value = True
 
-    def readSubrackAttribute(self):
-        for attr in self.from_subrack:
-            if attr in subrack_attribute:
-                self.writeSubrackAttribute(attr,subrack_attribute,False)
-
-    def writeSubrackAttribute(self,attr,table,led_flag):
-        for ind in range(0,len(table[attr]),2):
-            value = self.from_subrack[attr][int(ind/2)]
-            if (not(type(value) == bool) and not(type(value) == str)): value = round(value,1) 
-            table[attr][ind].setStyleSheet("color: black; background:white")
-            table[attr][ind].setText(str(value))
-            table[attr][ind].setAlignment(QtCore.Qt.AlignCenter)
-            with self._lock_tab2:
-                if not(type(value)==str or type(value)==bool) and not(self.alarm_values[attr][0] <= value <= self.alarm_values[attr][1]):
-                    table[attr][ind+1].setText(str(value))
-                    table[attr][ind+1].setStyleSheet("color: white; background:red")
-                    table[attr][ind+1].setAlignment(QtCore.Qt.AlignCenter)
-                    self.logger.error(f"ERROR: {attr} parameter is out of range!")
-                    self.alarm[attr][int(ind/2)] = True
-                    if led_flag:
-                        with self._lock_led:
-                            self.qled_alert[int(ind/2)].Colour = Led.Red
-                            self.qled_alert[int(ind/2)].value = True
-                elif not(type(value)==str or type(value)==bool) and not(self.warning[attr][0] <= value <= self.warning[attr][1]):
-                    if not self.alarm[attr][int(ind/2)]:
-                        table[attr][ind+1].setText(str(value))
-                        table[attr][ind+1].setStyleSheet("color: white; background:orange")
-                        table[attr][ind+1].setAlignment(QtCore.Qt.AlignCenter)
-                        self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
-                        if self.qled_alert[int(ind/2)].Colour==4 and led_flag:
-                            with self._lock_led:
-                                self.qled_alert[int(ind/2)].Colour=Led.Orange
-                                self.qled_alert[int(ind/2)].value = True
-
+    def writeSubrackAttribute(self, j, data, table,led_flag):
+        for i in range(len(data)):
+            table[j].setItem(i,0, QtWidgets.QTableWidgetItem(str(data[i])))   
+        # for ind in range(0,len(table)):
+        #     value = self.from_subrack[attr][int(ind/2)]
+        #     if (not(type(value) == bool) and not(type(value) == str)): value = round(value,1) 
+        #     table[attr][ind].setStyleSheet("color: black; background:white")
+        #     table[attr][ind].setText(str(value))
+        #     table[attr][ind].setAlignment(QtCore.Qt.AlignCenter)
+        #     with self._lock_tab2:
+        #         if not(type(value)==str or type(value)==bool) and not(self.alarm_values[attr][0] <= value <= self.alarm_values[attr][1]):
+        #             table[attr][ind+1].setText(str(value))
+        #             table[attr][ind+1].setStyleSheet("color: white; background:red")
+        #             table[attr][ind+1].setAlignment(QtCore.Qt.AlignCenter)
+        #             self.logger.error(f"ERROR: {attr} parameter is out of range!")
+        #             self.alarm[attr][int(ind/2)] = True
+        #             if led_flag:
+        #                 with self._lock_led:
+        #                     self.qled_alert[int(ind/2)].Colour = Led.Red
+        #                     self.qled_alert[int(ind/2)].value = True
+        #         elif not(type(value)==str or type(value)==bool) and not(self.warning[attr][0] <= value <= self.warning[attr][1]):
+        #             if not self.alarm[attr][int(ind/2)]:
+        #                 table[attr][ind+1].setText(str(value))
+        #                 table[attr][ind+1].setStyleSheet("color: white; background:orange")
+        #                 table[attr][ind+1].setAlignment(QtCore.Qt.AlignCenter)
+        #                 self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
+        #                 if self.qled_alert[int(ind/2)].Colour==4 and led_flag:
+        #                     with self._lock_led:
+        #                         self.qled_alert[int(ind/2)].Colour=Led.Orange
+        #                         self.qled_alert[int(ind/2)].value = True
 
     def setupHdf5(self):
         if not(self.tlm_hdf_monitor):
@@ -382,7 +372,7 @@ class MonitorSubrack(Monitor):
         self.interval_monitor = self.profile['Monitor']['query_interval']
 
         self.tlm_keys = []
-        self.telemetry = {} 
+        self.tpm_status_info = {} 
         self.last_telemetry = {"tpm_supply_fault":[None] *8,"tpm_present":[None] *8,"tpm_on_off":[None] *8}
         self.query_once = []
         self.query_deny = []
@@ -399,10 +389,10 @@ class MonitorSubrack(Monitor):
         self.load_events_subrack()
         self.show()
         self.skipThreadPause = False
-        self.processTlm = Thread(name="Subrack Telemetry", target=self.readTlm, daemon=True)
+        self.subrackTlm = Thread(name="Subrack Telemetry", target=self.readSubrackTlm, daemon=True)
         self.wait_check_subrack = Event()
         self._subrack_lock = Lock()
-        self.processTlm.start()
+        self.subrackTlm.start()
 
     def load_events_subrack(self):
         self.wg.subrack_button.clicked.connect(lambda: self.connect())
@@ -432,7 +422,7 @@ class MonitorSubrack(Monitor):
         self.skipThreadPause = True
         with self._subrack_lock:
             if self.connected:
-                if self.telemetry["tpm_on_off"][slot]:
+                if self.tpm_status_info["tpm_on_off"][slot]:
                     self.client.execute_command(command="turn_off_tpm", parameters="%d" % (int(slot) + 1))
                     self.logger.info("Turn OFF TPM-%02d" % (int(slot) + 1))
                 else:
@@ -468,16 +458,15 @@ class MonitorSubrack(Monitor):
                         self.tlm_keys.append(diz)                                                                                
                     self.logger.info("Populate monitoring table...")
                     
-                    populateTable(self.wg,self.tlm_keys,self.top_attr)
-                    for tlmk in self.tlm_keys:
-                        if tlmk in self.query_once:
-                            data = self.client.get_attribute(tlmk)
-                            if data["status"] == "OK":
-                                self.telemetry[tlmk] = data["value"]
-                            else:
-                                self.telemetry[tlmk] = data["info"]
-                    if 'api_version' in self.telemetry.keys():
-                        self.logger.info("Subrack API version: " + self.telemetry['api_version'])
+                    [self.subrack_table, self.sub_atribute] = populateTable(self.wg,self.tlm_keys,self.top_attr)
+                    for tlmk in self.query_once:
+                        data = self.client.get_attribute(tlmk)
+                        if data["status"] == "OK":
+                            self.tpm_status_info[tlmk] = data["value"]
+                        else:
+                            self.tpm_status_info[tlmk] = data["info"]
+                    if 'api_version' in self.tpm_status_info.keys():
+                        self.logger.info("Subrack API version: " + self.tpm_status_info['api_version'])
                     else:
                         self.logger.warning("The Subrack is running with a very old API version!")
                     self.wg.subrack_button.setStyleSheet("background-color: rgb(78, 154, 6);")
@@ -485,15 +474,17 @@ class MonitorSubrack(Monitor):
                     self.wg.subrack_button.setStyleSheet("background-color: rgb(78, 154, 6);")
                     [item.setEnabled(True) for item in self.qbutton_tpm]
                     self.connected = True
-
                     self.tlm_hdf = self.setupHdf5()
                     data = self.client.execute_command(command="get_health_dictionary")
-                    [alarm,warning] = unfold_dictionary(data['retvalue'])
+                    [self.alarm, self.warning] = unfold_dictionary(data['retvalue'])
+                    for tlmk in standard_subrack_attribute: 
+                        data = self.client.get_attribute(tlmk)
+                        if data["status"] == "OK":
+                            self.tpm_status_info[tlmk] = data["value"]
+                        else:
+                            self.tpm_status_info[tlmk] = data["info"]
                     with self._subrack_lock:
-                        telemetry = self.getTelemetry()
-                        self.telemetry = dict(telemetry)
-                        self.signal_to_monitor.emit()
-                        self.signalTlm.emit()
+                        self.updateTpmStatus()
                     self.wait_check_subrack.set()
                 else:
                     self.logger.error("Unable to connect to the Subrack server %s:%d" % (self.ip, int(self.port)))
@@ -530,47 +521,47 @@ class MonitorSubrack(Monitor):
     def getTelemetry(self):
         tkey = ""
         telem = {}
-        monitor_tlm = {}
+        data = self.client.execute_command(command="get_health_status")
+        if data["status"] == "OK":
+            self.from_subrack =  data['retvalue']
+        else:
+            self.logger.warning("Subrack Data NOT AVAILABLE...")
+            self.from_subrack =  data['retvalue']
         try:
-            for tlmk in self.tlm_keys:
+            for tlmk in standard_subrack_attribute:
                 tkey = tlmk
                 if not tlmk in self.query_deny:
                     if self.connected:
                         data = self.client.get_attribute(tlmk)
                         if data["status"] == "OK":
                             telem[tlmk] = data["value"]
-                            monitor_tlm[tlmk] = telem[tlmk]
+                            self.tpm_status_info[tlmk] = telem[tlmk]
                         else:
-                            monitor_tlm[tlmk] = "NOT AVAILABLE"
+                            self.tpm_status_info[tlmk] = "NOT AVAILABLE"
         except:
             self.signal_update_log.emit("Error reading Telemetry [attribute: %s], skipping..." % tkey,"error")
-            #self.logger.error("Error reading Telemetry [attribute: %s], skipping..." % tkey)
-            monitor_tlm[tlmk] = f"ERROR{tkey}"
-            self.from_subrack =  monitor_tlm 
-            return
-        self.from_subrack =  monitor_tlm  
-        return telem
-
+        
+        return
+    
     def getTiles(self):
         try:
             for tlmk in self.query_tiles:
                 data = self.client.get_attribute(tlmk)
                 if data["status"] == "OK":
-                    self.telemetry[tlmk] = data["value"]
+                    self.tpm_status_info[tlmk] = data["value"]
                 else:
-                    self.telemetry[tlmk] = []
-            return self.telemetry['tpm_ips']
+                    self.tpm_status_info[tlmk] = []
+            return self.tpm_status_info['tpm_ips']
         except:
             return []
 
-    def readTlm(self):
+    def readSubrackTlm(self):
         while True:
             self.wait_check_subrack.wait()
             with self._subrack_lock:
                 if self.connected:
                     try:
-                        telemetry = self.getTelemetry()
-                        self.telemetry = dict(telemetry)
+                        self.getTelemetry()
                     except:
                         self.signal_update_log.emit("Failed to get Subrack Telemetry!","warning")
                         pass
@@ -581,36 +572,65 @@ class MonitorSubrack(Monitor):
                         sleep(0.1)
                         cycle = cycle + 0.1
                     self.skipThreadPause = False
-            sleep(0.5)        
+            sleep(0.5)  
+
+    def readSubrackAttribute(self):
+        #for attr in self.from_subrack:
+        for index_table in range(len(self.top_attr)):
+            diz = self.from_subrack
+            if not(self.top_attr[index_table] in diz.keys()):
+                res = {}
+                for key, value in diz.items():
+                    if isinstance(value, dict):
+                        for subkey, subvalue in value.items():
+                            if isinstance(subvalue, dict) and self.top_attr[index_table] in subvalue:
+                                res[subkey] = {
+                                    'unit': subvalue[self.top_attr[index_table]]['unit'],
+                                    'exp_value': subvalue[self.top_attr[index_table]]['exp_value']
+                                }  
+                attributes = {self.top_attr[index_table]:res}
+            else:
+                if list(diz[self.top_attr[index_table]]) == self.sub_atribute[index_table]:
+                    attributes = list(diz[self.top_attr[index_table]].values())
+                else:
+                    break
+            #self.tlm_keys.append(diz)
+            self.writeSubrackAttribute(index_table, attributes, self.subrack_table, False)
+            # except:
+            #     self.signal_update_log.emit("Error reading Telemetry [attribute: %s], skipping..." % tkey,"error")
+            #     #self.logger.error("Error reading Telemetry [attribute: %s], skipping..." % tkey)
+            #     monitor_tlm[tlmk] = f"ERROR{tkey}"
+            #     self.from_subrack =  monitor_tlm       
 
     def updateTpmStatus(self):
         # TPM status on QButtons
-        if "tpm_supply_fault" in self.telemetry.keys():
-            for n, fault in enumerate(self.telemetry["tpm_supply_fault"]):
+        if "tpm_supply_fault" in self.tpm_status_info.keys():
+            for n, fault in enumerate(self.tpm_status_info["tpm_supply_fault"]):
                 if fault:
                     self.qbutton_tpm[n].setStyleSheet(colors("yellow_on_black"))
                     self.tpm_on_off[n] = False
                 else:
-                    if "tpm_present" in self.telemetry.keys():
-                        if self.telemetry["tpm_present"][n]:
+                    if "tpm_present" in self.tpm_status_info.keys():
+                        if self.tpm_status_info["tpm_present"][n]:
                             self.qbutton_tpm[n].setStyleSheet(colors("black_on_red"))
                             self.tpm_on_off[n] = False
                         else:
                             self.qbutton_tpm[n].setStyleSheet(colors("black_on_grey"))
                             self.tpm_on_off[n] = False
-                    if "tpm_on_off" in self.telemetry.keys():
-                        if self.telemetry["tpm_on_off"][n]:
+                    if "tpm_on_off" in self.tpm_status_info.keys():
+                        if self.tpm_status_info["tpm_on_off"][n]:
                             self.qbutton_tpm[n].setStyleSheet(colors("black_on_green"))
                             self.tpm_on_off[n] = True
             try:
-                if (self.telemetry["tpm_supply_fault"]!= self.last_telemetry["tpm_supply_fault"]) | (self.telemetry["tpm_present"]!= self.last_telemetry["tpm_present"]) | (self.telemetry["tpm_on_off"]!= self.last_telemetry["tpm_on_off"]):
+                if (self.tpm_status_info["tpm_supply_fault"]!= self.last_telemetry["tpm_supply_fault"]) | (self.tpm_status_info["tpm_present"]!= self.last_telemetry["tpm_present"]) | (self.tpm_status_info["tpm_on_off"]!= self.last_telemetry["tpm_on_off"]):
                     self.signal_to_monitor_for_tpm.emit()
-                    self.last_telemetry["tpm_supply_fault"] = self.telemetry["tpm_supply_fault"]
-                    self.last_telemetry["tpm_present"] = self.telemetry["tpm_present"]
-                    self.last_telemetry["tpm_on_off"] = self.telemetry["tpm_on_off"]
+                    self.last_telemetry["tpm_supply_fault"] = self.tpm_status_info["tpm_supply_fault"]
+                    self.last_telemetry["tpm_present"] = self.tpm_status_info["tpm_present"]
+                    self.last_telemetry["tpm_on_off"] = self.tpm_status_info["tpm_on_off"]
                     
             except:
-                self.signal_to_monitor_for_tpm.emit()            
+                pass
+                #self.signal_to_monitor_for_tpm.emit()            
 
     def closeEvent(self, event):
         result = QtWidgets.QMessageBox.question(self,
