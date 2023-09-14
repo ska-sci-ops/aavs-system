@@ -326,6 +326,9 @@
         <layout class="QGridLayout" name="grid_led"/>
        </widget>
        <widget class="QPushButton" name="qbutton_clear_subrack">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>10</x>
