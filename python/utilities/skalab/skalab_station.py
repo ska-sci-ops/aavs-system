@@ -381,6 +381,8 @@ class SkalabStation(SkalabBase):
                         break
                 if station_on:
                     self.doInit = True
+                    # switch view to the Log tab
+                    self.wg.tabWidget.setCurrentIndex(3)
                 else:
                     msgBox = QtWidgets.QMessageBox()
                     msgBox.setText("STATION\nOne or more TPMs forming the station is unreachable\n"

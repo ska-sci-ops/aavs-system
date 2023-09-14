@@ -221,6 +221,7 @@ class Live(SkalabBase):
         station.load_configuration_file(self.config_file)
         self.stationIps = station.configuration['tiles']
         self.updateComboIps(self.stationIps)
+        self.customizeMapping()
 
     def load_events(self):
         # Live Plots Connections
@@ -252,7 +253,7 @@ class Live(SkalabBase):
         fd = QtWidgets.QFileDialog()
         fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
         options = fd.options()
-        base_path = self.profile['Live']['default_path_save_pictures']['value']
+        base_path = self.profile['Live']['default_path_save_pictures']
         result = fd.getSaveFileName(caption="Select a File Name to save the picture...",
                                     directory=base_path,
                                     filter="Image Files (*.png *.jpg *.bmp *.svg)",
@@ -442,7 +443,7 @@ class Live(SkalabBase):
     def connect(self):
         if not self.connected:
             # Load station configuration
-            self.config_file = self.profile['Live']['station_file']['value']
+            self.config_file = self.profile['Live']['station_file']
             station.load_configuration_file(self.config_file)
             self.station_configuration = station.configuration
             if self.newTilesIPs is not None:
@@ -551,7 +552,7 @@ class Live(SkalabBase):
                     self.logger.logger.error("Failed to get DAQ data!")
                     pass
                 cycle = 0.0
-                while cycle < (int(self.profile['Live']['query_interval']['value']) - 1) and not self.skipThreadPause:
+                while cycle < (int(self.profile['Live']['query_interval']) - 1) and not self.skipThreadPause:
                     sleep(0.1)
                     cycle = cycle + 0.1
                 self.skipThreadPause = False
@@ -580,16 +581,16 @@ class Live(SkalabBase):
                             "receiver_ports": int_data_port,
                             "receiver_ip": int_data_ip.encode(),
                             "nof_tiles": nof_tiles,
-                            'directory': self.profile['Data']['integrated_spectra_path']['value']}
+                            'directory': self.profile['Data']['integrated_spectra_path']}
                         #logging.debug(daq_config)
-                        if os.path.exists(self.profile['Data']['integrated_spectra_path']['value']):
+                        if os.path.exists(self.profile['Data']['integrated_spectra_path']):
                             self.initMonitor = False
                             self.monitor_daq = monit_daq
                             self.monitor_daq.populate_configuration(daq_config)
                             self.logger.logger.info("Integrated Data Conf %s:%s on NIC %s" % (int_data_ip, int_data_port, int_data_if))
                             self.monitor_daq.initialise_daq()
                             self.monitor_daq.start_integrated_channel_data_consumer()
-                            self.monitor_file_manager = ChannelFormatFileManager(root_path=self.profile['Data']['integrated_spectra_path']['value'],
+                            self.monitor_file_manager = ChannelFormatFileManager(root_path=self.profile['Data']['integrated_spectra_path'],
                                                                                  daq_mode=FileDAQModes.Integrated)
                             self.monitor_tstart = dt_to_timestamp(datetime.datetime.utcnow())
                             self.wg.qlabel_tstamp_int_spectra.setText("Started at " +
@@ -629,7 +630,7 @@ class Live(SkalabBase):
                 #     # self.preadu.Busy = False
                 #     pass
                 cycle = 0.0
-                while cycle < float(self.profile['Live']['query_interval']['value']) and not self.stopThreads:
+                while cycle < float(self.profile['Live']['query_interval']) and not self.stopThreads:
                     sleep(0.1)
                     cycle = cycle + 0.1
                     if self.connected:
@@ -637,7 +638,7 @@ class Live(SkalabBase):
                         if self.wpreadu.write_armed and not self.preadu[self.wg.qcombo_tpm.currentIndex()].Busy and self.connected:
                             self.writing_preadu = True
                             # for i in range(self.wpreadu.inputs):
-                            #     self.preadu[self.wg.qcombo_tpm.currentIndex()].preadu.set_register_value(nrx=i, value=int("0x" + self.wpreadu.records[i]['value'].text(), 16))
+                            #     self.preadu[self.wg.qcombo_tpm.currentIndex()].preadu.set_register_value(nrx=i, value=int("0x" + self.wpreadu.records[i].text(), 16))
                             # logging.debug(self.wpreadu.tpmConf, self.wpreadu.guiConf)
                             self.preadu[self.wg.qcombo_tpm.currentIndex()].write_configuration(self.wpreadu.guiConf)
                             self.wpreadu.write_armed = False
@@ -675,7 +676,7 @@ class Live(SkalabBase):
 
     def plotMonitor(self, forcePlot=False):
         if self.monitor_daq is not None:
-            ipath = self.profile['Data']['integrated_spectra_path']['value']
+            ipath = self.profile['Data']['integrated_spectra_path']
             if ipath[-1] != "/":
                 ipath += "/"
             if glob.glob(ipath + "*channel_integ_*hdf5"):
@@ -825,16 +826,16 @@ class Live(SkalabBase):
 
     def setupDAQ(self):
         self.tpm_nic_name == ""
-        if not self.profile['Data']['daq_path']['value'] == "":
+        if not self.profile['Data']['daq_path'] == "":
             self.tpm_nic_name = get_if_name(self.station_configuration['network']['lmc']['lmc_ip'])
             if self.tpm_nic_name == "":
                 self.logger.logger.error("Connection Error! (ETH Card name ERROR)")
         if not self.tpm_nic_name == "":
-            if os.path.exists(self.profile['Data']['daq_path']['value']):
+            if os.path.exists(self.profile['Data']['daq_path']):
                 self.mydaq = MyDaq(daq, self.tpm_nic_name, self.tpm_station, len(self.station_configuration['tiles']),
-                                   directory=self.profile['Data']['daq_path']['value'])
+                                   directory=self.profile['Data']['daq_path'])
                 self.logger.logger.info("DAQ Initialized, NIC: %s, NofTiles: %d, Data Directory: %s" %
-                      (self.tpm_nic_name, len(self.station_configuration['tiles']), self.profile['Data']['daq_path']['value']))
+                      (self.tpm_nic_name, len(self.station_configuration['tiles']), self.profile['Data']['daq_path']))
             else:
                 self.logger.logger.error("DAQ Error: a valid data directory is required.")
 
@@ -845,7 +846,7 @@ class Live(SkalabBase):
 
     def setupArchiveTemperatures(self):
         if self.connected:
-            self.temp_path = self.profile['Data']['temperatures_path']['value']
+            self.temp_path = self.profile['Data']['temperatures_path']
             if not self.temp_path == "":
                 if not self.temp_path[-1] == "/":
                     self.temp_path = self.temp_path + "/"
@@ -900,7 +901,10 @@ class Live(SkalabBase):
             self.live_mapping = [12, 13, 14, 15, 3, 2, 1, 0, 8, 9, 10, 11, 7, 6, 5, 4]
         elif self.wg.qcombo_rms_label.currentIndex() == 4:
             # TPM 1.6 Fibre Mapping
-            self.live_mapping = [12, 13, 14, 15, 3, 2, 1, 0, 8, 9, 10, 11, 7, 6, 5, 4]
+            self.live_mapping = [4, 5, 6, 7, 11, 10, 9, 8, 0, 1, 2, 3, 15, 14, 13, 12]
+        elif self.wg.qcombo_rms_label.currentIndex() == 5:
+            # TPM 1.6 Fibre Mapping
+            self.live_mapping = [4, 5, 6, 7, 11, 10, 9, 8, 0, 1, 2, 3, 15, 14, 13, 12]
         else:
             self.live_mapping = np.arange(16)
 
@@ -973,13 +977,13 @@ class Live(SkalabBase):
                 self.drawRmsCharts()
             else:
                 if len(self.rms) == len(self.tpm_station.tiles):
-
                     # self.wg.qlabel_tstamp_rms.setText(ts_to_datestring(dt_to_timestamp(datetime.datetime.utcnow())))
                     # ADU Map
                     rms_remap = np.arange(32)
                     colors = ['b'] * 32
                     if self.wg.qcombo_rms_label.currentIndex() == 1:
                         # ADU RF Receivers Polarization X-Y remapping
+                        # This must be corrected for different ADU version (different fw has different mapping)
                         rms_remap = [1, 0, 3, 2, 5, 4, 7, 6,
                                      8, 9, 10, 11, 12, 13, 14, 15,
                                      17, 16, 19, 18, 21, 20, 23, 22,
@@ -1000,11 +1004,18 @@ class Live(SkalabBase):
                                      25, 24, 27, 26, 29, 28, 31, 30]
                         colors = ['b', 'g'] * 16
                     elif self.wg.qcombo_rms_label.currentIndex() == 4:
-                        # TPM 1.6 Fibre Mapping
+                        # TPM 1.6 Fibre Mapping PreADU 2019 Wrong SPI
                         rms_remap = [15, 14, 13, 12, 11, 10,  9,  8,
                                        6,  7,  4,  5,  2,  3, 0,  1,
                                      31, 30, 29, 28, 27, 26, 25, 24,
                                      22, 23, 20, 21, 18, 19, 16, 17]
+                        colors = ['b', 'g'] * 16
+                    elif self.wg.qcombo_rms_label.currentIndex() == 5:
+                        # TPM 1.6 Fibre Mapping
+                        rms_remap = [16, 17, 18, 19, 20, 21, 22, 23,
+                                     25, 24, 27, 26, 29, 28, 31, 30,
+                                      0,  1,  2,  3,  4,  5,  6,  7,
+                                      9,  8, 11, 10, 13, 12, 15, 14]
                         colors = ['b', 'g'] * 16
                     for t in range(len(self.station_configuration['tiles'])):
                         powers = np.zeros(32)
@@ -1013,7 +1024,7 @@ class Live(SkalabBase):
                                 self.qp_rms[t].plotBar(self.rms[t][rms_remap[i]], i, colors[i])
                             elif self.wg.qradio_rms_dsa.isChecked():
                                 #self.qp_rms[t].plotBar(self.preaduConf[t][i]['dsa'], i, 'r')
-                                self.qp_rms[t].plotBar(self.wpreadu.staticRx.rx[self.preaduConf[t][i]['version']].op_get_attenuation(self.preaduConf[t][i]['code']), i, 'r')
+                                self.qp_rms[t].plotBar(self.wpreadu.staticRx.rx[self.preaduConf[t][i]['version']].op_get_attenuation(self.preaduConf[t][i]['code']), rms_remap[i], 'r')
                             with np.errstate(divide='ignore', invalid='ignore'):
                                 power = 10 * np.log10(np.power((self.rms[t][rms_remap[i]] * (1.7 / 256.)), 2) / 400.) + 30 + 12
                             if power == -np.inf:
