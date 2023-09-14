@@ -1,3 +1,4 @@
+"Set screen Resolution 1920 x 1080"
 import os.path
 import sys
 import gc
@@ -13,10 +14,11 @@ import skalab_monitor_tab
 from pyaavs.tile_wrapper import Tile
 from pyaavs import station
 from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtGui import QColor
 from hardware_client import WebHardwareClient
 from skalab_monitor_tab import TileInitialization
 from skalab_log import SkalabLog
-from skalab_utils import dt_to_timestamp, ts_to_datestring, parse_profile, COLORI, Led, getTextFromFile, colors, unfold_dictionary, merge_dicts, TILE_MONITORING_POINTS
+from skalab_utils import dt_to_timestamp, ts_to_datestring, parse_profile, COLORI, Led, getTextFromFile, colors, getThreshold, merge_dicts, TILE_MONITORING_POINTS
 from threading import Thread, Event, Lock
 from time import sleep
 from pathlib import Path
@@ -43,7 +45,7 @@ def populateTable(frame, attributes,top):
         qtable[j].setRowCount(len(sub_attr[j]))
         qtable[j].setColumnCount(2)
         qtable[j].setVerticalHeaderLabels(sub_attr[j])  
-        qtable[j].setHorizontalHeaderLabels(("Value", "Warning/Alarm"))    
+        qtable[j].setHorizontalHeaderLabels(("Value", "Warning/Alarm")) 
     return qtable, sub_attr
 
     # qtable.setRowCount(8)
@@ -69,27 +71,27 @@ def populateTable(frame, attributes,top):
     # a=1
     # return
 
-def populateSubrack(self,wg, attribute):
-    j=0
-    size_x = 120
-    size_y = 60
-    for k in attribute:
-        for v in range(0,len(attribute[k]),2):
-            if (k == "subrack_fan_speeds_percent"):
-                subrack_attribute[k][v] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),3,v)
-                subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),4,v)
-                j-=0.25
-                continue
-            if (k == "subrack_fan_speeds"):
-                subrack_attribute[k][v] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),1,v)
-                subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),2,v) 
-                j-=0.25
-                continue   
-            subrack_attribute[k][v] = QtWidgets.QLineEdit(wg.frame_subrack)
-            subrack_attribute[k][v+1]= QtWidgets.QLineEdit(wg.frame_subrack)
-            subrack_attribute[k][v].setGeometry(QtCore.QRect(  size_x+45*v, 10 +  20+(size_y*(j)),  70,19))
-            subrack_attribute[k][v+1].setGeometry(QtCore.QRect(size_x+45*v, 30 +  20+(size_y*(j)),  70,19))
-        j+=1
+# def populateSubrack(self,wg, attribute):
+#     j=0
+#     size_x = 120
+#     size_y = 60
+#     for k in attribute:
+#         for v in range(0,len(attribute[k]),2):
+#             if (k == "subrack_fan_speeds_percent"):
+#                 subrack_attribute[k][v] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),3,v)
+#                 subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),4,v)
+#                 j-=0.25
+#                 continue
+#             if (k == "subrack_fan_speeds"):
+#                 subrack_attribute[k][v] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),1,v)
+#                 subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),2,v) 
+#                 j-=0.25
+#                 continue   
+#             subrack_attribute[k][v] = QtWidgets.QLineEdit(wg.frame_subrack)
+#             subrack_attribute[k][v+1]= QtWidgets.QLineEdit(wg.frame_subrack)
+#             subrack_attribute[k][v].setGeometry(QtCore.QRect(  size_x+45*v, 10 +  20+(size_y*(j)),  70,19))
+#             subrack_attribute[k][v+1].setGeometry(QtCore.QRect(size_x+45*v, 30 +  20+(size_y*(j)),  70,19))
+#         j+=1
 
 
 def populateSlots(grid):
@@ -133,9 +135,9 @@ class Monitor(TileInitialization):
         # Populate table
         #populateSubrack(self, self.wg, subrack_attribute)
         self.populate_table_profile()
-        self.qled_alert = Led(self.wg.overview_frame)
-        self.wg.grid_led.addWidget(self.qled_alert)
-        self.qled_alert.setObjectName("qled_warn_alar")
+        self.subrack_led = Led(self.wg.overview_frame)
+        self.wg.grid_led.addWidget(self.subrack_led)
+        self.subrack_led.setObjectName("qled_warn_alar")
         self.qbutton_tpm = populateSlots(self.wg.grid_tpm)
         self.populateTileInstance()
         self.loadTopLevelAttributes()
@@ -177,20 +179,19 @@ class Monitor(TileInitialization):
     
     def clearValues(self):
         with (self._lock_led and self._lock_tab1 and self._lock_tab2):
-            for i in range(16):
-                self.qled_alert[int(i/2)].Colour = Led.Grey
-                self.qled_alert[int(i/2)].value = False  
-                for attr in self.alarm:
-                    self.alarm[attr][int(i/2)] = False
-                    if attr in self.tile_table_attr:
-                        self.tile_table_attr[attr][i].setText(str(""))
-                        self.tile_table_attr[attr][i].setStyleSheet("color: black; background:white")  
-                    elif attr in subrack_attribute:
-                        try:
-                            subrack_attribute[attr][int(i/2)].setText(str(""))
-                            subrack_attribute[attr][int(i/2)].setStyleSheet("color: black; background:white")
-                        except:
-                            pass
+            self.subrack_led.Colour = Led.Grey
+            self.subrack_led.m_value = False
+            for table in self.subrack_table:
+                table.clearContents()
+            
+            # for i in range(16):
+            #     self.qled_alert[int(i/2)].Colour = Led.Grey
+            #     self.qled_alert[int(i/2)].value = False  
+            #     for attr in self.alarm:
+            #         self.alarm[attr][int(i/2)] = False
+            #         if attr in self.tile_table_attr:
+            #             self.tile_table_attr[attr][i].setText(str(""))
+            #             self.tile_table_attr[attr][i].setStyleSheet("color: black; background:white")  
                          
     def populateTileInstance(self):
         keys_to_be_removed = []
@@ -265,6 +266,7 @@ class Monitor(TileInitialization):
             #if self.wg.check_savedata.isChecked(): self.saveTlm(tpm_monitoring_points)
             sleep(float(self.interval_monitor))    
 
+
     def writeTpmAttribute(self,tpm_tmp,i):
         for attr in self.tile_table_attr:
             value = tpm_tmp[attr]
@@ -294,36 +296,46 @@ class Monitor(TileInitialization):
                                 self.qled_alert[int(i/2)].Colour=Led.Orange
                                 self.qled_alert[int(i/2)].value = True
 
-    def writeSubrackAttribute(self, j, data, table,led_flag):
+
+    def writeSubrackAttribute(self, data, table, alarm, warning, led_flag):
+        attrs = list(data.keys())
+        values = list(data.values())
         for i in range(len(data)):
-            table[j].setItem(i,0, QtWidgets.QTableWidgetItem(str(data[i])))   
-        # for ind in range(0,len(table)):
-        #     value = self.from_subrack[attr][int(ind/2)]
-        #     if (not(type(value) == bool) and not(type(value) == str)): value = round(value,1) 
-        #     table[attr][ind].setStyleSheet("color: black; background:white")
-        #     table[attr][ind].setText(str(value))
-        #     table[attr][ind].setAlignment(QtCore.Qt.AlignCenter)
-        #     with self._lock_tab2:
-        #         if not(type(value)==str or type(value)==bool) and not(self.alarm_values[attr][0] <= value <= self.alarm_values[attr][1]):
-        #             table[attr][ind+1].setText(str(value))
-        #             table[attr][ind+1].setStyleSheet("color: white; background:red")
-        #             table[attr][ind+1].setAlignment(QtCore.Qt.AlignCenter)
-        #             self.logger.error(f"ERROR: {attr} parameter is out of range!")
-        #             self.alarm[attr][int(ind/2)] = True
-        #             if led_flag:
-        #                 with self._lock_led:
-        #                     self.qled_alert[int(ind/2)].Colour = Led.Red
-        #                     self.qled_alert[int(ind/2)].value = True
-        #         elif not(type(value)==str or type(value)==bool) and not(self.warning[attr][0] <= value <= self.warning[attr][1]):
-        #             if not self.alarm[attr][int(ind/2)]:
-        #                 table[attr][ind+1].setText(str(value))
-        #                 table[attr][ind+1].setStyleSheet("color: white; background:orange")
-        #                 table[attr][ind+1].setAlignment(QtCore.Qt.AlignCenter)
-        #                 self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
-        #                 if self.qled_alert[int(ind/2)].Colour==4 and led_flag:
-        #                     with self._lock_led:
-        #                         self.qled_alert[int(ind/2)].Colour=Led.Orange
-        #                         self.qled_alert[int(ind/2)].value = True
+            value = values[i]
+            attr = attrs[i]
+            table.setItem(i,0, QtWidgets.QTableWidgetItem(str(value)))
+            item = table.item(i, 0)
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            # TODO: Add bool comparison
+            if not(type(value)==str or type(value)==bool or value==None or alarm[attr][0]==None):
+                if not(alarm[attr][0] <= value <= alarm[attr][1]): 
+                    with self._lock_tab2:
+                        table.setItem(i,1, QtWidgets.QTableWidgetItem(str(value)))
+                        item = table.item(i, 1)
+                        item.setTextAlignment(QtCore.Qt.AlignCenter)
+                        item.setForeground(QColor("white"))
+                        item.setBackground(QColor("#ff0000")) # red
+                        self.logger.error(f"ERROR: {attr} parameter is out of range!")
+                        #self.alarm[attr][int(ind/2)] = True
+                        # Change the color only if it not 1=red
+                        if not(self.subrack_led.Colour==1):
+                            with self._lock_led:
+                                self.subrack_led.Colour = Led.Red
+                                self.subrack_led.value = True
+                elif not(warning[attr][0] <= value <= warning[attr][1]) and not(item.background().color().name() == '#ff0000'):
+                    with self._lock_tab2:
+                        table.setItem(i,1, QtWidgets.QTableWidgetItem(str(value)))
+                        item = table.item(i, 1)
+                        item.setTextAlignment(QtCore.Qt.AlignCenter)
+                        item.setForeground(QColor("white"))
+                        item.setBackground(QColor("#ff8000")) #orange
+                        self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
+                        # Change the color only if it is 4=Grey
+                        if self.subrack_led.Colour==4: 
+                            with self._lock_led:
+                                self.subrack_led.Colour=Led.Orange
+                                self.subrack_led.value = True
+
 
     def setupHdf5(self):
         if not(self.tlm_hdf_monitor):
@@ -432,6 +444,7 @@ class MonitorSubrack(Monitor):
         self.wait_check_subrack.set()
 
     def connect(self):
+        self.tlm_keys = []
         if not self.wg.qline_ip.text() == "":
             if not self.connected:
                 self.logger.info("Connecting to Subrack %s:%d..." % (self.ip, int(self.port)))
@@ -439,12 +452,16 @@ class MonitorSubrack(Monitor):
                 if self.client.connect():
                     self.logger.info("Successfully connected")
                     self.logger.info("Querying list of Subrack API attributes...")
+                    self.subrack_dictionary = self.client.execute_command(command="get_health_dictionary")["retvalue"]
+                    del self.subrack_dictionary['iso_datetime']
                     for i in range(len(self.top_attr)):
-                        diz = self.client.execute_command(command="get_health_dictionary",parameters=self.top_attr[i])["retvalue"]
-                        del diz['iso_datetime']
-                        if not(self.top_attr[i] in diz.keys()):
+                        #diz = self.client.execute_command(command="get_health_dictionary",parameters=self.top_attr[i])["retvalue"]
+                        #del diz['iso_datetime']
+                        if self.top_attr[i] in self.subrack_dictionary.keys():
+                            diz = {self.top_attr[i]: self.subrack_dictionary[self.top_attr[i]]}
+                        else:
                             res = {}
-                            for key, value in diz.items():
+                            for key, value in self.subrack_dictionary.items():
                                 if isinstance(value, dict):
                                     for subkey, subvalue in value.items():
                                         if isinstance(subvalue, dict) and self.top_attr[i] in subvalue:
@@ -452,13 +469,13 @@ class MonitorSubrack(Monitor):
                                                 'unit': subvalue[self.top_attr[i]]['unit'],
                                                 'exp_value': subvalue[self.top_attr[i]]['exp_value']
                                             }  
-                            diz = {self.top_attr[i]:res}
-                        else:
-                            diz = {self.top_attr[i]: diz[self.top_attr[i]]}
-                        self.tlm_keys.append(diz)                                                                                
+                            diz = {self.top_attr[i] : res}
+                            
+                        self.tlm_keys.append(diz)
                     self.logger.info("Populate monitoring table...")
                     
-                    [self.subrack_table, self.sub_atribute] = populateTable(self.wg,self.tlm_keys,self.top_attr)
+                    [self.subrack_table, self.sub_attribute] = populateTable(self.wg,self.tlm_keys,self.top_attr)
+                    self.wg.qbutton_clear_subrack.setEnabled(True)
                     for tlmk in self.query_once:
                         data = self.client.get_attribute(tlmk)
                         if data["status"] == "OK":
@@ -475,8 +492,8 @@ class MonitorSubrack(Monitor):
                     [item.setEnabled(True) for item in self.qbutton_tpm]
                     self.connected = True
                     self.tlm_hdf = self.setupHdf5()
-                    data = self.client.execute_command(command="get_health_dictionary")
-                    [self.alarm, self.warning] = unfold_dictionary(data['retvalue'])
+
+                    [self.alarm, self.warning] = getThreshold(self.tlm_keys,self.top_attr)
                     for tlmk in standard_subrack_attribute: 
                         data = self.client.get_attribute(tlmk)
                         if data["status"] == "OK":
@@ -502,8 +519,7 @@ class MonitorSubrack(Monitor):
                 self.connected = False
                 self.wg.subrack_button.setStyleSheet("background-color: rgb(204, 0, 0);")
                 self.wg.subrack_button.setText("OFFLINE")
-                self.wg.subrack_button.setStyleSheet("background-color: rgb(204, 0, 0);")
-                [item.setEnabled(False) for item in self.qbutton_tpm]
+                #[item.setEnabled(False) for item in self.qbutton_tpm]
                 self.client.disconnect()
                 del self.client
                 gc.collect()
@@ -576,26 +592,29 @@ class MonitorSubrack(Monitor):
 
     def readSubrackAttribute(self):
         #for attr in self.from_subrack:
+        diz = self.from_subrack
         for index_table in range(len(self.top_attr)):
-            diz = self.from_subrack
             if not(self.top_attr[index_table] in diz.keys()):
                 res = {}
                 for key, value in diz.items():
                     if isinstance(value, dict):
                         for subkey, subvalue in value.items():
                             if isinstance(subvalue, dict) and self.top_attr[index_table] in subvalue:
-                                res[subkey] = {
-                                    'unit': subvalue[self.top_attr[index_table]]['unit'],
-                                    'exp_value': subvalue[self.top_attr[index_table]]['exp_value']
-                                }  
-                attributes = {self.top_attr[index_table]:res}
+                                res[subkey] = subvalue[self.top_attr[index_table]]
+                                diz[key][subkey].pop(self.top_attr[index_table])
+                attribute_data = res
+                filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
+                filtered_warning = self.alarm[index_table][self.top_attr[index_table]]
             else:
-                if list(diz[self.top_attr[index_table]]) == self.sub_atribute[index_table]:
-                    attributes = list(diz[self.top_attr[index_table]].values())
+                if (list(diz[self.top_attr[index_table]]) == self.sub_attribute[index_table]):
+                    attribute_data = diz[self.top_attr[index_table]]
+                    filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
+                    filtered_warning = self.alarm[index_table][self.top_attr[index_table]]
+                    diz.pop(self.top_attr[index_table])
                 else:
                     break
             #self.tlm_keys.append(diz)
-            self.writeSubrackAttribute(index_table, attributes, self.subrack_table, False)
+            self.writeSubrackAttribute(attribute_data, self.subrack_table[index_table], filtered_alarm,filtered_warning, False)
             # except:
             #     self.signal_update_log.emit("Error reading Telemetry [attribute: %s], skipping..." % tkey,"error")
             #     #self.logger.error("Error reading Telemetry [attribute: %s], skipping..." % tkey)
@@ -742,4 +761,3 @@ if __name__ == "__main__":
                         monitor_logger.warning("\nTerminated by the user.\n")
                 client.disconnect()
                 del client
-

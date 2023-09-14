@@ -7,6 +7,7 @@ import copy
 import h5py
 import numpy as np
 import configparser
+from operator import sub
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -254,40 +255,24 @@ def merge_dicts(dict_a, dict_b):
         return output
 
 
-def unfold_dictionary(dizion):
-    attr = list() 
-    transformed_list = [] 
-    transformed_list1 = []   
-    exp_values = []
-    exp_values1 = []
-    for key,value in dizion.items():
-        if key != 'iso_datetime':
-            attr[len(attr):len(attr)] = list(dizion[key].keys())
-            try:
-                for group in dizion[key].values():
-                    l = 0
-                    for item in group.values():
-                        exp_value = item.get('exp_value')
-                        if exp_value is not None:
-                            l+=1
-                            exp_values.append(exp_value)
-                    temp_list = exp_values[-l:]
-                    del exp_values[len(exp_values)-l:]
-                    exp_values.append(temp_list)
-            except:
-                for sub_value in dizion[key].values():
-                    exp_value = sub_value.get('exp_value')
-                    if exp_value is not None:
-                        exp_values1.append(exp_value)
-
-    transformed_list = [[d['min'], d['max']] for d in exp_values1]
-    transformed_list1 = [sum([list(d.values()) for d in sublist], []) for sublist in exp_values]
-
-    transformed_list.extend(transformed_list1)
-    alarm_values  = dict(zip(attr, transformed_list))
-    result_list = [[value - (value * 2 / 100) if value is not None else None for value in sublist] for sublist in transformed_list]
-    warning_values = dict(zip(attr, result_list))
-    return alarm_values, warning_values
+def getThreshold(tlm,top_attr):
+    alarm = copy.deepcopy(tlm)
+    warning = copy.deepcopy(tlm)
+    alarm_values = {}
+    warning_values = {}
+    for i in range(len(top_attr)):
+        keys = list(tlm[i][top_attr[i]].keys())
+        for j in range(len(keys)):
+            alarm_values = list(tlm[i][top_attr[i]][keys[j]]['exp_value'].values())
+            alarm[i][top_attr[i]][keys[j]] =  alarm_values
+            if alarm_values != [None,None]:
+                warning_values = list(map(sub, alarm_values, [element * (2 / 100) for element in alarm_values]))
+                warning_values = [round(elem, 1) for elem in warning_values]
+            else:
+                warning_values = [None,None]
+            warning[i][top_attr[i]][keys[j]] =  warning_values
+    return alarm, warning
+    
 
 def parse_profile(config=""):
     confparser = configparser.ConfigParser()

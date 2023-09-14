@@ -45,7 +45,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>true</bool>
@@ -618,108 +618,53 @@
         <attribute name="title">
          <string>Attributes</string>
         </attribute>
-        <widget class="QTableWidget" name="tablevoltages">
-         <property name="geometry">
-          <rect>
-           <x>960</x>
-           <y>20</y>
-           <width>351</width>
-           <height>451</height>
-          </rect>
-         </property>
-         <column>
-          <property name="text">
-           <string>Voltage</string>
-          </property>
-         </column>
-        </widget>
-        <widget class="QLabel" name="label_453">
-         <property name="geometry">
-          <rect>
-           <x>790</x>
-           <y>0</y>
-           <width>58</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Ping</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="tabletemperatures">
-         <property name="geometry">
-          <rect>
-           <x>961</x>
-           <y>511</y>
-           <width>331</width>
-           <height>91</height>
-          </rect>
-         </property>
-         <column>
-          <property name="text">
-           <string>Temperature</string>
-          </property>
-         </column>
-        </widget>
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>690</x>
+           <x>0</x>
            <y>20</y>
-           <width>258</width>
-           <height>392</height>
+           <width>551</width>
+           <height>216</height>
           </rect>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QTableWidget" name="tablepings">
-            <column>
-             <property name="text">
-              <string>Ping</string>
-             </property>
-            </column>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_454">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>PSU1</string>
+            </property>
            </widget>
           </item>
-          <item>
-           <widget class="QTableWidget" name="tableplls">
-            <column>
-             <property name="text">
-              <string>Plld</string>
-             </property>
-            </column>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_456">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>PSU1</string>
+            </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="layoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>20</y>
-           <width>661</width>
-           <height>194</height>
-          </rect>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
+          <item row="1" column="0">
            <widget class="QTableWidget" name="tablePSU1">
             <property name="whatsThis">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
-            <column>
-             <property name="text">
-              <string>PSU1</string>
-             </property>
-            </column>
+            <property name="textElideMode">
+             <enum>Qt::ElideLeft</enum>
+            </property>
            </widget>
           </item>
-          <item>
+          <item row="1" column="1">
            <widget class="QTableWidget" name="tablePSU2">
             <column>
              <property name="text">
@@ -733,15 +678,41 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>11</x>
-           <y>276</y>
-           <width>661</width>
-           <height>194</height>
+           <x>0</x>
+           <y>250</y>
+           <width>551</width>
+           <height>436</height>
           </rect>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QTableWidget" name="tableWidget_11">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_455">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>FAN1</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_457">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>FAN2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTableWidget" name="tableFAN1">
             <column>
              <property name="text">
               <string>Fan1</string>
@@ -749,11 +720,55 @@
             </column>
            </widget>
           </item>
-          <item>
-           <widget class="QTableWidget" name="tableWidget_12">
+          <item row="1" column="1">
+           <widget class="QTableWidget" name="tableFAN2">
             <column>
              <property name="text">
-              <string>Fan1</string>
+              <string>Fan2</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_460">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>FAN3</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="label_459">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>FAN4</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QTableWidget" name="tableFAN3">
+            <column>
+             <property name="text">
+              <string>Fan3</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QTableWidget" name="tableFAN4">
+            <column>
+             <property name="text">
+              <string>Fan4</string>
              </property>
             </column>
            </widget>
@@ -763,47 +778,154 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>11</x>
-           <y>531</y>
-           <width>661</width>
-           <height>194</height>
+           <x>600</x>
+           <y>20</y>
+           <width>271</width>
+           <height>436</height>
           </rect>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <item>
-           <widget class="QTableWidget" name="tableWidget_13">
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_453">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>PING</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTableWidget" name="tablepings">
             <column>
              <property name="text">
-              <string>Fan1</string>
+              <string>Ping</string>
              </property>
             </column>
            </widget>
           </item>
-          <item>
-           <widget class="QTableWidget" name="tableWidget_14">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_461">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>PLL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QTableWidget" name="tableplls"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="layoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>930</x>
+           <y>10</y>
+           <width>311</width>
+           <height>401</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_458">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>INTERNAL VOLTAGE</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTableWidget" name="tableinternal_voltages">
             <column>
              <property name="text">
-              <string>Fan1</string>
+              <string>Internal Voltage</string>
              </property>
             </column>
            </widget>
           </item>
          </layout>
         </widget>
-        <widget class="QTableWidget" name="tableinternal_voltages">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>960</x>
-           <y>680</y>
-           <width>331</width>
-           <height>91</height>
+           <x>930</x>
+           <y>420</y>
+           <width>311</width>
+           <height>141</height>
           </rect>
          </property>
-         <column>
-          <property name="text">
-           <string>Internal Volt.</string>
-          </property>
-         </column>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_462">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SMB POWERIN VOLTAGE</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTableWidget" name="tablesmb_powerin_voltage">
+            <column>
+             <property name="text">
+              <string>smb_voltage</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="layoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>930</x>
+           <y>560</y>
+           <width>311</width>
+           <height>181</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_463">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>TEMPERATURE</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTableWidget" name="tabletemperatures">
+            <column>
+             <property name="text">
+              <string>Temperature</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
        <widget class="QWidget" name="tabSlots">
@@ -813,62 +935,66 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>13</x>
-           <y>380</y>
-           <width>1281</width>
-           <height>194</height>
+           <x>20</x>
+           <y>130</y>
+           <width>1271</width>
+           <height>501</height>
           </rect>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QTableWidget" name="tableSLOT5">
-            <column>
-             <property name="text">
-              <string>SLOT5</string>
-             </property>
-            </column>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_464">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SLOT1</string>
+            </property>
            </widget>
           </item>
-          <item>
-           <widget class="QTableWidget" name="tableSLOT6">
-            <column>
-             <property name="text">
-              <string>SLOT6</string>
-             </property>
-            </column>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_465">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SLOT2</string>
+            </property>
            </widget>
           </item>
-          <item>
-           <widget class="QTableWidget" name="tableSLOT7">
-            <column>
-             <property name="text">
-              <string>SLOT7</string>
-             </property>
-            </column>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_466">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SLOT3</string>
+            </property>
            </widget>
           </item>
-          <item>
-           <widget class="QTableWidget" name="tableSLOT8">
-            <column>
-             <property name="text">
-              <string>SLOT8</string>
-             </property>
-            </column>
+          <item row="0" column="3">
+           <widget class="QLabel" name="label_471">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SLOT4</string>
+            </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="layoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>13</x>
-           <y>40</y>
-           <width>1281</width>
-           <height>194</height>
-          </rect>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
+          <item row="1" column="0">
            <widget class="QTableWidget" name="tableSLOT1">
             <column>
              <property name="text">
@@ -877,7 +1003,7 @@
             </column>
            </widget>
           </item>
-          <item>
+          <item row="1" column="1">
            <widget class="QTableWidget" name="tableSLOT2">
             <column>
              <property name="text">
@@ -886,7 +1012,7 @@
             </column>
            </widget>
           </item>
-          <item>
+          <item row="1" column="2">
            <widget class="QTableWidget" name="tableSLOT3">
             <column>
              <property name="text">
@@ -895,11 +1021,99 @@
             </column>
            </widget>
           </item>
-          <item>
+          <item row="1" column="3">
            <widget class="QTableWidget" name="tableSLOT4">
             <column>
              <property name="text">
               <string>SLOT4</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_467">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SLOT5</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="label_468">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SLOT6</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_469">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SLOT7</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QLabel" name="label_470">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>SLOT8</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QTableWidget" name="tableSLOT5">
+            <column>
+             <property name="text">
+              <string>SLOT5</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QTableWidget" name="tableSLOT6">
+            <column>
+             <property name="text">
+              <string>SLOT6</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QTableWidget" name="tableSLOT7">
+            <column>
+             <property name="text">
+              <string>SLOT7</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QTableWidget" name="tableSLOT8">
+            <column>
+             <property name="text">
+              <string>SLOT8</string>
              </property>
             </column>
            </widget>
