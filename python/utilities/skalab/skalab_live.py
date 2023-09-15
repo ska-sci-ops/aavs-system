@@ -328,7 +328,7 @@ class Live(SkalabBase):
             self.wg.qbutton_stop.setEnabled(False)
             self.wg.qbutton_save.setEnabled(True)
             self.wg.qbutton_export.setEnabled(True)
-            self.wg.qcombo_rms_label.setEnabled(False)
+            self.wg.qcombo_rms_label.setEnabled(True)
             self.wg.qcombo_tpm.setEnabled(True)
 
     def check_rms(self, b):
@@ -680,7 +680,9 @@ class Live(SkalabBase):
             if ipath[-1] != "/":
                 ipath += "/"
             if glob.glob(ipath + "*channel_integ_*hdf5"):
-                remap = [0, 1, 2, 3, 8, 9, 10, 11, 15, 14, 13, 12, 7, 6, 5, 4]
+                remap_integrated_spectra = [8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7]
+                if self.wg.qcombo_rms_label.currentIndex() == 0:
+                    remap_integrated_spectra = np.arange(16)
                 monitorData, timestamps = self.monitor_file_manager.read_data(tile_id=self.wg.qcombo_tpm.currentIndex(),
                                                                               n_samples=1,
                                                                               sample_offset=-1)
@@ -691,16 +693,19 @@ class Live(SkalabBase):
                                                                   (8 * float(self.tpm_station.configuration['station']['channel_integration_time'])))
                         #logging.debug("PLOTTO ORA IL ", ts_to_datestring(timestamps[0][0]))
                         for i in range(16):
+                            title = "TPM INPUT F-%02d" % (i + 1)
+                            if self.wg.qcombo_rms_label.currentIndex() == 0:
+                                title = "ADC INPUT %d-%d" % (2 * i, 2 * i + 1)
                             # Plot X Pol
-                            spettro = monitorData[:, remap[i], 0, -1]
+                            spettro = monitorData[:, remap_integrated_spectra[i], 0, -1]
                             with np.errstate(divide='ignore'):
                                 spettro = 10 * np.log10(np.array(spettro))
                             self.monitorPlots.plotCurve(self.monitor_asse_x, spettro, i, xAxisRange=[1, 400],
-                                                        yAxisRange=[0, 40], title="INPUT-%02d" % i,
+                                                        yAxisRange=[0, 40], title=title,
                                                         xLabel="MHz", yLabel="dB", colore="b", grid=True, lw=1,
                                                         show_line=True)
                             # Plot Y Pol
-                            spettro = monitorData[:, remap[i], 1, -1]
+                            spettro = monitorData[:, remap_integrated_spectra[i], 1, -1]
                             with np.errstate(divide='ignore'):
                                 spettro = 10 * np.log10(np.array(spettro))
                             self.monitorPlots.plotCurve(self.monitor_asse_x, spettro, i, xAxisRange=[1, 400],
