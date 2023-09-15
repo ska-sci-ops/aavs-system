@@ -255,7 +255,41 @@ def merge_dicts(dict_a, dict_b):
         return output
 
 
-def getThreshold(tlm,top_attr):
+def getThreshold(wg,tlm,top_attr):
+    default = wg.qline_subrack_threshold.text()
+    if default != 'API_alarm.txt':
+        try:
+            #log load custom
+            with open(default, 'r') as file:
+                a_lines = []
+                for line in file:
+                    line = line.strip()
+                    line = eval(line)
+                    a_lines.append(line)
+            alarm = a_lines
+            warning = copy.deepcopy(alarm)
+            for i in range(len(top_attr)):
+                keys = list(alarm[i][top_attr[i]].keys())
+                for j in range(len(keys)):
+                    alarm_values = list(alarm[i][top_attr[i]][keys[j]])
+                    if alarm_values != [None,None]:
+                        factor = (alarm_values[1]-alarm_values[0]) * (5/100)
+                        warning_values = [round(alarm_values[0] + factor,1), round(alarm_values[1] - factor,1)]
+                    else:
+                        warning_values = [None,None]
+                    warning[i][top_attr[i]][keys[j]] =  warning_values
+        except:
+            #log error
+            [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr)
+    else: 
+        [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr)
+
+    writeThresholds(wg, alarm, warning)
+    return alarm, warning
+    
+
+def getDefaultThreshold(wg,tlm,top_attr):
+    #log load default api values
     alarm = copy.deepcopy(tlm)
     warning = copy.deepcopy(tlm)
     alarm_values = {}
@@ -266,12 +300,26 @@ def getThreshold(tlm,top_attr):
             alarm_values = list(tlm[i][top_attr[i]][keys[j]]['exp_value'].values())
             alarm[i][top_attr[i]][keys[j]] =  alarm_values
             if alarm_values != [None,None]:
-                warning_values = list(map(sub, alarm_values, [element * (2 / 100) for element in alarm_values]))
-                warning_values = [round(elem, 1) for elem in warning_values]
+                factor = (alarm_values[1]-alarm_values[0]) * (5/100)
+                warning_values = [round(alarm_values[0] + factor,1), round(alarm_values[1] - factor,1)]
             else:
                 warning_values = [None,None]
             warning[i][top_attr[i]][keys[j]] =  warning_values
+    file = open('API_alarm.txt','w+')
+    for item in alarm:
+        file.write(str(item) + "\n")
+    file.close()
     return alarm, warning
+
+
+def writeThresholds(wg, alarm, warning):
+    wg.ala_text.clear()
+    wg.war_text.clear()
+    for item in alarm:
+        wg.ala_text.appendPlainText(str(item))
+    for item in warning:
+        wg.war_text.appendPlainText(str(item))
+    return
     
 
 def parse_profile(config=""):

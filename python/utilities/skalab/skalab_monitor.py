@@ -18,7 +18,7 @@ from PyQt5.QtGui import QColor
 from hardware_client import WebHardwareClient
 from skalab_monitor_tab import TileInitialization
 from skalab_log import SkalabLog
-from skalab_utils import dt_to_timestamp, ts_to_datestring, parse_profile, COLORI, Led, getTextFromFile, colors, getThreshold, merge_dicts, TILE_MONITORING_POINTS
+from skalab_utils import *
 from threading import Thread, Event, Lock
 from time import sleep
 from pathlib import Path
@@ -398,7 +398,7 @@ class MonitorSubrack(Monitor):
         self.client = None
         self.data_charts = {}
 
-        self.load_events_subrack()
+        self.loadEventsSubrack()
         self.show()
         self.skipThreadPause = False
         self.subrackTlm = Thread(name="Subrack Telemetry", target=self.readSubrackTlm, daemon=True)
@@ -406,10 +406,21 @@ class MonitorSubrack(Monitor):
         self._subrack_lock = Lock()
         self.subrackTlm.start()
 
-    def load_events_subrack(self):
+    def loadEventsSubrack(self):
         self.wg.subrack_button.clicked.connect(lambda: self.connect())
+        self.wg.qbutton_subrack_threshold.clicked.connect(lambda: self.loadThreshold())
         for n, t in enumerate(self.qbutton_tpm):
             t.clicked.connect(lambda state, g=n: self.cmdSwitchTpm(g))
+
+
+    def loadThreshold(self):
+        fd = QtWidgets.QFileDialog()
+        fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        options = fd.options()
+        self.filename = fd.getOpenFileName(self, caption="Select a Subrack Alarm Thresholds file...",
+                                              directory="./", options=options)[0]
+        self.wg.qline_subrack_threshold.setText(self.filename)
+
 
     def reload(self, ip=None, port=None):
         if ip is not None:
@@ -493,7 +504,7 @@ class MonitorSubrack(Monitor):
                     self.connected = True
                     self.tlm_hdf = self.setupHdf5()
 
-                    [self.alarm, self.warning] = getThreshold(self.tlm_keys,self.top_attr)
+                    [self.alarm, self.warning] = getThreshold(self.wg, self.tlm_keys,self.top_attr)
                     for tlmk in standard_subrack_attribute: 
                         data = self.client.get_attribute(tlmk)
                         if data["status"] == "OK":

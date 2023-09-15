@@ -208,7 +208,7 @@
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>140</y>
+          <y>180</y>
           <width>411</width>
           <height>131</height>
          </rect>
@@ -216,6 +216,9 @@
         <layout class="QGridLayout" name="grid_tpm"/>
        </widget>
        <widget class="QPushButton" name="qbutton_clear_tpm">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -339,6 +342,109 @@
         </property>
         <property name="text">
          <string>CLEAR Table</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="qlabel_config_2">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>790</y>
+          <width>131</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>TPM Alarm Values</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="qline_configfile_2">
+        <property name="geometry">
+         <rect>
+          <x>420</x>
+          <y>790</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>DEFAULT</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="qbutton_load_configuration_2">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>790</y>
+          <width>81</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="qline_subrack_threshold">
+        <property name="geometry">
+         <rect>
+          <x>420</x>
+          <y>120</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>API_alarm.txt</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="qbutton_subrack_threshold">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>120</y>
+          <width>81</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="qlabel_config_3">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>120</y>
+          <width>131</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Subrack Alarm Values</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="Line" name="line">
+        <property name="geometry">
+         <rect>
+          <x>17</x>
+          <y>160</y>
+          <width>611</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </widget>
@@ -11410,6 +11516,59 @@
        </widget>
       </widget>
      </widget>
+     <widget class="QWidget" name="subrack_threshold_tab">
+      <attribute name="title">
+       <string>Subrack Thresholds</string>
+      </attribute>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>1281</width>
+         <height>341</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item alignment="Qt::AlignHCenter">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Alarm Thresholds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="ala_text"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>360</y>
+         <width>1281</width>
+         <height>331</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item alignment="Qt::AlignHCenter">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Warning Thresholds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="war_text">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="Log">
@@ -11424,90 +11583,6 @@
        <width>661</width>
        <height>851</height>
       </rect>
-     </property>
-    </widget>
-    <widget class="QTableWidget" name="true_table">
-     <property name="geometry">
-      <rect>
-       <x>700</x>
-       <y>125</y>
-       <width>611</width>
-       <height>411</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-     <property name="lineWidth">
-      <number>0</number>
-     </property>
-     <column>
-      <property name="text">
-       <string>min</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>max</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>min</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>max</string>
-      </property>
-     </column>
-    </widget>
-    <widget class="QLabel" name="qlabel_conf_label_3">
-     <property name="geometry">
-      <rect>
-       <x>820</x>
-       <y>15</y>
-       <width>311</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>To change values go to Configuration Tab</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_4">
-     <property name="geometry">
-      <rect>
-       <x>1110</x>
-       <y>100</y>
-       <width>181</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Alarm Threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_3">
-     <property name="geometry">
-      <rect>
-       <x>870</x>
-       <y>100</y>
-       <width>181</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Warning Threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </widget>
