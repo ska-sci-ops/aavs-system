@@ -381,6 +381,8 @@ class SkalabStation(SkalabBase):
                         break
                 if station_on:
                     self.doInit = True
+                    # switch view to the Log tab
+                    self.wg.tabWidget.setCurrentIndex(3)
                 else:
                     msgBox = QtWidgets.QMessageBox()
                     msgBox.setText("STATION\nOne or more TPMs forming the station is unreachable\n"
@@ -406,13 +408,12 @@ class SkalabStation(SkalabBase):
         while True:
             if self.doInit:
                 if True:
-                    swpath = os.getenv("AAVS_HOME")[:-1]
-                    swstation = "/aavs-system/python/pyaavs/station.py "
+                    swstation = "../../pyaavs/station.py"
                     swopt = " -I"
                     if self.wg.checkProgram.isChecked():
                         swopt += " -P"
                     sp = subprocess.Popen(
-                        "python " + swpath + swstation + " --config='" + self.config_file + "'" + swopt, shell=True,
+                        "python " + swstation + " --config='" + self.config_file + "'" + swopt, shell=True,
                         stdout=subprocess.PIPE)
                     while True:
                         msg = sp.stdout.readline()

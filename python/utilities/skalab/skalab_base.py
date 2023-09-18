@@ -1,3 +1,4 @@
+import json
 import os
 import configparser
 import shutil
@@ -12,7 +13,7 @@ default_app_dir = str(Path.home()) + "/.skalab/"
 
 
 class ConfWizard(QtWidgets.QMainWindow):
-    def __init__(self, App="", Profile="", Path=""):
+    def __init__(self, App="", Profile="", Path="", msg=""):
         super(ConfWizard).__init__()
         self.open = True
 
@@ -64,10 +65,29 @@ class ConfWizard(QtWidgets.QMainWindow):
         label.setStyleSheet("color: green")
         label.setAlignment(QtCore.Qt.AlignCenter)
 
+        label = QtWidgets.QLabel(self.wg)
+        label.setGeometry(880, 40, 200, 50)
+        label.setText(msg)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setPointSize(27)
+        font.setItalic(True)
+        label.setFont(font)
+        label.setStyleSheet("color: black")
+        label.setAlignment(QtCore.Qt.AlignCenter)
+
         self.wgConf = QtWidgets.QWidget(self.wg)
         self.wgConf.setGeometry(QtCore.QRect(10, 120, 1080, 780))
         self.sbase = SkalabBase(App=App, Profile=Profile, Path=Path, parent=self.wgConf)
+        self.qbuttonDone = QtWidgets.QPushButton(self.wg)
+        self.qbuttonDone.setGeometry(QtCore.QRect(930, 140, 89, 31))
+        self.qbuttonDone.setText("DONE")
+        self.qbuttonDone.raise_()
+        self.qbuttonDone.clicked.connect(lambda: self.validate())
         self.wg.show()
+
+    def validate(self):
+        self.wg.close()
 
 
 class SkalabBase(QtWidgets.QMainWindow):
@@ -75,6 +95,7 @@ class SkalabBase(QtWidgets.QMainWindow):
         super().__init__()
         self.connected = False
         self.profile = {}
+        self.jprofile = {}
         self.wgProfile = uic.loadUi("Gui/skalab_profile.ui", parent)
         self.wgProfile.qbutton_load.clicked.connect(lambda: self.load())
         self.wgProfile.qbutton_saveas.clicked.connect(lambda: self.save_as_profile())
@@ -126,21 +147,66 @@ class SkalabBase(QtWidgets.QMainWindow):
                 profile[s][k] = val
         return profile
 
-    def writeConfig(self, profileConfig, fname):
+    def readJson(self, fname):
+        profile = {}
+        with open(fname) as json_file:
+            jdata = json.load(json_file)
+        home = os.getenv("HOME")
+        for s in jdata.keys():
+            for k in jdata[s].keys():
+                if jdata[s][k]['type'] == 'path':
+                    if '~' in jdata[s][k]['value']:
+                        val = jdata[s][k]['value']
+                        jdata[s][k]['value'] = val.replace('~', home)
+        return jdata
+
+    def writeConfigFromJSON(self, pConfig):
+        fname = pConfig['Base']['path']['value'] + pConfig['Base']['profile']['value'] + "/" + pConfig['Base']['app']['value'].lower() + ".ini"
         conf = configparser.ConfigParser()
         conf.optionxform = str
-        for s in profileConfig.keys():
+        for s in pConfig.keys():
             # print(s, ": ", self.profile[s], type(self.profile[s]))
-            if type(profileConfig[s]) == dict:
+            if type(pConfig[s]) == dict:
                 # print("Creating Dict", s)
                 conf[s] = {}
-                for k in profileConfig[s]:
-                    # print("Adding ", k, self.profile[s][k])
-                    conf[s][k] = str(profileConfig[s][k])
+                for k in pConfig[s]:
+                #     # print("Adding ", k, self.profile[s][k])
+                    conf[s][k] = str(pConfig[s][k]['value'])
             else:
                 print("Malformed ConfigParser, found a non dict section!")
         with open(fname, 'w') as f:
             conf.write(f)
+
+    def writeConfig(self, pConfig):
+        fname = pConfig['Base']['path'] + pConfig['Base']['profile']
+        fpath = Path(fname)
+        fpath.mkdir(parents=True, exist_ok=True)
+        fname += "/" + pConfig['Base']['app'].lower() + ".ini"
+        conf = configparser.ConfigParser()
+        conf.optionxform = str
+        for s in pConfig.keys():
+            # print(s, ": ", self.profile[s], type(self.profile[s]))
+            if type(pConfig[s]) == dict:
+                # print("Creating Dict", s)
+                conf[s] = {}
+                for k in pConfig[s]:
+                #     # print("Adding ", k, self.profile[s][k])
+                    conf[s][k] = str(pConfig[s][k])
+            else:
+                print("Malformed ConfigParser, found a non dict section!")
+        with open(fname, 'w') as f:
+            conf.write(f)
+
+    def writeConfigToJSON(self, pConfig):
+        fname = "Templates/" + pConfig['Base']['app'].lower() + ".json"
+        conf = {}
+        for s in pConfig.keys():
+            if type(pConfig[s]) == dict:
+                conf[s] = {}
+                for k in pConfig[s]:
+                    conf[s][k] = {'value': pConfig[s][k], 'type': 'string', 'desc': "n/a"}
+        with open(fname, 'w') as outfile:
+            outfile.write(json.dumps(conf, indent=4, sort_keys=True))
 
     def load_profile(self, App="", Profile="", Path=""):
         if not Profile == "":
@@ -155,6 +221,7 @@ class SkalabBase(QtWidgets.QMainWindow):
 
             self.wgProfile.qline_configuration_file.setText(fullPath)
             self.profile = self.readConfig(fullPath)
+            self.jprofile = self.readJson("Templates/" + App.lower() + ".json")
             self.clear()
             self.populate_table_profile()
             self.updateProfileCombo(current=Profile)
@@ -169,9 +236,9 @@ class SkalabBase(QtWidgets.QMainWindow):
 
         if result == QtWidgets.QMessageBox.Yes:
             print("Removing", self.profile['Base']['path'] + profile_name + "/" + self.profile['Base']['app'])
-            if os.path.exists(self.profile['Base']['path'] + profile_name + "/" + self.profile['Base']['app'] + ".ini"):
-                # shutil.rmtree(self.profile['Base']['path'] + profile_name + "/" + self.profile['Base']['app'] + ".ini")
-                os.remove(self.profile['Base']['path'] + profile_name + "/" + self.profile['Base']['app'] + ".ini")
+            if os.path.exists(self.profile['Base']['path'] + profile_name + "/" + self.profile['Base']['app'].lower() + ".json"):
+                # shutil.rmtree(self.profile['Base']['path'] + profile_name + "/" + self.profile['Base']['app'] + ".json")
+                os.remove(self.profile['Base']['path'] + profile_name + "/" + self.profile['Base']['app'].lower() + ".json")
                 self.updateProfileCombo(current="")
                 self.load_profile(App=self.profile['Base']['app'],
                                   Profile=self.wgProfile.qcombo_profile.currentText(),
@@ -183,16 +250,17 @@ class SkalabBase(QtWidgets.QMainWindow):
         """
         fname = Path + Profile + "/" + App.lower() + ".ini"
         if not os.path.exists(fname):
-            defFile = "./Templates/" + App.lower() + ".ini"
+            defFile = "./Templates/" + App.lower() + ".json"
             if os.path.exists(defFile):
-                self.profile = self.readConfig(defFile)
+                self.jprofile = self.readJson(defFile)
                 print("Copying the Template File", defFile)
-                #print(self.readConfig(defFile))
+                self.jprofile['Base']['profile']['value'] = Profile
                 if not os.path.exists(Path[:-1]):
                     os.makedirs(Path[:-1])
                 if not os.path.exists(Path + Profile):
                     os.makedirs(Path + Profile)
-                self.writeConfig(self.profile, fname)
+                self.writeConfigFromJSON(self.jprofile)
+                self.profile = self.readConfig(fname)
                 self.populate_table_profile()
             else:
                 msgBox = QtWidgets.QMessageBox()
@@ -203,9 +271,10 @@ class SkalabBase(QtWidgets.QMainWindow):
                                "Please, check it out from the repo.")
                 msgBox.setWindowTitle("Error!")
                 msgBox.exec_()
-        profile = self.readTableProfile()
-        profile['Base']['Profile'] = Profile
-        self.writeConfig(profile, fname)
+        else:
+            profile = self.readTableProfile()
+            profile['Base']['profile'] = Profile
+            self.writeConfig(profile)
 
     def save_profile(self):
         self.make_profile(App=self.profile['Base']['app'],
@@ -218,9 +287,10 @@ class SkalabBase(QtWidgets.QMainWindow):
     def save_as_profile(self):
         text, ok = QtWidgets.QInputDialog.getText(self, 'Profiles', 'Enter a Profile name:')
         if ok:
-            self.make_profile(App=self.profile['Base']['app'],
-                              Profile=text,
-                              Path=self.profile['Base']['path'])
+            profile = self.readTableProfile()
+            profile['Base']['profile'] = text
+            print(profile)
+            self.writeConfig(profile)
             self.load_profile(App=self.profile['Base']['app'],
                               Profile=text,
                               Path=self.profile['Base']['path'])
@@ -271,7 +341,8 @@ class SkalabBase(QtWidgets.QMainWindow):
                 item.setTextAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
                 item.setFlags(QtCore.Qt.ItemIsEnabled)
                 self.wgProfile.qtable_conf.setVerticalHeaderItem(q, item)
-                item = QtWidgets.QTableWidgetItem(self.profile[i][k])
+                #print(i, k, self.profile[i][k]['value'])
+                item = QtWidgets.QTableWidgetItem(str(self.profile[i][k]))
                 item.setTextAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
                 item.setFlags(QtCore.Qt.ItemIsEnabled)
                 self.wgProfile.qtable_conf.setItem(q, 0, item)
@@ -301,6 +372,12 @@ class SkalabBase(QtWidgets.QMainWindow):
                     self.wgProfile.qline_row.setText(str(row))
                     self.wgProfile.qline_col.setText(str(col))
                     self.wgProfile.qline_edit_key.setText(key.text())
+                    for s in self.jprofile.keys():
+                        print(self.jprofile[s].keys())
+                        if key.text() in self.jprofile[s].keys():
+                            self.wgProfile.qlabel_type.setText(str(self.jprofile[s][key.text()]['type']))
+                            self.wgProfile.qlabel_desc.setText(str(self.jprofile[s][key.text()]['desc']))
+                            break
                     NewIndex = self.wgProfile.qtable_conf.currentIndex().siblingAtColumn(0)
                     self.wgProfile.qline_edit_value.setText(NewIndex.data())
                     item = self.wgProfile.qtable_conf.item(row, col)
@@ -365,6 +442,7 @@ class SkalabBase(QtWidgets.QMainWindow):
         self.wgProfile.qline_col.setText("")
 
     def apply(self):
+        # TODO: add here the check
         item = QtWidgets.QTableWidgetItem(self.wgProfile.qline_edit_newvalue.text())
         item.setTextAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         item.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -390,7 +468,7 @@ if __name__ == "__main__":
     (opt, args) = parser.parse_args(sys.argv[1:])
 
     app = QtWidgets.QApplication(sys.argv)
-    wiz = ConfWizard(App=opt.app, Profile=opt.profile, Path=opt.path)
+    wiz = ConfWizard(App=opt.app, Profile=opt.profile, Path=opt.path, msg="Step 1/1")
 
     wiz.wg.show()
     wiz.wg.raise_()

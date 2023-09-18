@@ -437,8 +437,8 @@ class Subrack(SkalabBase):
                 self.plotTpmPower.plotBar(data=self.telemetry["tpm_powers"][i], bar=i, color=COLORI[i])
             self.plotTpmPower.set_xticklabels(labels=["%3.1f" % x for x in self.telemetry["tpm_voltages"]])
         else:
-            self.logger.error("No data available")
-            self.logger.error(self.telemetry.keys())
+            # self.logger.error("No data available")
+            # self.logger.error(self.telemetry.keys())
             self.plotTpmPower.set_xlabel("No data available")
         self.plotTpmPower.updatePlot()
         if "power_supply_powers" in self.telemetry.keys():
@@ -629,13 +629,18 @@ class Subrack(SkalabBase):
                 if tlmk not in self.tlm_hdf:
                     try:
                         if type(self.telemetry[tlmk]) is list:
-                            self.tlm_hdf.create_dataset(tlmk, data=[self.telemetry[tlmk]], chunks=True,
-                                                        maxshape=(None, len(self.telemetry[tlmk])))
+                            c = self.telemetry[tlmk].copy()
+                            c[c == None] = 0.0
+                            self.tlm_hdf.create_dataset(tlmk, data=[c], chunks=True,
+                                                        maxshape=(None, len(c)))
                         else:
                             self.tlm_hdf.create_dataset(tlmk, data=[[self.telemetry[tlmk]]],
                                                         chunks=True, maxshape=(None, 1))
                     except:
-                        self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk])
+                        if self.telemetry[tlmk].__class__ == list:
+                            self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk].__str__())
+                        else:
+                            self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk])
                 else:
                     if type(self.telemetry[tlmk]) is list:
                         self.tlm_hdf[tlmk].resize((self.tlm_hdf[tlmk].shape[0] +
