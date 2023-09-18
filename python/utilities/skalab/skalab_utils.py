@@ -236,6 +236,27 @@ TILE_MONITORING_POINTS = {
         },
     }
 
+
+def editThresholds(wg, text_editor):
+        if not text_editor == "":
+            fname = wg.qline_subrack_threshold.text()
+            if not fname == "":
+                if os.path.exists(fname):
+                    os.system(text_editor + " " + fname + " &")
+                else:
+                    msgBox = QtWidgets.QMessageBox()
+                    msgBox.setText("The selected config file does not exist!")
+                    msgBox.setWindowTitle("Error!")
+                    msgBox.exec_()
+        else:
+            msgBox = QtWidgets.QMessageBox()
+            txt = "\nA text editor is not defined in the current profile file.\n\n['Extras']\ntext_editor = <example: gedit>'\n\n"
+            msgBox.setText(txt)
+            msgBox.setWindowTitle("Warning!")
+            msgBox.setIcon(QtWidgets.QMessageBox.Warning)
+            msgBox.exec_()
+
+
 def merge_dicts(dict_a, dict_b):
         """
         Merge two nested dictionaries, taking values from b when available.
@@ -255,7 +276,7 @@ def merge_dicts(dict_a, dict_b):
         return output
 
 
-def getThreshold(wg,tlm,top_attr):
+def getThreshold(wg,tlm,top_attr,warning_factor):
     default = wg.qline_subrack_threshold.text()
     if default != 'API_alarm.txt':
         try:
@@ -273,22 +294,22 @@ def getThreshold(wg,tlm,top_attr):
                 for j in range(len(keys)):
                     alarm_values = list(alarm[i][top_attr[i]][keys[j]])
                     if alarm_values != [None,None]:
-                        factor = (alarm_values[1]-alarm_values[0]) * (5/100)
-                        warning_values = [round(alarm_values[0] + factor,1), round(alarm_values[1] - factor,1)]
+                        factor = (alarm_values[1]-alarm_values[0]) * (warning_factor)
+                        warning_values = [round(alarm_values[0] + factor,2), round(alarm_values[1] - factor,2)]
                     else:
                         warning_values = [None,None]
                     warning[i][top_attr[i]][keys[j]] =  warning_values
         except:
             #log error
-            [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr)
+            [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr,warning_factor)
     else: 
-        [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr)
+        [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr,warning_factor)
 
     writeThresholds(wg, alarm, warning)
     return alarm, warning
     
 
-def getDefaultThreshold(wg,tlm,top_attr):
+def getDefaultThreshold(wg,tlm,top_attr,warning_factor):
     #log load default api values
     alarm = copy.deepcopy(tlm)
     warning = copy.deepcopy(tlm)
@@ -300,8 +321,8 @@ def getDefaultThreshold(wg,tlm,top_attr):
             alarm_values = list(tlm[i][top_attr[i]][keys[j]]['exp_value'].values())
             alarm[i][top_attr[i]][keys[j]] =  alarm_values
             if alarm_values != [None,None]:
-                factor = (alarm_values[1]-alarm_values[0]) * (5/100)
-                warning_values = [round(alarm_values[0] + factor,1), round(alarm_values[1] - factor,1)]
+                factor = (alarm_values[1]-alarm_values[0]) * (warning_factor)
+                warning_values = [round(alarm_values[0] + factor,2), round(alarm_values[1] - factor,2)]
             else:
                 warning_values = [None,None]
             warning[i][top_attr[i]][keys[j]] =  warning_values
@@ -367,8 +388,7 @@ def getTextFromFile(fname):
             text = f.read()
         return text
 
-
-
+                          
 class Led(QWidget):
     
     Circle   = 1

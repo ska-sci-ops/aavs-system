@@ -221,7 +221,7 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>530</x>
           <y>790</y>
           <width>95</width>
           <height>28</height>
@@ -250,20 +250,20 @@
          <string>Tpm Health Status</string>
         </property>
        </widget>
-       <widget class="QCheckBox" name="check_savedata">
+       <widget class="QCheckBox" name="check_subrack_savedata">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="geometry">
          <rect>
-          <x>550</x>
-          <y>30</y>
-          <width>101</width>
+          <x>20</x>
+          <y>130</y>
+          <width>151</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Save Data </string>
+         <string>Save Subrack Data </string>
         </property>
        </widget>
        <widget class="QLabel" name="qline_ip">
@@ -320,10 +320,10 @@
        <widget class="QWidget" name="gridLayoutWidget_2">
         <property name="geometry">
          <rect>
-          <x>440</x>
+          <x>300</x>
           <y>20</y>
-          <width>51</width>
-          <height>41</height>
+          <width>71</width>
+          <height>61</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="grid_led"/>
@@ -334,104 +334,14 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>90</y>
+          <x>530</x>
+          <y>120</y>
           <width>95</width>
           <height>28</height>
          </rect>
         </property>
         <property name="text">
          <string>CLEAR Table</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="qlabel_config_2">
-        <property name="geometry">
-         <rect>
-          <x>300</x>
-          <y>790</y>
-          <width>131</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>TPM Alarm Values</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="qline_configfile_2">
-        <property name="geometry">
-         <rect>
-          <x>420</x>
-          <y>790</y>
-          <width>121</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>DEFAULT</string>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="qbutton_load_configuration_2">
-        <property name="geometry">
-         <rect>
-          <x>550</x>
-          <y>790</y>
-          <width>81</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Load</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="qline_subrack_threshold">
-        <property name="geometry">
-         <rect>
-          <x>420</x>
-          <y>120</y>
-          <width>121</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>API_alarm.txt</string>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="qbutton_subrack_threshold">
-        <property name="geometry">
-         <rect>
-          <x>550</x>
-          <y>120</y>
-          <width>81</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Load</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="qlabel_config_3">
-        <property name="geometry">
-         <rect>
-          <x>280</x>
-          <y>120</y>
-          <width>131</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Subrack Alarm Values</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
        <widget class="Line" name="line">
@@ -447,6 +357,52 @@
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
+       <widget class="QCheckBox" name="check_tpm_savedata">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>790</y>
+          <width>151</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Save TPMs Data </string>
+        </property>
+       </widget>
+       <widget class="QProgressBar" name="subrackbar">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>91</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+       <zorder>label_speed_20</zorder>
+       <zorder>table_alarms</zorder>
+       <zorder>layoutWidget</zorder>
+       <zorder>qbutton_clear_tpm</zorder>
+       <zorder>label_45</zorder>
+       <zorder>check_subrack_savedata</zorder>
+       <zorder>subrack_button</zorder>
+       <zorder>qlabel_tstamp</zorder>
+       <zorder>gridLayoutWidget_2</zorder>
+       <zorder>qbutton_clear_subrack</zorder>
+       <zorder>line</zorder>
+       <zorder>check_tpm_savedata</zorder>
+       <zorder>qline_ip</zorder>
+       <zorder>subrackbar</zorder>
       </widget>
       <widget class="QFrame" name="frame_station">
        <property name="geometry">
@@ -11520,7 +11476,7 @@
       <attribute name="title">
        <string>Subrack Thresholds</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -11533,7 +11489,7 @@
         <item alignment="Qt::AlignHCenter">
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Alarm Thresholds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Subrack Alarm Thresholds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -11542,7 +11498,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -11555,7 +11511,7 @@
         <item alignment="Qt::AlignHCenter">
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Warning Thresholds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Subrack Warning Thresholds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -11567,6 +11523,189 @@
          </widget>
         </item>
        </layout>
+      </widget>
+      <widget class="QLabel" name="label_40">
+       <property name="geometry">
+        <rect>
+         <x>590</x>
+         <y>750</y>
+         <width>411</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Once the file has been modified, it must be reloaded to be activated.</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>740</y>
+         <width>571</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="qlabel_config_3">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>File containing alarm thresholds</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="qline_subrack_threshold">
+          <property name="text">
+           <string>API_alarm.txt</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="qbutton_subrack_threshold">
+          <property name="text">
+           <string>Load</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="qbutton_subrack_edit">
+          <property name="text">
+           <string>Edit</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Page</string>
+      </attribute>
+      <widget class="QWidget" name="layoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>10</y>
+         <width>1281</width>
+         <height>341</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item alignment="Qt::AlignHCenter">
+         <widget class="QLabel" name="label_41">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;TPM Alarm Thresholds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="ala_text_2"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_3">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>360</y>
+         <width>1281</width>
+         <height>331</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <item alignment="Qt::AlignHCenter">
+         <widget class="QLabel" name="label_42">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;TPM Warning Thresholds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="war_text_2">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>740</y>
+         <width>571</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="qlabel_config_4">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>File containing alarm thresholds</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="qline_tpm_threshold">
+          <property name="text">
+           <string>default_alarm.txt</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="qbutton_tpm_threshold">
+          <property name="text">
+           <string>Load</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="qbutton_tpm_edit">
+          <property name="text">
+           <string>Edit</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="label_43">
+       <property name="geometry">
+        <rect>
+         <x>600</x>
+         <y>748</y>
+         <width>411</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Once the file has been modified, it must be reloaded to be activated.</string>
+       </property>
       </widget>
      </widget>
     </widget>
