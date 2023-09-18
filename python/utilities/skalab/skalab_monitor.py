@@ -29,6 +29,7 @@ profile_filename = "monitor.ini"
 
 standard_subrack_attribute = {
                 "tpm_supply_fault": [None]*8,
+                "tpm_present": [None]*8,
                 "tpm_on_off": [None]*8
                 }
 
