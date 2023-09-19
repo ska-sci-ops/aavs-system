@@ -16,7 +16,7 @@
   <widget class="QTabWidget" name="qtabMain">
    <property name="geometry">
     <rect>
-     <x>5</x>
+     <x>10</x>
      <y>5</y>
      <width>1191</width>
      <height>956</height>
