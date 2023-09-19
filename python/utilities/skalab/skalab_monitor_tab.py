@@ -4,7 +4,9 @@ import socket
 import numpy as np
 
 from pyaavs import station
+from pyaavs.station import configuration
 from skalab_base import SkalabBase
+from skalab_utils import editClone
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from time import sleep
 from pyfabil import TPMGeneric
@@ -57,6 +59,48 @@ class TileInitialization(SkalabBase):
 
     def loadEventStation(self):
         self.wg.qbutton_station_init.clicked.connect(lambda: self.station_init())
+        self.wg.qbutton_load_configuration.clicked.connect(lambda: self.setup_config())
+        self.wg.qbutton_browse.clicked.connect(lambda: self.browse_config())
+        self.wg.qbutton_edit.clicked.connect(lambda: editClone(self.wg.qline_configfile.text(), self.text_editor))
+
+    def browse_config(self):
+        fd = QtWidgets.QFileDialog()
+        fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        options = fd.options()
+        self.config_file = fd.getOpenFileName(self, caption="Select a Station Config File...",
+                                              directory="/opt/aavs/config/", options=options)[0]
+        self.wg.qline_configfile.setText(self.config_file)
+
+    def setup_config(self):
+        if not self.config_file == "":
+            # self.wgPlay.config_file = self.config_file
+            # self.wgLive.config_file = self.config_file
+            station.configuration = configuration.copy()
+            station.load_configuration_file(self.config_file)
+            self.wg.qline_configfile.setText(self.config_file)
+            self.station_name = station.configuration['station']['name']
+            self.nof_tiles = len(station.configuration['tiles'])
+            self.nof_antennas = int(station.configuration['station']['number_of_antennas'])
+            self.bitfile = station.configuration['station']['bitfile']
+            self.wg.qlabel_bitfile.setText(self.bitfile)
+            self.truncation = int(station.configuration['station']['channel_truncation'])
+            self.populate_table_station()
+            # if not self.wgPlay == None:
+            #     self.wgPlay.wg.qcombo_tpm.clear()
+            # if not self.wgLive == None:
+            #     self.wgLive.wg.qcombo_tpm.clear()
+            self.tiles = []
+            for n, i in enumerate(station.configuration['tiles']):
+                # if not self.wgPlay == None:
+                #     self.wgPlay.wg.qcombo_tpm.addItem("TPM-%02d (%s)" % (n + 1, i))
+                # if not self.wgLive == None:
+                #     self.wgLive.wg.qcombo_tpm.addItem("TPM-%02d (%s)" % (n + 1, i))
+                self.tiles += [i]
+        else:
+            msgBox = QtWidgets.QMessageBox()
+            msgBox.setText("SKALAB: Please SELECT a valid configuration file first...")
+            msgBox.setWindowTitle("Error!")
+            msgBox.exec_()
 
     def do_station_init(self):
         station.configuration['station']['initialise'] = True

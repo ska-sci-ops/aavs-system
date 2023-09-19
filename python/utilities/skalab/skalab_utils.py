@@ -237,15 +237,14 @@ TILE_MONITORING_POINTS = {
     }
 
 
-def editThresholds(wg, text_editor):
+def editClone(fname, text_editor):
         if not text_editor == "":
-            fname = wg.qline_subrack_threshold.text()
             if not fname == "":
                 if os.path.exists(fname):
                     os.system(text_editor + " " + fname + " &")
                 else:
                     msgBox = QtWidgets.QMessageBox()
-                    msgBox.setText("The selected config file does not exist!")
+                    msgBox.setText("The selected file does not exist!")
                     msgBox.setWindowTitle("Error!")
                     msgBox.exec_()
         else:
