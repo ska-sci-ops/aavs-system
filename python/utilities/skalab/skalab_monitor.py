@@ -392,6 +392,7 @@ class MonitorSubrack(Monitor):
     def cmdSwitchTpm(self, slot):
         self.wait_check_subrack.clear()
         self.skipThreadPause = True
+        self.qbutton_tpm[slot].setEnabled(False)
         with self._subrack_lock:
             if self.connected:
                 if self.tpm_status_info["tpm_on_off"][slot]:
@@ -401,6 +402,7 @@ class MonitorSubrack(Monitor):
                     self.client.execute_command(command="turn_on_tpm", parameters="%d" % (int(slot) + 1))
                     self.logger.info("Turn ON TPM-%02d" % (int(slot) + 1)) 
             sleep(2.0) # Sleep required to wait for the turn_off/on_tpm command to complete
+            self.qbutton_tpm[slot].setEnabled(True)
         self.wait_check_subrack.set()
 
     
@@ -455,19 +457,20 @@ class MonitorSubrack(Monitor):
                     self.connected = True
                     self.tlm_hdf = self.setupSubrackHdf5()
                     [self.alarm, self.warning] = getThreshold(self.wg, self.tlm_keys,self.top_attr,self.warning_factor)
-                    self.wg.subrackbar.setValue(90)
+                    self.wg.subrackbar.setValue(70)
                     for tlmk in standard_subrack_attribute: 
                         data = self.client.get_attribute(tlmk)
                         if data["status"] == "OK":
                             self.tpm_status_info[tlmk] = data["value"]
                         else:
                             self.tpm_status_info[tlmk] = data["info"]
-                    self.wg.subrackbar.setValue(100)
+                    self.wg.subrackbar.setValue(80)
                     self.wg.subrack_button.setStyleSheet("background-color: rgb(78, 154, 6);")
                     self.wg.subrack_button.setText("ONLINE")
                     self.wg.subrack_button.setStyleSheet("background-color: rgb(78, 154, 6);")
                     with self._subrack_lock:
                         self.updateTpmStatus()
+                    self.wg.subrackbar.setValue(100)
                     self.wait_check_subrack.set()
                     self.wg.subrackbar.hide()
                 else:
@@ -512,20 +515,17 @@ class MonitorSubrack(Monitor):
         else:
             self.logger.warning("Subrack Data NOT AVAILABLE...")
             self.from_subrack =  data['retvalue']
-        try:
-            for tlmk in standard_subrack_attribute:
-                tkey = tlmk
-                if not tlmk in self.query_deny:
-                    if self.connected:
-                        data = self.client.get_attribute(tlmk)
-                        if data["status"] == "OK":
-                            telem[tlmk] = data["value"]
-                            self.tpm_status_info[tlmk] = telem[tlmk]
-                        else:
-                            self.tpm_status_info[tlmk] = "NOT AVAILABLE"
-        except:
-            self.signal_update_log.emit("Error reading Telemetry [attribute: %s], skipping..." % tkey,"error")
-        
+        # try:
+        #     for tlmk in standard_subrack_attribute:
+        #         tkey = tlmk
+        #         if not tlmk in self.query_deny:
+        #             if self.connected:
+        #                 data = self.client.get_attribute(tlmk)
+        #                 if data["status"] == "OK":
+        #                     telem[tlmk] = data["value"]
+        #                     self.tpm_status_info[tlmk] = telem[tlmk]
+        # except:
+        #     self.signal_update_log.emit("Error reading Telemetry [attribute: %s], skipping..." % tkey,"error")
         return
     
     
@@ -548,11 +548,20 @@ class MonitorSubrack(Monitor):
             with self._subrack_lock:
                 if self.connected:
                     try:
+                        telem = {}
+                        for tlmk in standard_subrack_attribute:
+                            tkey = tlmk
+                            if not tlmk in self.query_deny:
+                                if self.connected:
+                                    data = self.client.get_attribute(tlmk)
+                                    if data["status"] == "OK":
+                                        telem[tlmk] = data["value"]
+                                        self.tpm_status_info[tlmk] = telem[tlmk]
+                        self.signalTlm.emit()
                         self.getTelemetry()
                     except:
                         self.signal_update_log.emit("Failed to get Subrack Telemetry!","warning")
                         pass
-                    self.signalTlm.emit()
                     self.signal_to_monitor.emit()
                     cycle = 0.0
                     while cycle < (float(self.subrack_interval)) and not self.skipThreadPause:
@@ -563,6 +572,7 @@ class MonitorSubrack(Monitor):
 
     
     def readwriteSubrackAttribute(self):
+        return
         #for attr in self.from_subrack:
         diz = self.from_subrack
         for index_table in range(len(self.top_attr)):
