@@ -139,7 +139,6 @@ class Monitor(TileInitialization):
         self.wg.grid_led.addWidget(self.subrack_led)
         self.subrack_led.setObjectName("qled_warn_alar")
         self.qbutton_tpm = populateSlots(self.wg.grid_tpm)
-        self.populateTileInstance()
         self.top_attr = list(self.profile['Monitor']['top_level_attributes'].split(","))
         self.text_editor = ""
         if 'Extras' in self.profile.keys():
@@ -199,21 +198,20 @@ class Monitor(TileInitialization):
             #             self.tile_table_attr[attr][i].setStyleSheet("color: black; background:white")  
                          
     def populateTileInstance(self):
-        keys_to_be_removed = []
-        self.tpm_on_off = [False] * 8
-        self.tpm_active = [None] * 8
-        #self.tpm_slot_ip = list(station.configuration['tiles'])
-        # Comparing ip to assign slot number to ip: file .ini and .yaml
-        self.tpm_slot_ip = eval(self.profile['Tpm']['tiles_slot_ip'])
-        self.tpm_ip_check= list(station.configuration['tiles'])
-        for k, j in self.tpm_slot_ip.items():
-            if j in self.tpm_ip_check:
-                pass
-            else:
-                keys_to_be_removed.append(k)
-        for a in keys_to_be_removed:
-            del self.tpm_slot_ip[a]
-        self.bitfile = station.configuration['station']['bitfile']
+        if (self.connected and self.tpm_status_info['assigned_tpm_ip_adds']):
+            keys_to_be_removed = []
+            self.tpm_on_off = [False] * 8
+            self.tpm_active = [None] * 8
+            #self.tpm_slot_ip = list(station.configuration['tiles'])
+            # Comparing ip to assign slot number to ip: file .ini and .yaml
+            self.tpm_slot_ip = self.tpm_status_info['assigned_tpm_ip_adds']
+            self.tpm_ip_check= station.configuration['tiles']
+            for j in self.tpm_ip_check:
+                if j in self.tpm_slot_ip:
+                    pass
+                else:
+                    self.logger.warning(f"ATTENTION: TMP IP: {j} in {self.config_file} dos not match with IPs in the SubrackAPI.")
+            self.bitfile = station.configuration['station']['bitfile']
 
     def loadTopLevelAttributes(self):
         # self.tpm_warning = self.profile['TPM Warning']
@@ -350,7 +348,7 @@ class MonitorSubrack(Monitor):
 
     def loadEventsSubrack(self):
         self.wg.subrack_button.clicked.connect(lambda: self.connect())
-        self.wg.qbutton_subrack_edit.clicked.connect(lambda: editThresholds(self.wg,self.text_editor))
+        self.wg.qbutton_subrack_edit.clicked.connect(lambda: editClone(self.wg.qline_subrack_threshold.text(), self.text_editor))
         self.wg.qbutton_subrack_threshold.clicked.connect(lambda: self.loadThreshold())
         for n, t in enumerate(self.qbutton_tpm):
             t.clicked.connect(lambda state, g=n: self.cmdSwitchTpm(g))
@@ -453,8 +451,9 @@ class MonitorSubrack(Monitor):
                     else:
                         self.logger.warning("The Subrack is running with a very old API version!")
                     self.wg.subrackbar.setValue(60)
-                    [item.setEnabled(True) for item in self.qbutton_tpm]
                     self.connected = True
+                    self.populateTileInstance()
+                    [item.setEnabled(True) for item in self.qbutton_tpm]
                     self.tlm_hdf = self.setupSubrackHdf5()
                     [self.alarm, self.warning] = getThreshold(self.wg, self.tlm_keys,self.top_attr,self.warning_factor)
                     self.wg.subrackbar.setValue(70)
@@ -574,7 +573,7 @@ class MonitorSubrack(Monitor):
     def readwriteSubrackAttribute(self):
         return
         #for attr in self.from_subrack:
-        diz = self.from_subrack
+        diz = copy.deepcopy(self.from_subrack)
         for index_table in range(len(self.top_attr)):
             table = self.subrack_table[index_table]
             if not(self.top_attr[index_table] in diz.keys()):
