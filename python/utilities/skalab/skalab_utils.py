@@ -279,7 +279,6 @@ def getThreshold(wg,tlm,top_attr,warning_factor):
     default = wg.qline_subrack_threshold.text()
     if default != 'API_alarm.txt':
         try:
-            #log load custom
             with open(default, 'r') as file:
                 a_lines = []
                 for line in file:
@@ -300,15 +299,15 @@ def getThreshold(wg,tlm,top_attr,warning_factor):
                     warning[i][top_attr[i]][keys[j]] =  warning_values
         except:
             #log error
-            [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr,warning_factor)
+            [alarm,warning] = getDefaultThreshold(tlm,top_attr,warning_factor)
     else: 
-        [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr,warning_factor)
+        [alarm,warning] = getDefaultThreshold(tlm,top_attr,warning_factor)
 
-    writeThresholds(wg, alarm, warning)
+    writeThresholds(wg.ala_text,wg.war_text, alarm, warning)
     return alarm, warning
     
 
-def getDefaultThreshold(wg,tlm,top_attr,warning_factor):
+def getDefaultThreshold(tlm,top_attr,warning_factor):
     #log load default api values
     alarm = copy.deepcopy(tlm)
     warning = copy.deepcopy(tlm)
@@ -332,16 +331,16 @@ def getDefaultThreshold(wg,tlm,top_attr,warning_factor):
     return alarm, warning
 
 
-def writeThresholds(wg, alarm, warning):
-    wg.ala_text.clear()
-    wg.war_text.clear()
+def writeThresholds(alarm_box, warning_box, alarm, warning):
+    alarm_box.clear()
+    warning_box.clear()
     for item in alarm:
-        wg.ala_text.appendPlainText(str(item))
+        alarm_box.appendPlainText(str(item))
     for item in warning:
-        wg.war_text.appendPlainText(str(item))
+        warning_box.appendPlainText(str(item))
     return
-    
 
+    
 def parse_profile(config=""):
     confparser = configparser.ConfigParser()
     confparser.read(config)

@@ -109,10 +109,6 @@ class Monitor(TileInitialization):
 
     signal_update_tpm_attribute = QtCore.pyqtSignal(dict,int)
     signal_update_log = QtCore.pyqtSignal(str,str)
-    with open(r'tpm_monitoring_min_max.yaml') as file:
-        MIN_MAX_MONITORING_POINTS = (
-            yaml.load(file, Loader=yaml.Loader)["tpm_monitoring_points"] or {})
-    res  = merge_dicts(MIN_MAX_MONITORING_POINTS, TILE_MONITORING_POINTS)
    
     def __init__(self, config="", uiFile="", profile="", size=[1170, 919], swpath=""):
         """ Initialise main window """
@@ -128,23 +124,19 @@ class Monitor(TileInitialization):
         self.setCentralWidget(self.wg)
         self.loadEventsMonitor()
         # Set variable
-        self.from_subrack = {}
+        self.tpm_alarm_thresholds = []
         self.tpm_interval = self.profile['Monitor']['tpm_query_interval']
         self.tlm_hdf_monitor = None
         self.tpm_initialized = [False] * 8
         # Populate table
-        #populateSubrack(self, self.wg, subrack_attribute)
         self.populate_table_profile()
-        self.subrack_led = Led(self.wg.overview_frame)
-        self.wg.grid_led.addWidget(self.subrack_led)
-        self.subrack_led.setObjectName("qled_warn_alar")
         self.qbutton_tpm = populateSlots(self.wg.grid_tpm)
         self.top_attr = list(self.profile['Monitor']['top_level_attributes'].split(","))
         self.text_editor = ""
         if 'Extras' in self.profile.keys():
             if 'text_editor' in self.profile['Extras'].keys():
                 self.text_editor = self.profile['Extras']['text_editor']
-        
+        self.tpm_warning_factor = eval(self.profile['Warning Factor']['tpm_warning_parameter'])
         #self.tile_table_attr = copy.deepcopy(self.tpm_alarm)
         # for i in self.tile_table_attr.keys():
         #     self.tile_table_attr[i] = [None] * 16            
@@ -156,13 +148,61 @@ class Monitor(TileInitialization):
         
         # Start thread
         self.show()
+        with open(r'tpm_monitoring_min_max.yaml') as file:
+            MIN_MAX_MONITORING_POINTS = (yaml.load(file, Loader=yaml.Loader)["tpm_monitoring_points"] or {})
+        for k,v in MIN_MAX_MONITORING_POINTS.items():
+            self.tpm_alarm_thresholds.append({k:v})
+        self.setTpmThreshold(self.tpm_warning_factor)
+
         self._lock_led = Lock()
         self._lock_tab1 = Lock()
         self._lock_tab2 = Lock()
         self.check_tpm_tm = Thread(name= "TPM telemetry", target=self.monitoringTpm, daemon=True)
         self._tpm_lock = Lock()
+        self._tpm_lock_threshold = Lock()
         self.wait_check_tpm = Event()
         #self.check_tpm_tm.start()
+
+    def setTpmThreshold(self, warning_factor):
+        attr = ['temperatures','voltages','currents']
+        default = self.wg.qline_tpm_threshold.text()
+        if default != 'default_tpm_alarm.txt':
+            with open(default, 'r') as file:
+                a_lines = []
+                for line in file:
+                    line = line.strip()
+                    line = eval(line)
+                    a_lines.append(line)
+            self.tpm_alarm_thresholds = a_lines
+        else:
+            file = open('default_tpm_alarm.txt','w+')
+            for item in self.tpm_alarm_thresholds:
+                file.write(str(item) + "\n")
+            file.close()
+        self.tpm_warning_thresholds = copy.deepcopy(self.tpm_alarm_thresholds)
+        for i in range(len(attr)):
+            keys = list(self.tpm_alarm_thresholds[i][attr[i]].keys())
+            for j in range(len(keys)):
+                try:
+                    factor = (self.tpm_alarm_thresholds[i][attr[i]][keys[j]]['max'] - self.tpm_alarm_thresholds[i][attr[i]][keys[j]]['min'])* (warning_factor)
+                    self.tpm_warning_thresholds[i][attr[i]][keys[j]]['min'] = round(self.tpm_alarm_thresholds[i][attr[i]][keys[j]]['min'] + factor,2)
+                    self.tpm_warning_thresholds[i][attr[i]][keys[j]]['max'] = round(self.tpm_alarm_thresholds[i][attr[i]][keys[j]]['max'] - factor,2)
+                except:
+                    pass
+        writeThresholds(self.wg.ala_text_2,self.wg.war_text_2,self.tpm_alarm_thresholds,self.tpm_warning_thresholds)
+
+    def loadTpmThreshold(self):
+        fd = QtWidgets.QFileDialog()
+        fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        options = fd.options()
+        self.filename = fd.getOpenFileName(self, caption="Select a Tpm Alarm Thresholds file...",
+                                              directory="./", options=options)[0]
+        if not(self.filename == ''):
+            self.wg.qline_tpm_threshold.setText(self.filename)
+            with self._tpm_lock_threshold:
+                self.setTpmThreshold(self.tpm_warning_factor)
+        return
+
 
     def writeLog(self,message,priority):
         if priority == "info":
@@ -171,16 +211,18 @@ class Monitor(TileInitialization):
             self.logger.warning(message)
         else:
             self.logger.error(message)
-    
+
+
     def loadEventsMonitor(self):
-        self.wg.qbutton_clear_subrack.clicked.connect(lambda: self.clearValues())
+        self.wg.qbutton_tpm_edit.clicked.connect(lambda: editClone(self.wg.qline_tpm_threshold.text(), self.text_editor))
+        self.wg.qbutton_tpm_threshold.clicked.connect(lambda: self.loadTpmThreshold())
         self.wg.qbutton_clear_tpm.clicked.connect(lambda: self.clearValues())
-        self.wgProfile.qbutton_load.clicked.connect(lambda: self.loadNewTable())
-        self.wg.check_subrack_savedata.toggled.connect(self.setupSubrackHdf5) # TODO ADD toggled
+
 
     def loadNewTable(self):
         self.loadWarningAlarmValues()
     
+
     def clearValues(self):
         with (self._lock_led and self._lock_tab1 and self._lock_tab2):
             self.subrack_led.Colour = Led.Grey
@@ -310,9 +352,10 @@ class MonitorSubrack(Monitor):
         super(MonitorSubrack, self).__init__(uiFile="Gui/skalab_monitor.ui", size=[1190, 936], profile=opt.profile, swpath=default_app_dir)   
         self.interval_monitor = self.profile['Monitor']['tpm_query_interval']
         self.subrack_interval = self.profile['Monitor']['subrack_query_interval']
-        self.warning_factor = eval(self.profile['Warning Factor']['subrack_warning_parameter'])
+        self.subrack_warning_factor = eval(self.profile['Warning Factor']['subrack_warning_parameter'])
         self.tlm_keys = []
         self.tpm_status_info = {} 
+        self.from_subrack = {}
         self.last_telemetry = {"tpm_supply_fault":[None] *8,"tpm_present":[None] *8,"tpm_on_off":[None] *8}
         self.query_once = []
         self.query_deny = []
@@ -333,12 +376,14 @@ class MonitorSubrack(Monitor):
                           "}"
                           )
         self.wg.subrackbar.hide()
-
+        self.subrack_led = Led(self.wg.overview_frame)
+        self.wg.grid_led.addWidget(self.subrack_led)
+        self.subrack_led.setObjectName("qled_warn_alar")
         self.client = None
         self.data_charts = {}
-
         self.loadEventsSubrack()
         self.show()
+        
         self.skipThreadPause = False
         self.subrackTlm = Thread(name="Subrack Telemetry", target=self.readSubrackTlm, daemon=True)
         self.wait_check_subrack = Event()
@@ -364,9 +409,17 @@ class MonitorSubrack(Monitor):
             self.wg.qline_subrack_threshold.setText(self.filename)
             with self._subrack_lock_threshold:
                 if self.connected:
-                    [self.alarm, self.warning] = getThreshold(self.wg,self.tlm_keys,self.top_attr,self.warning_factor)
+                    [self.alarm, self.warning] = getThreshold(self.wg,self.tlm_keys,self.top_attr,self.subrack_warning_factor)
         return
 
+
+    def loadEventsSubrack(self):
+        self.wg.qbutton_clear_subrack.clicked.connect(lambda: self.clearValues())
+        self.wg.subrack_button.clicked.connect(lambda: self.connect())
+        self.wg.qbutton_subrack_edit.clicked.connect(lambda: editClone(self.wg.qline_subrack_threshold.text(), self.text_editor))
+        self.wg.qbutton_subrack_threshold.clicked.connect(lambda: self.loadSubrackThreshold())
+        for n, t in enumerate(self.qbutton_tpm):
+            t.clicked.connect(lambda state, g=n: self.cmdSwitchTpm(g))
 
     def reload(self, ip=None, port=None):
         if ip is not None:
@@ -455,7 +508,7 @@ class MonitorSubrack(Monitor):
                     self.populateTileInstance()
                     [item.setEnabled(True) for item in self.qbutton_tpm]
                     self.tlm_hdf = self.setupSubrackHdf5()
-                    [self.alarm, self.warning] = getThreshold(self.wg, self.tlm_keys,self.top_attr,self.warning_factor)
+                    [self.alarm, self.warning] = getThreshold(self.wg, self.tlm_keys,self.top_attr,self.subrack_warning_factor)
                     self.wg.subrackbar.setValue(70)
                     for tlmk in standard_subrack_attribute: 
                         data = self.client.get_attribute(tlmk)
@@ -572,7 +625,6 @@ class MonitorSubrack(Monitor):
     
     def readwriteSubrackAttribute(self):
         return
-        #for attr in self.from_subrack:
         diz = copy.deepcopy(self.from_subrack)
         for index_table in range(len(self.top_attr)):
             table = self.subrack_table[index_table]
