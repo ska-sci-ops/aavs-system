@@ -16,7 +16,7 @@ from pyaavs import station
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtGui import QColor
 from hardware_client import WebHardwareClient
-from skalab_monitor_tab import TileInitialization
+from skalab_monitor_tab import *
 from skalab_log import SkalabLog
 from skalab_utils import *
 from threading import Thread, Event, Lock
@@ -48,51 +48,6 @@ def populateTable(frame, attributes,top):
         qtable[j].setHorizontalHeaderLabels(("Value", "Warning/Alarm")) 
     return qtable, sub_attr
 
-    # qtable.setRowCount(8)
-    # qtable.setColumnCount(len(attribute))
-    # for key in attribute.keys():
-    #         horHeaders.append(key)
-    # qtable.setHorizontalHeaderLabels(horHeaders)
-    # qtable.horizontalHeader().setDefaultSectionSize(100)
-    # "Fill table"
-    # j = 0
-    # for k in attribute:
-    #     for v in range(0,16,2):
-    #         layout = 0
-    #         layout=QtWidgets.QVBoxLayout()
-    #         attribute[k][v] = QtWidgets.QLineEdit(qtable)
-    #         attribute[k][v+1]= QtWidgets.QLineEdit(qtable)
-    #         layout.addWidget(attribute[k][v])
-    #         layout.addWidget(attribute[k][v+1])
-    #         cellWidget = QtWidgets.QWidget()
-    #         cellWidget.setLayout(layout)
-    #         qtable.setCellWidget(int(v/2),j,cellWidget)
-    #     j+=1
-    # a=1
-    # return
-
-# def populateSubrack(self,wg, attribute):
-#     j=0
-#     size_x = 120
-#     size_y = 60
-#     for k in attribute:
-#         for v in range(0,len(attribute[k]),2):
-#             if (k == "subrack_fan_speeds_percent"):
-#                 subrack_attribute[k][v] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),3,v)
-#                 subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),4,v)
-#                 j-=0.25
-#                 continue
-#             if (k == "subrack_fan_speeds"):
-#                 subrack_attribute[k][v] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),1,v)
-#                 subrack_attribute[k][v+1] = wg.grid_sub_fan.addWidget(QtWidgets.QLineEdit(wg.frame_subrack),2,v) 
-#                 j-=0.25
-#                 continue   
-#             subrack_attribute[k][v] = QtWidgets.QLineEdit(wg.frame_subrack)
-#             subrack_attribute[k][v+1]= QtWidgets.QLineEdit(wg.frame_subrack)
-#             subrack_attribute[k][v].setGeometry(QtCore.QRect(  size_x+45*v, 10 +  20+(size_y*(j)),  70,19))
-#             subrack_attribute[k][v+1].setGeometry(QtCore.QRect(size_x+45*v, 30 +  20+(size_y*(j)),  70,19))
-#         j+=1
-
 
 def populateSlots(grid):
     qbutton_tpm = []
@@ -105,7 +60,8 @@ def populateSlots(grid):
         qbutton_tpm[i].setEnabled(False)
     return qbutton_tpm          
 
-class Monitor(TileInitialization):
+
+class MonitorTPM(TileInitialization):
 
     signal_update_tpm_attribute = QtCore.pyqtSignal(dict,int)
     signal_update_log = QtCore.pyqtSignal(str,str)
@@ -119,7 +75,7 @@ class Monitor(TileInitialization):
         self.wgProBox.setGeometry(QtCore.QRect(1, 1, 800, 860))
         self.wgProBox.setVisible(True)
         self.wgProBox.show()
-        super(Monitor, self).__init__(profile, swpath)
+        super(MonitorTPM, self).__init__(profile, swpath)
         self.logger = SkalabLog(parent=self.wg.qt_log, logname=__name__, profile=self.profile)
         self.setCentralWidget(self.wg)
         self.loadEventsMonitor()
@@ -131,7 +87,6 @@ class Monitor(TileInitialization):
         # Populate table
         self.populate_table_profile()
         self.qbutton_tpm = populateSlots(self.wg.grid_tpm)
-        self.top_attr = list(self.profile['Monitor']['top_level_attributes'].split(","))
         self.text_editor = ""
         if 'Extras' in self.profile.keys():
             if 'text_editor' in self.profile['Extras'].keys():
@@ -145,23 +100,21 @@ class Monitor(TileInitialization):
         #     self.alarm[k] = [False]*8
             #load_tpm_1_6_lookup
         #populateTable(self.wg.qtable_tile, self.tile_table_attr)
-        
-        # Start thread
         self.show()
         with open(r'tpm_monitoring_min_max.yaml') as file:
             MIN_MAX_MONITORING_POINTS = (yaml.load(file, Loader=yaml.Loader)["tpm_monitoring_points"] or {})
         for k,v in MIN_MAX_MONITORING_POINTS.items():
             self.tpm_alarm_thresholds.append({k:v})
         self.setTpmThreshold(self.tpm_warning_factor)
-
-        self._lock_led = Lock()
+        # Start thread
+        # self._lock_led = Lock()
         self._lock_tab1 = Lock()
         self._lock_tab2 = Lock()
         self.check_tpm_tm = Thread(name= "TPM telemetry", target=self.monitoringTpm, daemon=True)
         self._tpm_lock = Lock()
         self._tpm_lock_threshold = Lock()
         self.wait_check_tpm = Event()
-        #self.check_tpm_tm.start()
+        self.check_tpm_tm.start()
 
     def setTpmThreshold(self, warning_factor):
         attr = ['temperatures','voltages','currents']
@@ -191,6 +144,7 @@ class Monitor(TileInitialization):
                     pass
         writeThresholds(self.wg.ala_text_2,self.wg.war_text_2,self.tpm_alarm_thresholds,self.tpm_warning_thresholds)
 
+
     def loadTpmThreshold(self):
         fd = QtWidgets.QFileDialog()
         fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
@@ -216,14 +170,10 @@ class Monitor(TileInitialization):
     def loadEventsMonitor(self):
         self.wg.qbutton_tpm_edit.clicked.connect(lambda: editClone(self.wg.qline_tpm_threshold.text(), self.text_editor))
         self.wg.qbutton_tpm_threshold.clicked.connect(lambda: self.loadTpmThreshold())
-        self.wg.qbutton_clear_tpm.clicked.connect(lambda: self.clearValues())
-
-
-    def loadNewTable(self):
-        self.loadWarningAlarmValues()
+        self.wg.qbutton_clear_tpm.clicked.connect(lambda: self.clearTpmValues())
     
 
-    def clearValues(self):
+    def clearTpmValues(self):
         with (self._lock_led and self._lock_tab1 and self._lock_tab2):
             self.subrack_led.Colour = Led.Grey
             self.subrack_led.m_value = False
@@ -239,21 +189,22 @@ class Monitor(TileInitialization):
             #             self.tile_table_attr[attr][i].setText(str(""))
             #             self.tile_table_attr[attr][i].setStyleSheet("color: black; background:white")  
                          
+
     def populateTileInstance(self):
-        if (self.connected and self.tpm_status_info['assigned_tpm_ip_adds']):
+        if (self.connected and self.tpm_status_info['tpm_ips']):
             keys_to_be_removed = []
             self.tpm_on_off = [False] * 8
             self.tpm_active = [None] * 8
             #self.tpm_slot_ip = list(station.configuration['tiles'])
             # Comparing ip to assign slot number to ip: file .ini and .yaml
-            self.tpm_slot_ip = self.tpm_status_info['assigned_tpm_ip_adds']
+            self.tpm_slot_ip = self.tpm_status_info['tpm_ips']
             self.tpm_ip_check= station.configuration['tiles']
             for j in self.tpm_ip_check:
                 if j in self.tpm_slot_ip:
                     pass
                 else:
-                    self.logger.warning(f"ATTENTION: TMP IP: {j} in {self.config_file} dos not match with IPs in the SubrackAPI.")
-            self.bitfile = station.configuration['station']['bitfile']
+                    self.logger.warning(f"ATTENTION: TMP IP: {j} in {self.config_file} is not detected by the Subrack.")
+
 
     def loadTopLevelAttributes(self):
         # self.tpm_warning = self.profile['TPM Warning']
@@ -271,19 +222,15 @@ class Monitor(TileInitialization):
         # skalab_monitor_tab.populateWarningAlarmTable(self.wg.true_table, self.warning, self.alarm_values)
         pass
 
+
     def tpmStatusChanged(self):
-        # self.wait_check_tpm.clear()
-        # with self._tpm_lock:
-        #     for k in range(8):
-        #         if self.tpm_on_off[k] and not self.tpm_active[k]:
-        #             self.tpm_active[k] = Tile(self.tpm_slot_ip[k+1], self.cpld_port, self.lmc_ip, self.dst_port)
-        #             self.tpm_active[k].program_fpgas(self.bitfile)
-        #             self.tpm_active[k].connect()
-        #         elif not self.tpm_on_off[k] and self.tpm_active[k]:
-        #             self.tpm_active[k] = None
-        # if any(self.tpm_initialized):
-        #     self.wait_check_tpm.set()
-        pass
+        self.wait_check_tpm.clear()
+        with self._tpm_lock:
+            for k in range(8):
+                if not self.tpm_on_off[k] and self.tpm_active[k]:
+                    self.tpm_active[k] = None
+        if any(self.tpm_initialized):
+            self.wait_check_tpm.set()
             
 
     def monitoringTpm(self):
@@ -339,7 +286,8 @@ class Monitor(TileInitialization):
                                 self.qled_alert[int(i/2)].value = True        
                  
 
-class MonitorSubrack(Monitor):
+
+class MonitorSubrack(MonitorTPM):
     """ Main UI Window class """
     # Signal for Slots
     signalTlm = QtCore.pyqtSignal()
@@ -356,6 +304,7 @@ class MonitorSubrack(Monitor):
         self.tlm_keys = []
         self.tpm_status_info = {} 
         self.from_subrack = {}
+        self.top_attr = list(self.profile['Monitor']['top_level_attributes'].split(","))
         self.last_telemetry = {"tpm_supply_fault":[None] *8,"tpm_present":[None] *8,"tpm_on_off":[None] *8}
         self.query_once = []
         self.query_deny = []
@@ -391,15 +340,8 @@ class MonitorSubrack(Monitor):
         self._subrack_lock_threshold = Lock()
         self.subrackTlm.start()
 
-    def loadEventsSubrack(self):
-        self.wg.subrack_button.clicked.connect(lambda: self.connect())
-        self.wg.qbutton_subrack_edit.clicked.connect(lambda: editClone(self.wg.qline_subrack_threshold.text(), self.text_editor))
-        self.wg.qbutton_subrack_threshold.clicked.connect(lambda: self.loadThreshold())
-        for n, t in enumerate(self.qbutton_tpm):
-            t.clicked.connect(lambda state, g=n: self.cmdSwitchTpm(g))
 
-
-    def loadThreshold(self):
+    def loadSubrackThreshold(self):
         fd = QtWidgets.QFileDialog()
         fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
         options = fd.options()
@@ -579,19 +521,6 @@ class MonitorSubrack(Monitor):
         # except:
         #     self.signal_update_log.emit("Error reading Telemetry [attribute: %s], skipping..." % tkey,"error")
         return
-    
-    
-    def getTiles(self):
-        try:
-            for tlmk in self.query_tiles:
-                data = self.client.get_attribute(tlmk)
-                if data["status"] == "OK":
-                    self.tpm_status_info[tlmk] = data["value"]
-                else:
-                    self.tpm_status_info[tlmk] = []
-            return self.tpm_status_info['tpm_ips']
-        except:
-            return []
 
     
     def readSubrackTlm(self):
