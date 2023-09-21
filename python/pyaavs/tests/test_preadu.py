@@ -12,6 +12,7 @@ class TestPreadu:
         # Test second preADU 16 channels with values 16 -> 31
         self._test_attenuation_values = (list(range(15, 31)), list(range(16, 32)))
         self.errors = 0
+        self.expect_preadu = station_config['test_config'].get('expect_preadu')
 
     def clean_up(self):
         percentage = round(len(self.preadus_present)*100 / (len(self.preadus_present)+len(self.preadus_not_present)), 2)
@@ -204,7 +205,12 @@ class TestPreadu:
                         self.test_read_write_float(preadu, n, preadu_index)
 
                 else:  # SKIP test if no preADU is detected
-                    self._logger.warning(f"TPM{n} preADU{preadu_index} not detected! Will skip tests for this preADU...")
+                    # If the hardware platform expects a preADU, this is an error
+                    if self.expect_preadu:
+                        self.errors += 1
+                        self._logger.error(f"TPM{n} preADU{preadu_index} not detected! Unable to continue test...")
+                    else:
+                        self._logger.warning(f"TPM{n} preADU{preadu_index} not detected! Will skip tests for this preADU...")
                     self.preadus_not_present.append(f"TPM{n} preADU{preadu_index}")
 
         return self.clean_up()

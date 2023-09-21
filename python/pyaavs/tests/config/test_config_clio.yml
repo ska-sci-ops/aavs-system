@@ -17,3 +17,7 @@ pfb_nof_channels: 512
 
 # Number of antennas per tile
 antennas_per_tile: 16
+
+# Does the hardware platform have preADUs fitted. 
+# Controls the severity of preADU detection test
+expect_preadu: False
