@@ -15,7 +15,7 @@ from pyaavs import station
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtGui import QColor
 from hardware_client import WebHardwareClient
-from skalab_monitor_tab import *
+from skalab_monitor_tpm_utils import *
 from skalab_log import SkalabLog
 from skalab_utils import *
 from threading import Thread, Event, Lock
@@ -158,6 +158,7 @@ class MonitorTPM(TileInitialization):
 
 
     def writeLog(self,message,priority):
+        """To pass the log info from thread to main"""
         if priority == "info":
             self.logger.info(message)
         elif priority == "warning":
