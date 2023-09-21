@@ -734,6 +734,9 @@
             <property name="text">
              <string>PSU1</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
            </widget>
           </item>
           <item row="0" column="1">
@@ -746,6 +749,9 @@
             </property>
             <property name="text">
              <string>PSU1</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -780,7 +786,7 @@
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
+          <item row="0" column="0" alignment="Qt::AlignLeft">
            <widget class="QLabel" name="label_455">
             <property name="font">
              <font>
@@ -791,9 +797,12 @@
             <property name="text">
              <string>FAN1</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" alignment="Qt::AlignLeft">
            <widget class="QLabel" name="label_457">
             <property name="font">
              <font>
@@ -803,6 +812,9 @@
             </property>
             <property name="text">
              <string>FAN2</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -835,6 +847,9 @@
             <property name="text">
              <string>FAN3</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
            </widget>
           </item>
           <item row="2" column="1">
@@ -847,6 +862,9 @@
             </property>
             <property name="text">
              <string>FAN4</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -880,7 +898,7 @@
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
+          <item row="0" column="0" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_453">
             <property name="font">
              <font>
@@ -889,34 +907,18 @@
              </font>
             </property>
             <property name="text">
-             <string>PING</string>
+             <string>Other Monitoring Points</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QTableWidget" name="tablepings">
+           <widget class="QTableWidget" name="tableothers">
             <column>
              <property name="text">
               <string>Ping</string>
              </property>
             </column>
            </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_461">
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>PLL</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QTableWidget" name="tableplls"/>
           </item>
          </layout>
         </widget>
@@ -930,7 +932,7 @@
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0">
+          <item row="0" column="0" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_458">
             <property name="font">
              <font>
@@ -964,7 +966,7 @@
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
-          <item row="0" column="0">
+          <item row="0" column="0" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_462">
             <property name="font">
              <font>
@@ -998,7 +1000,7 @@
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="0">
+          <item row="0" column="0" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_463">
             <property name="font">
              <font>
@@ -16421,7 +16423,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/210510_r38312-951x1024.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/210510_r38312-951x1024.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_6">
@@ -16437,7 +16439,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_007.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_007.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_7">
@@ -16453,7 +16455,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_006.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_006.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_8">
@@ -16469,7 +16471,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_009.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_009.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_9">
@@ -16485,7 +16487,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_010.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_010.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_10">
@@ -16501,7 +16503,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_019.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_019.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_11">
@@ -16517,7 +16519,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_012.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_012.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_15">
@@ -16533,7 +16535,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_011.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_011.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_16">
@@ -16549,7 +16551,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_015.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_015.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_13">
@@ -16565,7 +16567,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_013.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_013.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_14">
@@ -16581,7 +16583,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_016.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_016.jpg</pixmap>
      </property>
     </widget>
     <widget class="QLabel" name="label_12">
@@ -16597,7 +16599,7 @@ p, li { white-space: pre-wrap; }
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../../../../.designer/Pictures/Selection_017.jpg</pixmap>
+      <pixmap>../../../../../../../../../../.designer/Pictures/Selection_017.jpg</pixmap>
      </property>
     </widget>
    </widget>

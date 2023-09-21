@@ -8,9 +8,8 @@ import numpy as np
 import logging
 import yaml
 import datetime
-import importlib.resources
+#from timeit import default_timer as timer
 
-import skalab_monitor_tab
 from pyaavs.tile_wrapper import Tile
 from pyaavs import station
 from PyQt5 import QtWidgets, uic, QtCore
@@ -334,9 +333,12 @@ class MonitorSubrack(MonitorTPM):
         self.show()
         
         self.skipThreadPause = False
+        #self.slot_thread = Thread(name="Slot", target= self.slot1)
+        #self.temperature_thread = Thread(name="temp", target = self.temp1)   
         self.subrackTlm = Thread(name="Subrack Telemetry", target=self.readSubrackTlm, daemon=True)
         self.wait_check_subrack = Event()
         self._subrack_lock = Lock()
+        self._subrack_lock_led = Lock()
         self._subrack_lock_threshold = Lock()
         self.subrackTlm.start()
 
@@ -356,12 +358,26 @@ class MonitorSubrack(MonitorTPM):
 
 
     def loadEventsSubrack(self):
-        self.wg.qbutton_clear_subrack.clicked.connect(lambda: self.clearValues())
+        self.wg.qbutton_clear_subrack.clicked.connect(lambda: self.clearSubrackValues())
         self.wg.subrack_button.clicked.connect(lambda: self.connect())
         self.wg.qbutton_subrack_edit.clicked.connect(lambda: editClone(self.wg.qline_subrack_threshold.text(), self.text_editor))
         self.wg.qbutton_subrack_threshold.clicked.connect(lambda: self.loadSubrackThreshold())
         for n, t in enumerate(self.qbutton_tpm):
             t.clicked.connect(lambda state, g=n: self.cmdSwitchTpm(g))
+
+    # def slot1(self):
+    #     start1 = timer()
+    #     self.client.execute_command(command="get_health_status",parameters ='psus')
+    #     end1 = timer()
+    #     print(f"SLOT1 {end1 - start1}")
+    #     return
+
+    # def temp1(self):
+    #     start2 = timer()
+    #     self.client.execute_command(command="get_health_status",parameters ='SLOT1')
+    #     end2 = timer()
+    #     print(f"temperatures {end2 - start2}")
+    #     return
 
     def reload(self, ip=None, port=None):
         if ip is not None:
@@ -413,12 +429,12 @@ class MonitorSubrack(MonitorTPM):
                     self.subrack_dictionary = self.client.execute_command(command="get_health_dictionary")["retvalue"]
                     self.wg.subrackbar.setValue(30)
                     del self.subrack_dictionary['iso_datetime']
+
                     for i in range(len(self.top_attr)):
-                        #diz = self.client.execute_command(command="get_health_dictionary",parameters=self.top_attr[i])["retvalue"]
-                        #del diz['iso_datetime']
                         if self.top_attr[i] in self.subrack_dictionary.keys():
                             diz = {self.top_attr[i]: self.subrack_dictionary[self.top_attr[i]]}
-                        else:
+                            del self.subrack_dictionary[self.top_attr[i]]
+                        elif self.top_attr[i] != 'others':
                             res = {}
                             for key, value in self.subrack_dictionary.items():
                                 if isinstance(value, dict):
@@ -427,10 +443,24 @@ class MonitorSubrack(MonitorTPM):
                                             res[subkey] = {
                                                 'unit': subvalue[self.top_attr[i]]['unit'],
                                                 'exp_value': subvalue[self.top_attr[i]]['exp_value']
-                                            }  
-                            diz = {self.top_attr[i] : res}
-                            
+                                            } 
+                                            #delete empty dictionary
+                                            del self.subrack_dictionary[key][subkey][self.top_attr[i]]
+                                    for jk in list(self.subrack_dictionary[key]):
+                                        if len(self.subrack_dictionary[key][jk]) == 0: del self.subrack_dictionary[key][jk]
+                            for k in list(self.subrack_dictionary.keys()):
+                                if len(self.subrack_dictionary[k]) == 0:  del self.subrack_dictionary[k]
+                            diz = {self.top_attr[i] : res} 
+                        else:
+                            res = {}
+                            for value in self.subrack_dictionary.values():
+                                if isinstance(value, dict):
+                                    res.update(value)
+                                else:
+                                    diz.update({self.top_attr[i] : value})  
+                            diz = {self.top_attr[i]:res}
                         self.tlm_keys.append(diz)
+
                     self.logger.info("Populate monitoring table...")
                     [self.subrack_table, self.sub_attribute] = populateTable(self.wg,self.tlm_keys,self.top_attr)
                     self.wg.subrackbar.setValue(40)
@@ -465,6 +495,10 @@ class MonitorSubrack(MonitorTPM):
                     with self._subrack_lock:
                         self.updateTpmStatus()
                     self.wg.subrackbar.setValue(100)
+                    # print("start temperature thread")
+                    # self.temperature_thread.start()
+                    # print("start slot thread")
+                    # self.slot_thread.start()
                     self.wait_check_subrack.set()
                     self.wg.subrackbar.hide()
                 else:
@@ -553,23 +587,13 @@ class MonitorSubrack(MonitorTPM):
 
     
     def readwriteSubrackAttribute(self):
-        return
         diz = copy.deepcopy(self.from_subrack)
+        if diz == '':
+            self.logger.error(f"Warning: get_health_status return an empty dictionary. Try again at the next polling cycle")
+            return
         for index_table in range(len(self.top_attr)):
             table = self.subrack_table[index_table]
-            if not(self.top_attr[index_table] in diz.keys()):
-                res = {}
-                for key, value in diz.items():
-                    if isinstance(value, dict):
-                        for subkey, subvalue in value.items():
-                            if isinstance(subvalue, dict) and self.top_attr[index_table] in subvalue:
-                                res[subkey] = subvalue[self.top_attr[index_table]]
-                                diz[key][subkey].pop(self.top_attr[index_table])
-                attribute_data = res
-                with self._subrack_lock_threshold:
-                    filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
-                    filtered_warning = self.warning[index_table][self.top_attr[index_table]]
-            else:
+            if self.top_attr[index_table] in diz.keys():
                 if (list(diz[self.top_attr[index_table]]) == self.sub_attribute[index_table]):
                     attribute_data = diz[self.top_attr[index_table]]
                     with self._subrack_lock_threshold:
@@ -578,6 +602,35 @@ class MonitorSubrack(MonitorTPM):
                     diz.pop(self.top_attr[index_table])
                 else:
                     break
+            elif self.top_attr[index_table] != 'others':
+                res = {}
+                for key, value in diz.items():
+                    if isinstance(value, dict):
+                        for subkey, subvalue in value.items():
+                            if isinstance(subvalue, dict) and self.top_attr[index_table] in subvalue:
+                                res[subkey] = subvalue[self.top_attr[index_table]]
+                                diz[key][subkey].pop(self.top_attr[index_table])
+                        for jk in list(diz[key]):
+                            if not bool(diz[key][jk]): del diz[key][jk]
+                for k in list(diz.keys()):
+                    if len(diz[k]) == 0:  del diz[k]
+                attribute_data = res
+                with self._subrack_lock_threshold:
+                    filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
+                    filtered_warning = self.warning[index_table][self.top_attr[index_table]]
+            else:
+                res = {}
+                temp = []
+                for key, value in diz.items():
+                    if isinstance(value, dict):
+                        res.update(value)
+                    temp.append(key)
+                [diz.pop(t) for t in temp]
+                attribute_data = res
+                with self._subrack_lock_threshold:
+                    filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
+                    filtered_warning = self.warning[index_table][self.top_attr[index_table]]
+                     
             #self.tlm_keys.append(diz)
             attrs = list(attribute_data.keys())
             values = list(attribute_data.values())
@@ -600,7 +653,7 @@ class MonitorSubrack(MonitorTPM):
                             #self.alarm[attr][int(ind/2)] = True
                             # Change the color only if it not 1=red
                             if not(self.subrack_led.Colour==1):
-                                with self._lock_led:
+                                with self._subrack_lock_led:
                                     self.subrack_led.Colour = Led.Red
                                     self.subrack_led.value = True
                     elif not(filtered_warning[attr][0] < value < filtered_warning[attr][1]) and not(item.background().color().name() == '#ff0000'):
@@ -613,7 +666,7 @@ class MonitorSubrack(MonitorTPM):
                             self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
                             # Change the color only if it is 4=Grey
                             if self.subrack_led.Colour==4: 
-                                with self._lock_led:
+                                with self._subrack_lock_led:
                                     self.subrack_led.Colour=Led.Orange
                                     self.subrack_led.value = True
             # except:
@@ -652,6 +705,13 @@ class MonitorSubrack(MonitorTPM):
             except:
                 pass
                 #self.signal_to_monitor_for_tpm.emit()            
+
+    def clearSubrackValues(self):
+        with (self._subrack_lock_led and self._lock_tab1 and self._lock_tab2):
+            self.subrack_led.Colour = Led.Grey
+            self.subrack_led.m_value = False
+            for table in self.subrack_table:
+                table.clearContents()
 
     
     def setupSubrackHdf5(self):
