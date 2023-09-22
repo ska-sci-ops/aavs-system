@@ -45,7 +45,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>9</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>true</bool>
@@ -155,7 +155,7 @@
         </row>
         <row>
          <property name="text">
-          <string>DSP</string>
+          <string>DSP tile beamf</string>
          </property>
         </row>
         <column>
@@ -1236,7 +1236,7 @@
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="voltage_tab_6">
+       <widget class="QWidget" name="tpm1_attribute_tab">
         <attribute name="title">
          <string>Attributes</string>
         </attribute>
@@ -1264,7 +1264,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_8">
+           <widget class="QTableWidget" name="voltage_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1319,7 +1319,7 @@
            <x>920</x>
            <y>530</y>
            <width>321</width>
-           <height>216</height>
+           <height>204</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -1332,12 +1332,12 @@
              </font>
             </property>
             <property name="text">
-             <string>PSS and PLL</string>
+             <string>PSS </string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_14">
+           <widget class="QTableWidget" name="pps_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1384,6 +1384,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_53">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>PLL </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="pll_tab_1">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_20">
@@ -1429,7 +1494,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_9">
+           <widget class="QTableWidget" name="temperature_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1502,7 +1567,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_10">
+           <widget class="QTableWidget" name="current_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1557,7 +1622,7 @@
            <x>490</x>
            <y>520</y>
            <width>371</width>
-           <height>216</height>
+           <height>111</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1570,12 +1635,12 @@
              </font>
             </property>
             <property name="text">
-             <string>DSP</string>
+             <string>DSP tile beamf</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_11">
+           <widget class="QTableWidget" name="dsp_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1643,12 +1708,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA1</string>
+             <string>FPGA0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_12">
+           <widget class="QTableWidget" name="clock_fpga0_tab1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1704,12 +1769,85 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA2</string>
+             <string>FPGA1</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_13">
+           <widget class="QTableWidget" name="clock_fpga0_tab1">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>8</number>
+            </property>
+            <property name="columnCount">
+             <number>0</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>130</number>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>67</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="layoutWidget_6">
+         <property name="geometry">
+          <rect>
+           <x>490</x>
+           <y>580</y>
+           <width>371</width>
+           <height>111</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_20">
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QLabel" name="label_79">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>DSP station beamf</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="dsp_station_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1763,64 +1901,7 @@
         <attribute name="title">
          <string>Interfaces</string>
         </attribute>
-        <widget class="QLabel" name="label">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>10</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>JESD Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_2">
-         <property name="geometry">
-          <rect>
-           <x>570</x>
-           <y>40</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DDR Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_61">
-         <property name="geometry">
-          <rect>
-           <x>1010</x>
-           <y>70</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>UDP  Interface</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="qtable_tile_25">
+        <widget class="QTableWidget" name="ddr_tab_1">
          <property name="geometry">
           <rect>
            <x>480</x>
@@ -1878,7 +1959,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_30">
+        <widget class="QTableWidget" name="udp_tab_1">
          <property name="geometry">
           <rect>
            <x>910</x>
@@ -2013,10 +2094,10 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>60</x>
-           <y>220</y>
-           <width>301</width>
-           <height>161</height>
+           <x>40</x>
+           <y>180</y>
+           <width>311</width>
+           <height>291</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_77">
@@ -2028,7 +2109,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_23">
+           <widget class="QTableWidget" name="jesdlane_fpga0_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2069,7 +2150,64 @@
             </row>
             <row>
              <property name="text">
-              <string>FPGA1-Core1</string>
+              <string>FPGA0-Core1</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Warn/Alarm</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="jesdlane_fpga1_tab_1">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>2</number>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core0</string>
+             </property>
+            </row>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core1</string>
              </property>
             </row>
             <column>
@@ -2089,9 +2227,9 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>60</x>
-           <y>410</y>
-           <width>301</width>
+           <x>40</x>
+           <y>480</y>
+           <width>311</width>
            <height>321</height>
           </rect>
          </property>
@@ -2104,7 +2242,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_24">
+           <widget class="QTableWidget" name="jesdfpga0_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2168,7 +2306,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_27">
+           <widget class="QTableWidget" name="jesdfpga1_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2250,7 +2388,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_29">
+           <widget class="QTableWidget" name="f2f_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2331,7 +2469,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_28">
+           <widget class="QTableWidget" name="ddr1_reset_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2407,7 +2545,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_31">
+           <widget class="QTableWidget" name="udpfpga0_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2481,7 +2619,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_32">
+           <widget class="QTableWidget" name="udpfpga1_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2552,10 +2690,10 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>60</x>
-           <y>60</y>
+           <x>40</x>
+           <y>30</y>
            <width>311</width>
-           <height>141</height>
+           <height>151</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -2567,7 +2705,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_22">
+           <widget class="QTableWidget" name="jesd_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2625,6 +2763,52 @@
           </item>
          </layout>
         </widget>
+        <widget class="QSplitter" name="splitter">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>10</y>
+           <width>1281</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <widget class="QLabel" name="label">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>JESD Interface</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_2">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>DDR Interface</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_61">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>UDP  Interface</string>
+          </property>
+         </widget>
+        </widget>
        </widget>
        <widget class="QWidget" name="adc_tab_10">
         <attribute name="title">
@@ -2654,7 +2838,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_33">
+           <widget class="QTableWidget" name="adcpll_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2806,7 +2990,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_34">
+           <widget class="QTableWidget" name="adcsysref_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2958,7 +3142,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_36">
+           <widget class="QTableWidget" name="adccounter_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3133,7 +3317,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_56">
+           <widget class="QTableWidget" name="voltage_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3188,7 +3372,7 @@
            <x>920</x>
            <y>530</y>
            <width>321</width>
-           <height>216</height>
+           <height>204</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_22">
@@ -3201,12 +3385,12 @@
              </font>
             </property>
             <property name="text">
-             <string>PSS and PLL</string>
+             <string>PPS</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_57">
+           <widget class="QTableWidget" name="pps_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3253,6 +3437,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_54">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>PLL </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="pll_tab_2">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_25">
@@ -3298,7 +3547,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_58">
+           <widget class="QTableWidget" name="temperature_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3371,7 +3620,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_59">
+           <widget class="QTableWidget" name="current_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3439,12 +3688,12 @@
              </font>
             </property>
             <property name="text">
-             <string>DSP</string>
+             <string>DSP tile beamf</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_60">
+           <widget class="QTableWidget" name="dsp_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3491,6 +3740,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_33">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_80">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DSP station beamf</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="dsp_station_tab_2">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget_37">
@@ -3512,12 +3826,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA1</string>
+             <string>FPGA0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_61">
+           <widget class="QTableWidget" name="clock_fpga0_tab2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3573,12 +3887,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA2</string>
+             <string>FPGA1</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_62">
+           <widget class="QTableWidget" name="clock_fpga0_tab2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3632,44 +3946,6 @@
         <attribute name="title">
          <string>Interfaces</string>
         </attribute>
-        <widget class="QLabel" name="label_26">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>JESD Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_27">
-         <property name="geometry">
-          <rect>
-           <x>570</x>
-           <y>40</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DDR Interface</string>
-         </property>
-        </widget>
         <widget class="QLabel" name="label_102">
          <property name="geometry">
           <rect>
@@ -3689,7 +3965,7 @@
           <string>UDP  Interface</string>
          </property>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_63">
+        <widget class="QTableWidget" name="jesd_tab_2">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -3752,7 +4028,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_64">
+        <widget class="QTableWidget" name="ddr_tab_2">
          <property name="geometry">
           <rect>
            <x>480</x>
@@ -3810,7 +4086,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_65">
+        <widget class="QTableWidget" name="udp_tab_2">
          <property name="geometry">
           <rect>
            <x>910</x>
@@ -3948,7 +4224,7 @@
            <x>60</x>
            <y>220</y>
            <width>301</width>
-           <height>161</height>
+           <height>180</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_87">
@@ -3960,7 +4236,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_66">
+           <widget class="QTableWidget" name="jesdlane_fpga0_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4001,7 +4277,64 @@
             </row>
             <row>
              <property name="text">
-              <string>FPGA1-Core1</string>
+              <string>FPGA0-Core1</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Warn/Alarm</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="jesdlane_fpga1_tab_2">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>2</number>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core0</string>
+             </property>
+            </row>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core1</string>
              </property>
             </row>
             <column>
@@ -4036,7 +4369,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_67">
+           <widget class="QTableWidget" name="jesdfpga0_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4100,7 +4433,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_68">
+           <widget class="QTableWidget" name="jesdfpga1_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4182,7 +4515,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_69">
+           <widget class="QTableWidget" name="f2f_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4263,7 +4596,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_70">
+           <widget class="QTableWidget" name="ddr1_reset_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4339,7 +4672,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_71">
+           <widget class="QTableWidget" name="udpfpga0_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4413,7 +4746,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_72">
+           <widget class="QTableWidget" name="udpfpga1_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4481,6 +4814,63 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="label_72">
+         <property name="geometry">
+          <rect>
+           <x>1030</x>
+           <y>10</y>
+           <width>421</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>UDP  Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_18">
+         <property name="geometry">
+          <rect>
+           <x>602</x>
+           <y>10</y>
+           <width>422</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>DDR Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_19">
+         <property name="geometry">
+          <rect>
+           <x>170</x>
+           <y>10</y>
+           <width>426</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>JESD Interface</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="adc_tab_14">
         <attribute name="title">
@@ -4510,7 +4900,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_224">
+           <widget class="QTableWidget" name="adcsysref_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4662,7 +5052,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_222">
+           <widget class="QTableWidget" name="adcpll_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4814,7 +5204,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_223">
+           <widget class="QTableWidget" name="adccounter_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4989,7 +5379,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_76">
+           <widget class="QTableWidget" name="voltage_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5044,7 +5434,7 @@
            <x>920</x>
            <y>530</y>
            <width>321</width>
-           <height>216</height>
+           <height>204</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_28">
@@ -5057,12 +5447,12 @@
              </font>
             </property>
             <property name="text">
-             <string>PSS and PLL</string>
+             <string>PPS</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_77">
+           <widget class="QTableWidget" name="pps_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5109,6 +5499,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_55">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>PLL </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="pll_tab_3">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_28">
@@ -5154,7 +5609,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_78">
+           <widget class="QTableWidget" name="temperature_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5227,7 +5682,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_79">
+           <widget class="QTableWidget" name="current_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5295,12 +5750,12 @@
              </font>
             </property>
             <property name="text">
-             <string>DSP</string>
+             <string>DSP tile beamf</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_80">
+           <widget class="QTableWidget" name="dsp_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5347,6 +5802,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_35">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_82">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DSP station beamf</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="dsp_station_tab_3">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget_60">
@@ -5368,12 +5888,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA1</string>
+             <string>FPGA0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_81">
+           <widget class="QTableWidget" name="clock_fpga0_tab3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5429,12 +5949,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA2</string>
+             <string>FPGA1</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_82">
+           <widget class="QTableWidget" name="clock_fpga0_tab3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5488,64 +6008,7 @@
         <attribute name="title">
          <string>Interfaces</string>
         </attribute>
-        <widget class="QLabel" name="label_29">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>JESD Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_30">
-         <property name="geometry">
-          <rect>
-           <x>570</x>
-           <y>40</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DDR Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_120">
-         <property name="geometry">
-          <rect>
-           <x>1010</x>
-           <y>70</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>UDP  Interface</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="qtable_tile_83">
+        <widget class="QTableWidget" name="jesd_tab_3">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -5608,7 +6071,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_84">
+        <widget class="QTableWidget" name="ddr_tab_3">
          <property name="geometry">
           <rect>
            <x>480</x>
@@ -5666,7 +6129,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_85">
+        <widget class="QTableWidget" name="udp_tab_3">
          <property name="geometry">
           <rect>
            <x>910</x>
@@ -5804,7 +6267,7 @@
            <x>60</x>
            <y>220</y>
            <width>301</width>
-           <height>161</height>
+           <height>180</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_92">
@@ -5816,7 +6279,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_86">
+           <widget class="QTableWidget" name="jesdlane_fpga0_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5857,7 +6320,64 @@
             </row>
             <row>
              <property name="text">
-              <string>FPGA1-Core1</string>
+              <string>FPGA0-Core1</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Warn/Alarm</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="jesdlane_fpga1_tab_3">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>2</number>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core0</string>
+             </property>
+            </row>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core1</string>
              </property>
             </row>
             <column>
@@ -5892,7 +6412,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_87">
+           <widget class="QTableWidget" name="jesdfpga0_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5956,7 +6476,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_88">
+           <widget class="QTableWidget" name="jesdfpga1_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6038,7 +6558,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_89">
+           <widget class="QTableWidget" name="f2f_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6119,7 +6639,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_90">
+           <widget class="QTableWidget" name="ddr1_reset_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6195,7 +6715,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_91">
+           <widget class="QTableWidget" name="udpfpga0_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6269,7 +6789,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_92">
+           <widget class="QTableWidget" name="udpfpga1_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6337,6 +6857,63 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="label_73">
+         <property name="geometry">
+          <rect>
+           <x>1010</x>
+           <y>10</y>
+           <width>421</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>UDP  Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_21">
+         <property name="geometry">
+          <rect>
+           <x>582</x>
+           <y>10</y>
+           <width>422</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>DDR Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_22">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>10</y>
+           <width>426</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>JESD Interface</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="adc_tab_15">
         <attribute name="title">
@@ -6366,7 +6943,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_227">
+           <widget class="QTableWidget" name="adcsysref_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6518,7 +7095,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_225">
+           <widget class="QTableWidget" name="adcpll_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6670,7 +7247,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_226">
+           <widget class="QTableWidget" name="adccounter_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6845,7 +7422,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_116">
+           <widget class="QTableWidget" name="voltage_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6913,12 +7490,12 @@
              </font>
             </property>
             <property name="text">
-             <string>PSS and PLL</string>
+             <string>PPS</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_117">
+           <widget class="QTableWidget" name="pps_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6965,6 +7542,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_15">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_56">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>PLL </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="pll_tab_4">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_34">
@@ -7010,7 +7652,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_118">
+           <widget class="QTableWidget" name="temperature_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7083,7 +7725,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_119">
+           <widget class="QTableWidget" name="current_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7151,12 +7793,12 @@
              </font>
             </property>
             <property name="text">
-             <string>DSP</string>
+             <string>DSP tile beamf</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_120">
+           <widget class="QTableWidget" name="dsp_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7203,6 +7845,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_36">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_83">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DSP station beamf</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="dsp_station_tab_4">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget_96">
@@ -7224,12 +7931,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA1</string>
+             <string>FPGA0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_121">
+           <widget class="QTableWidget" name="clock_fpga0_tab4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7285,12 +7992,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA2</string>
+             <string>FPGA1</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_122">
+           <widget class="QTableWidget" name="clock_fpga0_tab4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7344,64 +8051,7 @@
         <attribute name="title">
          <string>Interfaces</string>
         </attribute>
-        <widget class="QLabel" name="label_35">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>JESD Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_36">
-         <property name="geometry">
-          <rect>
-           <x>570</x>
-           <y>40</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DDR Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_156">
-         <property name="geometry">
-          <rect>
-           <x>1010</x>
-           <y>70</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>UDP  Interface</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="qtable_tile_123">
+        <widget class="QTableWidget" name="jesd_tab_4">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -7464,7 +8114,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_124">
+        <widget class="QTableWidget" name="ddr_tab_4">
          <property name="geometry">
           <rect>
            <x>480</x>
@@ -7522,7 +8172,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_125">
+        <widget class="QTableWidget" name="udp_tab_4">
          <property name="geometry">
           <rect>
            <x>910</x>
@@ -7660,7 +8310,7 @@
            <x>60</x>
            <y>220</y>
            <width>301</width>
-           <height>161</height>
+           <height>180</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_102">
@@ -7672,7 +8322,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_126">
+           <widget class="QTableWidget" name="jesdlane_fpga0_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7713,7 +8363,64 @@
             </row>
             <row>
              <property name="text">
-              <string>FPGA1-Core1</string>
+              <string>FPGA0-Core1</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Warn/Alarm</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="jesdlane_fpga1_tab_4">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>2</number>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core0</string>
+             </property>
+            </row>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core1</string>
              </property>
             </row>
             <column>
@@ -7748,7 +8455,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_127">
+           <widget class="QTableWidget" name="jesdfpga0_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7812,7 +8519,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_128">
+           <widget class="QTableWidget" name="jesdfpga1_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7894,7 +8601,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_129">
+           <widget class="QTableWidget" name="f2f_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7975,7 +8682,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_130">
+           <widget class="QTableWidget" name="ddr1_reset_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8051,7 +8758,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_131">
+           <widget class="QTableWidget" name="udpfpga0_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8125,7 +8832,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_132">
+           <widget class="QTableWidget" name="udpfpga1_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8193,6 +8900,63 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="label_74">
+         <property name="geometry">
+          <rect>
+           <x>1010</x>
+           <y>10</y>
+           <width>421</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>UDP  Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_23">
+         <property name="geometry">
+          <rect>
+           <x>582</x>
+           <y>10</y>
+           <width>422</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>DDR Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_24">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>10</y>
+           <width>426</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>JESD Interface</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="adc_tab_17">
         <attribute name="title">
@@ -8222,7 +8986,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_230">
+           <widget class="QTableWidget" name="adcsysref_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8374,7 +9138,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_228">
+           <widget class="QTableWidget" name="adcpll_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8526,7 +9290,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_229">
+           <widget class="QTableWidget" name="adccounter_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8701,7 +9465,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_136">
+           <widget class="QTableWidget" name="voltage_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8769,12 +9533,12 @@
              </font>
             </property>
             <property name="text">
-             <string>PSS and PLL</string>
+             <string>PPS</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_137">
+           <widget class="QTableWidget" name="pps_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8821,6 +9585,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_16">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_57">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>PLL </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="pll_tab_5">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_37">
@@ -8866,7 +9695,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_138">
+           <widget class="QTableWidget" name="temperature_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8939,7 +9768,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_139">
+           <widget class="QTableWidget" name="current_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9007,12 +9836,12 @@
              </font>
             </property>
             <property name="text">
-             <string>DSP</string>
+             <string>DSP tile beamf</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_140">
+           <widget class="QTableWidget" name="dsp_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9059,6 +9888,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_37">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_84">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DSP station beamf</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="dsp_station_tab_5">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget_110">
@@ -9080,12 +9974,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA1</string>
+             <string>FPGA0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_141">
+           <widget class="QTableWidget" name="clock_fpga0_tab5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9141,12 +10035,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA2</string>
+             <string>FPGA1</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_142">
+           <widget class="QTableWidget" name="clock_fpga0_tab5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9200,64 +10094,7 @@
         <attribute name="title">
          <string>Interfaces</string>
         </attribute>
-        <widget class="QLabel" name="label_38">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>JESD Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_39">
-         <property name="geometry">
-          <rect>
-           <x>570</x>
-           <y>40</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DDR Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_174">
-         <property name="geometry">
-          <rect>
-           <x>1010</x>
-           <y>70</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>UDP  Interface</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="qtable_tile_143">
+        <widget class="QTableWidget" name="jesd_tab_5">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -9320,7 +10157,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_144">
+        <widget class="QTableWidget" name="ddr_tab_5">
          <property name="geometry">
           <rect>
            <x>480</x>
@@ -9378,7 +10215,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_145">
+        <widget class="QTableWidget" name="udp_tab_5">
          <property name="geometry">
           <rect>
            <x>910</x>
@@ -9516,7 +10353,7 @@
            <x>60</x>
            <y>220</y>
            <width>301</width>
-           <height>161</height>
+           <height>180</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_112">
@@ -9528,7 +10365,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_146">
+           <widget class="QTableWidget" name="jesdlane_fpga0_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9569,7 +10406,64 @@
             </row>
             <row>
              <property name="text">
-              <string>FPGA1-Core1</string>
+              <string>FPGA0-Core1</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Warn/Alarm</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="jesdlane_fpga1_tab_5">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>2</number>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core0</string>
+             </property>
+            </row>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core1</string>
              </property>
             </row>
             <column>
@@ -9604,7 +10498,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_147">
+           <widget class="QTableWidget" name="jesdfpga0_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9668,7 +10562,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_148">
+           <widget class="QTableWidget" name="jesdfpga1_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9750,7 +10644,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_149">
+           <widget class="QTableWidget" name="f2f_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9831,7 +10725,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_150">
+           <widget class="QTableWidget" name="ddr1_reset_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9907,7 +10801,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_151">
+           <widget class="QTableWidget" name="udpfpga0_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -9981,7 +10875,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_152">
+           <widget class="QTableWidget" name="udpfpga1_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10049,6 +10943,63 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="label_27">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>10</y>
+           <width>426</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>JESD Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_26">
+         <property name="geometry">
+          <rect>
+           <x>572</x>
+           <y>10</y>
+           <width>422</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>DDR Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_75">
+         <property name="geometry">
+          <rect>
+           <x>1000</x>
+           <y>10</y>
+           <width>421</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>UDP  Interface</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="adc_tab_18">
         <attribute name="title">
@@ -10078,7 +11029,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_233">
+           <widget class="QTableWidget" name="adcsysref_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10230,7 +11181,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_232">
+           <widget class="QTableWidget" name="adccounter_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10382,7 +11333,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_231">
+           <widget class="QTableWidget" name="adcpll_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10557,7 +11508,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_156">
+           <widget class="QTableWidget" name="voltage_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10625,12 +11576,12 @@
              </font>
             </property>
             <property name="text">
-             <string>PSS and PLL</string>
+             <string>PPS</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_157">
+           <widget class="QTableWidget" name="pps_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10677,6 +11628,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_17">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_58">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>PLL </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="pll_tab_6">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_187">
@@ -10722,7 +11738,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_158">
+           <widget class="QTableWidget" name="temperature_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10795,7 +11811,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_159">
+           <widget class="QTableWidget" name="current_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10863,12 +11879,12 @@
              </font>
             </property>
             <property name="text">
-             <string>DSP</string>
+             <string>DSP tile beamf</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_160">
+           <widget class="QTableWidget" name="dsp_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10915,6 +11931,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_38">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_85">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DSP station beamf</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="dsp_station_tab_6">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget_124">
@@ -10936,12 +12017,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA1</string>
+             <string>FPGA0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_161">
+           <widget class="QTableWidget" name="clock_fpga0_tab6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10997,12 +12078,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA2</string>
+             <string>FPGA1</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_162">
+           <widget class="QTableWidget" name="clock_fpga0_tab6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -11056,64 +12137,7 @@
         <attribute name="title">
          <string>Interfaces</string>
         </attribute>
-        <widget class="QLabel" name="label_193">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>JESD Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_194">
-         <property name="geometry">
-          <rect>
-           <x>570</x>
-           <y>40</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DDR Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_195">
-         <property name="geometry">
-          <rect>
-           <x>1010</x>
-           <y>70</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>UDP  Interface</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="qtable_tile_163">
+        <widget class="QTableWidget" name="jesd_tab_6">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -11176,7 +12200,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_164">
+        <widget class="QTableWidget" name="ddr_tab_6">
          <property name="geometry">
           <rect>
            <x>480</x>
@@ -11234,7 +12258,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_165">
+        <widget class="QTableWidget" name="udp_tab_6">
          <property name="geometry">
           <rect>
            <x>910</x>
@@ -11372,7 +12396,7 @@
            <x>60</x>
            <y>220</y>
            <width>301</width>
-           <height>161</height>
+           <height>180</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_126">
@@ -11384,7 +12408,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_166">
+           <widget class="QTableWidget" name="jesdlane_fpga0_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -11425,7 +12449,64 @@
             </row>
             <row>
              <property name="text">
-              <string>FPGA1-Core1</string>
+              <string>FPGA0-Core1</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Warn/Alarm</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="jesdlane_fpga1_tab_6">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>2</number>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core0</string>
+             </property>
+            </row>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core1</string>
              </property>
             </row>
             <column>
@@ -11460,7 +12541,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_167">
+           <widget class="QTableWidget" name="jesdfpga0_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -11524,7 +12605,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_168">
+           <widget class="QTableWidget" name="jesdfpga1_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -11606,7 +12687,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_169">
+           <widget class="QTableWidget" name="f2f_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -11687,7 +12768,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_170">
+           <widget class="QTableWidget" name="ddr1_reset_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -11763,7 +12844,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_171">
+           <widget class="QTableWidget" name="udpfpga0_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -11837,7 +12918,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_172">
+           <widget class="QTableWidget" name="udpfpga1_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -11905,6 +12986,63 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="label_30">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>10</y>
+           <width>426</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>JESD Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_29">
+         <property name="geometry">
+          <rect>
+           <x>580</x>
+           <y>10</y>
+           <width>422</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>DDR Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_76">
+         <property name="geometry">
+          <rect>
+           <x>1000</x>
+           <y>10</y>
+           <width>421</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>UDP  Interface</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="adc_tab_19">
         <attribute name="title">
@@ -11934,7 +13072,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_221">
+           <widget class="QTableWidget" name="adcsysref_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12086,7 +13224,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_219">
+           <widget class="QTableWidget" name="adcpll_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12238,7 +13376,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_220">
+           <widget class="QTableWidget" name="adccounter_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12413,7 +13551,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_176">
+           <widget class="QTableWidget" name="voltage_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12466,7 +13604,7 @@
          <property name="geometry">
           <rect>
            <x>920</x>
-           <y>530</y>
+           <y>510</y>
            <width>321</width>
            <height>216</height>
           </rect>
@@ -12481,12 +13619,12 @@
              </font>
             </property>
             <property name="text">
-             <string>PSS and PLL</string>
+             <string>PPS</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_177">
+           <widget class="QTableWidget" name="pps_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12533,6 +13671,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_18">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_59">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>PLL </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="pll_tab_7">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_208">
@@ -12578,7 +13781,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_178">
+           <widget class="QTableWidget" name="temperature_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12651,7 +13854,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_179">
+           <widget class="QTableWidget" name="current_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12719,12 +13922,12 @@
              </font>
             </property>
             <property name="text">
-             <string>DSP</string>
+             <string>DSP tile beamf</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_180">
+           <widget class="QTableWidget" name="dsp_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12771,6 +13974,71 @@
             <row/>
            </widget>
           </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_48">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_86">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DSP station beamf</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="dsp_station_tab_7">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget_138">
@@ -12792,12 +14060,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA1</string>
+             <string>FPGA0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_181">
+           <widget class="QTableWidget" name="clock_fpga0_tab7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12853,12 +14121,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA2</string>
+             <string>FPGA1</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_182">
+           <widget class="QTableWidget" name="clock_fpga0_tab7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12912,64 +14180,7 @@
         <attribute name="title">
          <string>Interfaces</string>
         </attribute>
-        <widget class="QLabel" name="label_214">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>JESD Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_215">
-         <property name="geometry">
-          <rect>
-           <x>570</x>
-           <y>40</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DDR Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_216">
-         <property name="geometry">
-          <rect>
-           <x>1010</x>
-           <y>70</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>UDP  Interface</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="qtable_tile_183">
+        <widget class="QTableWidget" name="jesd_tab_7">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -13032,7 +14243,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_184">
+        <widget class="QTableWidget" name="ddr_tab_7">
          <property name="geometry">
           <rect>
            <x>480</x>
@@ -13090,7 +14301,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_185">
+        <widget class="QTableWidget" name="udp_tab_7">
          <property name="geometry">
           <rect>
            <x>910</x>
@@ -13228,7 +14439,7 @@
            <x>60</x>
            <y>220</y>
            <width>301</width>
-           <height>161</height>
+           <height>180</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_140">
@@ -13240,7 +14451,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_186">
+           <widget class="QTableWidget" name="jesdlane_fpga0_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -13281,7 +14492,64 @@
             </row>
             <row>
              <property name="text">
-              <string>FPGA1-Core1</string>
+              <string>FPGA0-Core1</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Warn/Alarm</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="jesdlane_fpga1_tab_7">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>2</number>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core0</string>
+             </property>
+            </row>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core1</string>
              </property>
             </row>
             <column>
@@ -13301,8 +14569,8 @@
         <widget class="QWidget" name="layoutWidget_140">
          <property name="geometry">
           <rect>
-           <x>60</x>
-           <y>410</y>
+           <x>50</x>
+           <y>480</y>
            <width>301</width>
            <height>321</height>
           </rect>
@@ -13316,7 +14584,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_187">
+           <widget class="QTableWidget" name="jesdfpga0_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -13380,7 +14648,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_188">
+           <widget class="QTableWidget" name="jesdfpga1_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -13462,7 +14730,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_189">
+           <widget class="QTableWidget" name="f2f_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -13543,7 +14811,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_190">
+           <widget class="QTableWidget" name="ddr1_reset_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -13605,7 +14873,7 @@
          <property name="geometry">
           <rect>
            <x>880</x>
-           <y>260</y>
+           <y>280</y>
            <width>351</width>
            <height>521</height>
           </rect>
@@ -13619,7 +14887,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_191">
+           <widget class="QTableWidget" name="udpfpga0_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -13693,7 +14961,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_192">
+           <widget class="QTableWidget" name="udpfpga1_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -13761,6 +15029,63 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="label_32">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>10</y>
+           <width>426</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>JESD Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_31">
+         <property name="geometry">
+          <rect>
+           <x>582</x>
+           <y>10</y>
+           <width>422</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>DDR Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_77">
+         <property name="geometry">
+          <rect>
+           <x>1010</x>
+           <y>10</y>
+           <width>421</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>UDP  Interface</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="adc_tab_20">
         <attribute name="title">
@@ -13790,7 +15115,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_218">
+           <widget class="QTableWidget" name="adcsysref_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -13942,7 +15267,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_217">
+           <widget class="QTableWidget" name="adccounter_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14094,7 +15419,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_216">
+           <widget class="QTableWidget" name="adcpll_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14269,7 +15594,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_196">
+           <widget class="QTableWidget" name="voltage_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14280,7 +15605,7 @@
              <number>8</number>
             </property>
             <property name="columnCount">
-             <number>0</number>
+             <number>1</number>
             </property>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>54</number>
@@ -14314,6 +15639,11 @@
             <row/>
             <row/>
             <row/>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>
@@ -14321,9 +15651,9 @@
         <widget class="QWidget" name="layoutWidget_148">
          <property name="geometry">
           <rect>
-           <x>920</x>
-           <y>530</y>
-           <width>321</width>
+           <x>930</x>
+           <y>490</y>
+           <width>311</width>
            <height>216</height>
           </rect>
          </property>
@@ -14337,12 +15667,12 @@
              </font>
             </property>
             <property name="text">
-             <string>PSS and PLL</string>
+             <string>PPS</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_197">
+           <widget class="QTableWidget" name="pps_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14353,7 +15683,7 @@
              <number>8</number>
             </property>
             <property name="columnCount">
-             <number>0</number>
+             <number>1</number>
             </property>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>54</number>
@@ -14387,7 +15717,77 @@
             <row/>
             <row/>
             <row/>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
            </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_19">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_70">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>PLL </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="pll_tab_8">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -14434,7 +15834,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_198">
+           <widget class="QTableWidget" name="temperature_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14445,7 +15845,7 @@
              <number>8</number>
             </property>
             <property name="columnCount">
-             <number>0</number>
+             <number>1</number>
             </property>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>54</number>
@@ -14479,6 +15879,11 @@
             <row/>
             <row/>
             <row/>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>
@@ -14507,7 +15912,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_199">
+           <widget class="QTableWidget" name="current_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14518,7 +15923,7 @@
              <number>8</number>
             </property>
             <property name="columnCount">
-             <number>0</number>
+             <number>1</number>
             </property>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>54</number>
@@ -14552,6 +15957,11 @@
             <row/>
             <row/>
             <row/>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>
@@ -14575,12 +15985,12 @@
              </font>
             </property>
             <property name="text">
-             <string>DSP</string>
+             <string>DSP tile beamf</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_200">
+           <widget class="QTableWidget" name="dsp_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14591,7 +16001,7 @@
              <number>8</number>
             </property>
             <property name="columnCount">
-             <number>0</number>
+             <number>1</number>
             </property>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>54</number>
@@ -14625,7 +16035,77 @@
             <row/>
             <row/>
             <row/>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
            </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_50">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_87">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DSP station beamff</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="dsp_station_tab_8">
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
+               <number>0</number>
+              </property>
+              <property name="rowCount">
+               <number>8</number>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>54</number>
+              </attribute>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>24</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>67</number>
+              </attribute>
+              <attribute name="verticalHeaderHighlightSections">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -14648,12 +16128,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA1</string>
+             <string>FPGA0</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_201">
+           <widget class="QTableWidget" name="clock_fpga0_tab8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14664,7 +16144,7 @@
              <number>8</number>
             </property>
             <property name="columnCount">
-             <number>0</number>
+             <number>1</number>
             </property>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>54</number>
@@ -14698,6 +16178,11 @@
             <row/>
             <row/>
             <row/>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
            </widget>
           </item>
           <item>
@@ -14709,12 +16194,12 @@
              </font>
             </property>
             <property name="text">
-             <string>FPGA2</string>
+             <string>FPGA1</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_202">
+           <widget class="QTableWidget" name="clock_fpga0_tab8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14725,7 +16210,7 @@
              <number>8</number>
             </property>
             <property name="columnCount">
-             <number>0</number>
+             <number>1</number>
             </property>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>54</number>
@@ -14759,6 +16244,11 @@
             <row/>
             <row/>
             <row/>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>
@@ -14768,64 +16258,7 @@
         <attribute name="title">
          <string>Interfaces</string>
         </attribute>
-        <widget class="QLabel" name="label_235">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>JESD Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_236">
-         <property name="geometry">
-          <rect>
-           <x>570</x>
-           <y>40</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DDR Interface</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_237">
-         <property name="geometry">
-          <rect>
-           <x>1010</x>
-           <y>70</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>UDP  Interface</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="qtable_tile_203">
+        <widget class="QTableWidget" name="jesd_tab_8">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -14888,7 +16321,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_204">
+        <widget class="QTableWidget" name="ddr_tab_8">
          <property name="geometry">
           <rect>
            <x>480</x>
@@ -14946,7 +16379,7 @@
           </property>
          </column>
         </widget>
-        <widget class="QTableWidget" name="qtable_tile_205">
+        <widget class="QTableWidget" name="udp_tab_8">
          <property name="geometry">
           <rect>
            <x>910</x>
@@ -15084,7 +16517,7 @@
            <x>60</x>
            <y>220</y>
            <width>301</width>
-           <height>161</height>
+           <height>180</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_154">
@@ -15096,7 +16529,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_206">
+           <widget class="QTableWidget" name="jesdlane_fpga0_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15137,7 +16570,64 @@
             </row>
             <row>
              <property name="text">
-              <string>FPGA1-Core1</string>
+              <string>FPGA0-Core1</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Warn/Alarm</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="jesdlane_fpga1_tab_8">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>2</number>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>100</number>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core0</string>
+             </property>
+            </row>
+            <row>
+             <property name="text">
+              <string>FPGA0-Core1</string>
              </property>
             </row>
             <column>
@@ -15172,7 +16662,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_207">
+           <widget class="QTableWidget" name="jesdfpga0_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15236,7 +16726,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_208">
+           <widget class="QTableWidget" name="jesdfpga1_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15318,7 +16808,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_209">
+           <widget class="QTableWidget" name="f2f_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15399,7 +16889,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_210">
+           <widget class="QTableWidget" name="ddr1_reset_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15475,7 +16965,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_211">
+           <widget class="QTableWidget" name="udpfpga0_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15549,7 +17039,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_212">
+           <widget class="QTableWidget" name="udpfpga1_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15617,6 +17107,63 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="label_35">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>10</y>
+           <width>426</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>JESD Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_78">
+         <property name="geometry">
+          <rect>
+           <x>1020</x>
+           <y>10</y>
+           <width>421</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>UDP  Interface</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_33">
+         <property name="geometry">
+          <rect>
+           <x>592</x>
+           <y>10</y>
+           <width>422</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>DDR Interface</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="adc_tab_21">
         <attribute name="title">
@@ -15646,7 +17193,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_213">
+           <widget class="QTableWidget" name="adcpll_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15798,7 +17345,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_214">
+           <widget class="QTableWidget" name="adcsysref_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -15950,7 +17497,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="qtable_tile_215">
+           <widget class="QTableWidget" name="adccounter_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>

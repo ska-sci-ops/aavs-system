@@ -13,7 +13,6 @@ from pyfabil import TPMGeneric
 from future.utils import iteritems
 from pyfabil.base.definitions import LibraryError, BoardError, PluginError, InstrumentError
 
-
 def populateWarningAlarmTable(true_table, warning, alarm):
         true_table.setEditTriggers(QtWidgets.QTableWidget.AllEditTriggers)
         row = len(alarm.keys())

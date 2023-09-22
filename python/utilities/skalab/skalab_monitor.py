@@ -8,6 +8,7 @@ import numpy as np
 import logging
 import yaml
 import datetime
+import json
 #from timeit import default_timer as timer
 
 from pyaavs.tile_wrapper import Tile
@@ -32,11 +33,11 @@ standard_subrack_attribute = {
                 "tpm_on_off": [None]*8
                 }
 
-
-def populateTable(frame, attributes,top):
-    "Create Subrack table"
+def populateTable(frame, attributes, top):
+    "Create Subrack and TPM table"
     qtable = []
     sub_attr = []
+    qtable_tpm = [None] * 8
     size_a = len(attributes)
     for j in range(size_a):
         qtable.append(getattr(frame, f"table{top[j]}"))
@@ -45,7 +46,13 @@ def populateTable(frame, attributes,top):
         qtable[j].setColumnCount(2)
         qtable[j].setVerticalHeaderLabels(sub_attr[j])  
         qtable[j].setHorizontalHeaderLabels(("Value", "Warning/Alarm")) 
-    return qtable, sub_attr
+    for i in range(8):
+        qtable_tpm[i] = []
+        for j in self.tpm_table_adress:
+            qtable_tpm[i].append(getattr(frame, f"{j}_tab_{i+1}"))
+            qtable_tpm[i][-1].setColumnCount(2)
+            qtable_tpm[i][-1].setHorizontalHeaderLabels(("Value", "Warning/Alarm")) 
+    return qtable, sub_attr,qtable_tpm
 
 
 def populateSlots(grid):
@@ -79,10 +86,15 @@ class MonitorTPM(TileInitialization):
         self.setCentralWidget(self.wg)
         self.loadEventsMonitor()
         # Set variable
+        self.tpm_table_address = []       
         self.tpm_alarm_thresholds = []
         self.tpm_interval = self.profile['Monitor']['tpm_query_interval']
+        table_address = self.profile['Tpm']['tpm_tables_address'].split(",,")
+        for d in range(len(table_address)):
+            self.tpm_table_address.append(eval(table_address[d]))
         self.tlm_hdf_monitor = None
         self.tpm_initialized = [False] * 8
+        self.tpm_table = []
         # Populate table
         self.populate_table_profile()
         self.qbutton_tpm = populateSlots(self.wg.grid_tpm)
@@ -286,7 +298,6 @@ class MonitorTPM(TileInitialization):
                                 self.qled_alert[int(i/2)].value = True        
                  
 
-
 class MonitorSubrack(MonitorTPM):
     """ Main UI Window class """
     # Signal for Slots
@@ -305,6 +316,7 @@ class MonitorSubrack(MonitorTPM):
         self.tpm_status_info = {} 
         self.from_subrack = {}
         self.top_attr = list(self.profile['Monitor']['top_level_attributes'].split(","))
+
         self.last_telemetry = {"tpm_supply_fault":[None] *8,"tpm_present":[None] *8,"tpm_on_off":[None] *8}
         self.query_once = []
         self.query_deny = []
@@ -463,7 +475,7 @@ class MonitorSubrack(MonitorTPM):
                         self.tlm_keys.append(diz)
 
                     self.logger.info("Populate monitoring table...")
-                    [self.subrack_table, self.sub_attribute] = populateTable(self.wg,self.tlm_keys,self.top_attr)
+                    [self.subrack_table, self.sub_attribute,self.tpm_table] = populateTable(self.wg,self.tlm_keys,self.top_attr)
                     self.wg.subrackbar.setValue(40)
                     self.wg.qbutton_clear_subrack.setEnabled(True)
                     for tlmk in self.query_once:
@@ -588,6 +600,7 @@ class MonitorSubrack(MonitorTPM):
 
     
     def readwriteSubrackAttribute(self):
+        return
         diz = copy.deepcopy(self.from_subrack)
         if diz == '':
             self.logger.error(f"Warning: get_health_status return an empty dictionary. Try again at the next polling cycle")
@@ -706,6 +719,7 @@ class MonitorSubrack(MonitorTPM):
             except:
                 pass
                 #self.signal_to_monitor_for_tpm.emit()            
+
 
     def clearSubrackValues(self):
         with (self._subrack_lock_led and self._lock_tab1 and self._lock_tab2):
