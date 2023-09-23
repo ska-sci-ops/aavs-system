@@ -45,7 +45,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>9</number>
+      <number>2</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>true</bool>
@@ -1283,9 +1283,6 @@
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
             </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
             </attribute>
@@ -1317,9 +1314,9 @@
          <property name="geometry">
           <rect>
            <x>920</x>
-           <y>530</y>
+           <y>510</y>
            <width>321</width>
-           <height>204</height>
+           <height>101</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -1384,71 +1381,6 @@
             <row/>
            </widget>
           </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_12">
-            <item alignment="Qt::AlignHCenter">
-             <widget class="QLabel" name="label_53">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>PLL </string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QTableWidget" name="pll_tab_1">
-              <property name="lineWidth">
-               <number>1</number>
-              </property>
-              <property name="midLineWidth">
-               <number>0</number>
-              </property>
-              <property name="rowCount">
-               <number>8</number>
-              </property>
-              <property name="columnCount">
-               <number>0</number>
-              </property>
-              <attribute name="horizontalHeaderMinimumSectionSize">
-               <number>54</number>
-              </attribute>
-              <attribute name="horizontalHeaderDefaultSectionSize">
-               <number>130</number>
-              </attribute>
-              <attribute name="verticalHeaderVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="verticalHeaderMinimumSectionSize">
-               <number>24</number>
-              </attribute>
-              <attribute name="verticalHeaderDefaultSectionSize">
-               <number>67</number>
-              </attribute>
-              <attribute name="verticalHeaderHighlightSections">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="verticalHeaderShowSortIndicator" stdset="0">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="verticalHeaderStretchLastSection">
-               <bool>false</bool>
-              </attribute>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-             </widget>
-            </item>
-           </layout>
-          </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_20">
@@ -1512,9 +1444,6 @@
             </attribute>
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
@@ -1586,9 +1515,6 @@
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
             </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
             </attribute>
@@ -1620,7 +1546,7 @@
          <property name="geometry">
           <rect>
            <x>490</x>
-           <y>520</y>
+           <y>510</y>
            <width>371</width>
            <height>111</height>
           </rect>
@@ -1713,7 +1639,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab1">
+           <widget class="QTableWidget" name="clock_fpga0_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1774,7 +1700,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab1">
+           <widget class="QTableWidget" name="clock_fpga1_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -1827,13 +1753,13 @@
          <property name="geometry">
           <rect>
            <x>490</x>
-           <y>580</y>
+           <y>660</y>
            <width>371</width>
            <height>111</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_20">
-          <item alignment="Qt::AlignHCenter">
+          <item>
            <widget class="QLabel" name="label_79">
             <property name="font">
              <font>
@@ -1848,6 +1774,79 @@
           </item>
           <item>
            <widget class="QTableWidget" name="dsp_station_tab_1">
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="rowCount">
+             <number>8</number>
+            </property>
+            <property name="columnCount">
+             <number>0</number>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>54</number>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>130</number>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderMinimumSectionSize">
+             <number>24</number>
+            </attribute>
+            <attribute name="verticalHeaderDefaultSectionSize">
+             <number>67</number>
+            </attribute>
+            <attribute name="verticalHeaderHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderStretchLastSection">
+             <bool>false</bool>
+            </attribute>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="">
+         <property name="geometry">
+          <rect>
+           <x>920</x>
+           <y>630</y>
+           <width>319</width>
+           <height>99</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QLabel" name="label_53">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>PLL </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="pll_tab_1">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -2202,12 +2201,12 @@
             </attribute>
             <row>
              <property name="text">
-              <string>FPGA0-Core0</string>
+              <string>FPGA1-Core0</string>
              </property>
             </row>
             <row>
              <property name="text">
-              <string>FPGA0-Core1</string>
+              <string>FPGA1-Core1</string>
              </property>
             </row>
             <column>
@@ -2237,7 +2236,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_63">
             <property name="text">
-             <string>FPGA0</string>
+             <string>Resync Count</string>
             </property>
            </widget>
           </item>
@@ -2301,7 +2300,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_64">
             <property name="text">
-             <string>FPGA1</string>
+             <string>Qpll Status</string>
             </property>
            </widget>
           </item>
@@ -3831,7 +3830,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab2">
+           <widget class="QTableWidget" name="clock_fpga0_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -3892,7 +3891,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab2">
+           <widget class="QTableWidget" name="clock_fpga1_tab_2">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -4364,7 +4363,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_104">
             <property name="text">
-             <string>FPGA0</string>
+             <string>Resync Count</string>
             </property>
            </widget>
           </item>
@@ -4428,7 +4427,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_105">
             <property name="text">
-             <string>FPGA1</string>
+             <string>Qpll Status</string>
             </property>
            </widget>
           </item>
@@ -5893,7 +5892,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab3">
+           <widget class="QTableWidget" name="clock_fpga0_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -5954,7 +5953,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab3">
+           <widget class="QTableWidget" name="clock_fpga1_tab_3">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -6407,7 +6406,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_122">
             <property name="text">
-             <string>FPGA0</string>
+             <string>Resync Count</string>
             </property>
            </widget>
           </item>
@@ -6471,7 +6470,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_123">
             <property name="text">
-             <string>FPGA1</string>
+             <string>Qpll Status</string>
             </property>
            </widget>
           </item>
@@ -7936,7 +7935,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab4">
+           <widget class="QTableWidget" name="clock_fpga0_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -7997,7 +7996,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab4">
+           <widget class="QTableWidget" name="clock_fpga1_tab_4">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -8450,7 +8449,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_158">
             <property name="text">
-             <string>FPGA0</string>
+             <string>Resync Count</string>
             </property>
            </widget>
           </item>
@@ -8514,7 +8513,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_159">
             <property name="text">
-             <string>FPGA1</string>
+             <string>Qpll Status</string>
             </property>
            </widget>
           </item>
@@ -9979,7 +9978,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab5">
+           <widget class="QTableWidget" name="clock_fpga0_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10040,7 +10039,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab5">
+           <widget class="QTableWidget" name="clock_fpga1_tab_5">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -10493,7 +10492,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_176">
             <property name="text">
-             <string>FPGA0</string>
+             <string>Resync Count</string>
             </property>
            </widget>
           </item>
@@ -10557,7 +10556,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_177">
             <property name="text">
-             <string>FPGA1</string>
+             <string>Qpll Status</string>
             </property>
            </widget>
           </item>
@@ -12022,7 +12021,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab6">
+           <widget class="QTableWidget" name="clock_fpga0_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12083,7 +12082,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab6">
+           <widget class="QTableWidget" name="clock_fpga1_tab_6">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -12536,7 +12535,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_197">
             <property name="text">
-             <string>FPGA0</string>
+             <string>Resync Count</string>
             </property>
            </widget>
           </item>
@@ -12600,7 +12599,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_198">
             <property name="text">
-             <string>FPGA1</string>
+             <string>Qpll Status</string>
             </property>
            </widget>
           </item>
@@ -14065,7 +14064,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab7">
+           <widget class="QTableWidget" name="clock_fpga0_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14126,7 +14125,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab7">
+           <widget class="QTableWidget" name="clock_fpga1_tab_7">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -14579,7 +14578,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_218">
             <property name="text">
-             <string>FPGA0</string>
+             <string>Resync Count</string>
             </property>
            </widget>
           </item>
@@ -14643,7 +14642,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_219">
             <property name="text">
-             <string>FPGA1</string>
+             <string>Qpll Status</string>
             </property>
            </widget>
           </item>
@@ -15602,7 +15601,7 @@
              <number>0</number>
             </property>
             <property name="rowCount">
-             <number>8</number>
+             <number>1</number>
             </property>
             <property name="columnCount">
              <number>1</number>
@@ -15612,9 +15611,6 @@
             </attribute>
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
@@ -15631,13 +15627,6 @@
             <attribute name="verticalHeaderStretchLastSection">
              <bool>false</bool>
             </attribute>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
             <row/>
             <column>
              <property name="text">
@@ -15690,9 +15679,6 @@
             </attribute>
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
@@ -15758,9 +15744,6 @@
               </attribute>
               <attribute name="horizontalHeaderDefaultSectionSize">
                <number>130</number>
-              </attribute>
-              <attribute name="verticalHeaderVisible">
-               <bool>false</bool>
               </attribute>
               <attribute name="verticalHeaderMinimumSectionSize">
                <number>24</number>
@@ -15842,7 +15825,7 @@
              <number>0</number>
             </property>
             <property name="rowCount">
-             <number>8</number>
+             <number>1</number>
             </property>
             <property name="columnCount">
              <number>1</number>
@@ -15852,9 +15835,6 @@
             </attribute>
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
@@ -15871,13 +15851,6 @@
             <attribute name="verticalHeaderStretchLastSection">
              <bool>false</bool>
             </attribute>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
             <row/>
             <column>
              <property name="text">
@@ -15930,9 +15903,6 @@
             </attribute>
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
@@ -16009,9 +15979,6 @@
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
             </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
             </attribute>
@@ -16077,9 +16044,6 @@
               <attribute name="horizontalHeaderDefaultSectionSize">
                <number>130</number>
               </attribute>
-              <attribute name="verticalHeaderVisible">
-               <bool>false</bool>
-              </attribute>
               <attribute name="verticalHeaderMinimumSectionSize">
                <number>24</number>
               </attribute>
@@ -16133,7 +16097,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab8">
+           <widget class="QTableWidget" name="clock_fpga0_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -16151,9 +16115,6 @@
             </attribute>
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
@@ -16199,7 +16160,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="clock_fpga0_tab8">
+           <widget class="QTableWidget" name="clock_fpga1_tab_8">
             <property name="lineWidth">
              <number>1</number>
             </property>
@@ -16217,9 +16178,6 @@
             </attribute>
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>130</number>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderMinimumSectionSize">
              <number>24</number>
@@ -16657,7 +16615,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_239">
             <property name="text">
-             <string>FPGA0</string>
+             <string>Resync Count</string>
             </property>
            </widget>
           </item>
@@ -16721,7 +16679,7 @@
           <item alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_240">
             <property name="text">
-             <string>FPGA1</string>
+             <string>Qpll Status</string>
             </property>
            </widget>
           </item>

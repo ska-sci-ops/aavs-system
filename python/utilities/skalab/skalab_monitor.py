@@ -33,8 +33,42 @@ standard_subrack_attribute = {
                 "tpm_on_off": [None]*8
                 }
 
+
+def populateTpmTable(frame, table, alarm):
+
+    qtable_tpm = [None] * 8 
+    for i in range(8): #Select TPM
+        qtable_tpm[i] = []
+        for j in range(len(table)): #Select table number
+            for k,v in table[j].items(): #Get table name and address attribute 
+                qtable_tpm[i].append(getattr(frame, f"{k}_tab_{i+1}"))
+                qtable_tpm[i][-1].verticalHeader().setVisible(True)
+                qtable_tpm[i][-1].setColumnCount(2)
+                qtable_tpm[i][-1].setHorizontalHeaderLabels(("Value", "Warning/Alarm"))
+                # Use eval to access the value in the dictionary
+                if isinstance(v,list):
+                    result = []
+                    for attribute in v:
+                        if isinstance(eval("alarm" + attribute),bool):
+                            a = attribute[2:-2].replace('"]["',',').split(',')
+                            result.append(a[-1])
+                        else:
+                            result.extend(list(eval("alarm" + attribute)))
+                elif not(isinstance(eval("alarm" + v),tuple)) and not(isinstance(eval("alarm" + v),bool)) :
+                    result = list(eval("alarm" + v))
+                else:
+                    a = v.replace('][','],[').split(',')
+                    result = eval(a[-1])
+                    qtable_tpm[i][-1].setRowCount(len(result))
+                    qtable_tpm[i][-1].setVerticalHeaderLabels(result)
+                    break 
+                qtable_tpm[i][-1].setRowCount(len(result))
+                qtable_tpm[i][-1].setVerticalHeaderLabels(result)  
+    return qtable_tpm
+
+
 def populateTable(frame, attributes, top):
-    "Create Subrack and TPM table"
+    "Create Subrack table"
     qtable = []
     sub_attr = []
     qtable_tpm = [None] * 8
@@ -46,14 +80,7 @@ def populateTable(frame, attributes, top):
         qtable[j].setColumnCount(2)
         qtable[j].setVerticalHeaderLabels(sub_attr[j])  
         qtable[j].setHorizontalHeaderLabels(("Value", "Warning/Alarm")) 
-    for i in range(8):
-        qtable_tpm[i] = []
-        for j in self.tpm_table_adress:
-            qtable_tpm[i].append(getattr(frame, f"{j}_tab_{i+1}"))
-            qtable_tpm[i][-1].setColumnCount(2)
-            qtable_tpm[i][-1].setHorizontalHeaderLabels(("Value", "Warning/Alarm")) 
-    return qtable, sub_attr,qtable_tpm
-
+    return qtable, sub_attr
 
 def populateSlots(grid):
     qbutton_tpm = []
@@ -117,6 +144,7 @@ class MonitorTPM(TileInitialization):
         for k,v in MIN_MAX_MONITORING_POINTS.items():
             self.tpm_alarm_thresholds.append({k:v})
         self.setTpmThreshold(self.tpm_warning_factor)
+        self.tpm_table = populateTpmTable(self.wg,self.tpm_table_address,MIN_MAX_MONITORING_POINTS)
         # Start thread
         # self._lock_led = Lock()
         self._lock_tab1 = Lock()
@@ -126,6 +154,7 @@ class MonitorTPM(TileInitialization):
         self._tpm_lock_threshold = Lock()
         self.wait_check_tpm = Event()
         self.check_tpm_tm.start()
+
 
     def setTpmThreshold(self, warning_factor):
         attr = ['temperatures','voltages','currents']
@@ -475,7 +504,7 @@ class MonitorSubrack(MonitorTPM):
                         self.tlm_keys.append(diz)
 
                     self.logger.info("Populate monitoring table...")
-                    [self.subrack_table, self.sub_attribute,self.tpm_table] = populateTable(self.wg,self.tlm_keys,self.top_attr)
+                    [self.subrack_table, self.sub_attribute] = populateTable(self.wg,self.tlm_keys,self.top_attr)
                     self.wg.subrackbar.setValue(40)
                     self.wg.qbutton_clear_subrack.setEnabled(True)
                     for tlmk in self.query_once:
