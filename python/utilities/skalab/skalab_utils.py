@@ -3,10 +3,11 @@ import datetime
 import subprocess
 import calendar
 import time
-
+import copy
 import h5py
 import numpy as np
 import configparser
+from operator import sub
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -24,7 +25,323 @@ from PyQt5.QtSvg import QSvgRenderer
 from PyQt5.QtWidgets import QWidget
 
 COLORI = ["b", "g", "k", "r", "orange", "magenta", "darkgrey", "turquoise"] * 4
+TILE_MONITORING_POINTS = {
+        "temperatures": {"board": None, "FPGA0": None, "FPGA1": None},
+        "voltages": {
+            "VREF_2V5": None,
+            "MGT_AVCC": None,
+            "VM_SW_AMP": None,
+            "MGT_AVTT": None,
+            "SW_AVDD1": None,
+            "SW_AVDD2": None,
+            "AVDD3": None,
+            "MAN_1V2": None,
+            "DDR0_VREF": None,
+            "DDR1_VREF": None,
+            "VM_DRVDD": None,
+            "VIN": None,
+            "MON_3V3": None,
+            "MON_1V8": None,
+            "MON_5V0": None,
+            "VM_FE0": None,
+            "VM_FE1": None,
+            "VM_DDR0_VTT": None,
+            "VM_AGP0": None,
+            "VM_AGP1": None,
+            "VM_AGP2": None,
+            "VM_AGP3": None,
+            "VM_AGP4": None,
+            "VM_AGP5": None,
+            "VM_AGP6": None,
+            "VM_AGP7": None,
+            "VM_CLK0B": None,
+            "VM_CLK1B": None,
+            "VM_MGT0_AUX": None,
+            "VM_MGT1_AUX": None,
+            "VM_ADA0": None,
+            "VM_ADA1": None,
+            "VM_PLL": None,
+            "VM_DDR1_VTT": None,
+            "VM_DDR1_VDD": None,
+            "VM_DVDD": None,
+        },
+        "currents": {"FE0_mVA": None, "FE1_mVA": None},
+        "alarms": {
+            "I2C_access_alm": 0,
+            "temperature_alm": 0,
+            "voltage_alm": 0,
+            "SEM_wd": 0,
+            "MCU_wd": 0,
+        },
+        "adcs": {
+            "pll_status": {
+                "ADC0": None,
+                "ADC1": None,
+                "ADC2": None,
+                "ADC3": None,
+                "ADC4": None,
+                "ADC5": None,
+                "ADC6": None,
+                "ADC7": None,
+                "ADC8": None,
+                "ADC9": None,
+                "ADC10": None,
+                "ADC11": None,
+                "ADC12": None,
+                "ADC13": None,
+                "ADC14": None,
+                "ADC15": None,
+            },
+            "sysref_timing_requirements": {
+                "ADC0": None,
+                "ADC1": None,
+                "ADC2": None,
+                "ADC3": None,
+                "ADC4": None,
+                "ADC5": None,
+                "ADC6": None,
+                "ADC7": None,
+                "ADC8": None,
+                "ADC9": None,
+                "ADC10": None,
+                "ADC11": None,
+                "ADC12": None,
+                "ADC13": None,
+                "ADC14": None,
+                "ADC15": None,
+            },
+            "sysref_counter": {
+                "ADC0": None,
+                "ADC1": None,
+                "ADC2": None,
+                "ADC3": None,
+                "ADC4": None,
+                "ADC5": None,
+                "ADC6": None,
+                "ADC7": None,
+                "ADC8": None,
+                "ADC9": None,
+                "ADC10": None,
+                "ADC11": None,
+                "ADC12": None,
+                "ADC13": None,
+                "ADC14": None,
+                "ADC15": None,
+            },
+        },
+        "timing": {
+            "clocks": {
+                "FPGA0": {"JESD": None, "DDR": None, "UDP": None},
+                "FPGA1": {"JESD": None, "DDR": None, "UDP": None},
+            },
+            "clock_managers": {
+                "FPGA0": {"C2C_MMCM": None, "JESD_MMCM": None, "DSP_MMCM": None},
+                "FPGA1": {"C2C_MMCM": None, "JESD_MMCM": None, "DSP_MMCM": None},
+            },
+            "pps": {"status": None},
+            "pll": None,
+        },
+        "io": {
+            "jesd_interface": {
+                "link_status": None,
+                "lane_error_count": {
+                    "FPGA0": {
+                        "Core0": {
+                            "lane0": None,
+                            "lane1": None,
+                            "lane2": None,
+                            "lane3": None,
+                            "lane4": None,
+                            "lane5": None,
+                            "lane6": None,
+                            "lane7": None,
+                        },
+                        "Core1": {
+                            "lane0": None,
+                            "lane1": None,
+                            "lane2": None,
+                            "lane3": None,
+                            "lane4": None,
+                            "lane5": None,
+                            "lane6": None,
+                            "lane7": None,
+                        },
+                    },
+                    "FPGA1": {
+                        "Core0": {
+                            "lane0": None,
+                            "lane1": None,
+                            "lane2": None,
+                            "lane3": None,
+                            "lane4": None,
+                            "lane5": None,
+                            "lane6": None,
+                            "lane7": None,
+                        },
+                        "Core1": {
+                            "lane0": None,
+                            "lane1": None,
+                            "lane2": None,
+                            "lane3": None,
+                            "lane4": None,
+                            "lane5": None,
+                            "lane6": None,
+                            "lane7": None,
+                        },
+                    },
+                },
+                "lane_status": True,
+                "resync_count": {"FPGA0": None, "FPGA1": None},
+                "qpll_status": {"FPGA0": None, "FPGA1": None},
+            },
+            "ddr_interface": {
+                "initialisation": None,
+                "reset_counter": {"FPGA0": None, "FPGA1": None},
+            },
+            "f2f_interface": {
+                "pll_status": None,
+                "soft_error": None,
+                "hard_error": None,
+            },
+            "udp_interface": {
+                "arp": None,
+                "status": None,
+                "linkup_loss_count": {"FPGA0": None, "FPGA1": None},
+                "crc_error_count": {"FPGA0": None, "FPGA1": None},
+                "bip_error_count": {
+                    "FPGA0": {
+                        "lane0": None,
+                        "lane1": None,
+                        "lane2": None,
+                        "lane3": None,
+                    },
+                    "FPGA1": {
+                        "lane0": None,
+                        "lane1": None,
+                        "lane2": None,
+                        "lane3": None,
+                    },
+                },
+            },
+        },
+        "dsp": {
+            "tile_beamf": None,
+            "station_beamf": {
+                "status": None,
+                "ddr_parity_error_count": {
+                    "FPGA0": 0,
+                    "FPGA1": 0,
+                },
+            },
+        },
+    }
 
+
+def editThresholds(wg, text_editor):
+        if not text_editor == "":
+            fname = wg.qline_subrack_threshold.text()
+            if not fname == "":
+                if os.path.exists(fname):
+                    os.system(text_editor + " " + fname + " &")
+                else:
+                    msgBox = QtWidgets.QMessageBox()
+                    msgBox.setText("The selected config file does not exist!")
+                    msgBox.setWindowTitle("Error!")
+                    msgBox.exec_()
+        else:
+            msgBox = QtWidgets.QMessageBox()
+            txt = "\nA text editor is not defined in the current profile file.\n\n['Extras']\ntext_editor = <example: gedit>'\n\n"
+            msgBox.setText(txt)
+            msgBox.setWindowTitle("Warning!")
+            msgBox.setIcon(QtWidgets.QMessageBox.Warning)
+            msgBox.exec_()
+
+
+def merge_dicts(dict_a, dict_b):
+        """
+        Merge two nested dictionaries, taking values from b when available.
+
+        This is necessary for nested dictionaries of thresholds
+
+        :param dict_a: the dictionary to take from if not in dictionary b
+        :param dict_b: the dictionary to preferentially take from
+        :return: the merged dictionary
+        """
+        output = copy.deepcopy(dict_a)
+        for key in dict_b:
+            if isinstance(dict_b[key], dict):
+                output[key] = merge_dicts(dict_a[key], dict_b[key])
+            else:
+                output[key] = dict_b[key]
+        return output
+
+
+def getThreshold(wg,tlm,top_attr,warning_factor):
+    default = wg.qline_subrack_threshold.text()
+    if default != 'API_alarm.txt':
+        try:
+            #log load custom
+            with open(default, 'r') as file:
+                a_lines = []
+                for line in file:
+                    line = line.strip()
+                    line = eval(line)
+                    a_lines.append(line)
+            alarm = a_lines
+            warning = copy.deepcopy(alarm)
+            for i in range(len(top_attr)):
+                keys = list(alarm[i][top_attr[i]].keys())
+                for j in range(len(keys)):
+                    alarm_values = list(alarm[i][top_attr[i]][keys[j]])
+                    if alarm_values != [None,None]:
+                        factor = (alarm_values[1]-alarm_values[0]) * (warning_factor)
+                        warning_values = [round(alarm_values[0] + factor,2), round(alarm_values[1] - factor,2)]
+                    else:
+                        warning_values = [None,None]
+                    warning[i][top_attr[i]][keys[j]] =  warning_values
+        except:
+            #log error
+            [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr,warning_factor)
+    else: 
+        [alarm,warning] = getDefaultThreshold(wg,tlm,top_attr,warning_factor)
+
+    writeThresholds(wg, alarm, warning)
+    return alarm, warning
+    
+
+def getDefaultThreshold(wg,tlm,top_attr,warning_factor):
+    #log load default api values
+    alarm = copy.deepcopy(tlm)
+    warning = copy.deepcopy(tlm)
+    alarm_values = {}
+    warning_values = {}
+    for i in range(len(top_attr)):
+        keys = list(tlm[i][top_attr[i]].keys())
+        for j in range(len(keys)):
+            alarm_values = list(tlm[i][top_attr[i]][keys[j]]['exp_value'].values())
+            alarm[i][top_attr[i]][keys[j]] =  alarm_values
+            if alarm_values != [None,None]:
+                factor = (alarm_values[1]-alarm_values[0]) * (warning_factor)
+                warning_values = [round(alarm_values[0] + factor,2), round(alarm_values[1] - factor,2)]
+            else:
+                warning_values = [None,None]
+            warning[i][top_attr[i]][keys[j]] =  warning_values
+    file = open('API_alarm.txt','w+')
+    for item in alarm:
+        file.write(str(item) + "\n")
+    file.close()
+    return alarm, warning
+
+
+def writeThresholds(wg, alarm, warning):
+    wg.ala_text.clear()
+    wg.war_text.clear()
+    for item in alarm:
+        wg.ala_text.appendPlainText(str(item))
+    for item in warning:
+        wg.war_text.appendPlainText(str(item))
+    return
+    
 
 def parse_profile(config=""):
     confparser = configparser.ConfigParser()
@@ -71,8 +388,7 @@ def getTextFromFile(fname):
             text = f.read()
         return text
 
-
-
+                          
 class Led(QWidget):
     
     Circle   = 1
