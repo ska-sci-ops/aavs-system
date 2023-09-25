@@ -87,28 +87,35 @@ class SkalabStation(SkalabBase):
         self.setup_config()
         self.tpm_ips_from_subrack = []
 
-        self.maks_tiles = np.arange(1, 17).tolist()
+        self.mask_tiles = np.arange(1, 17).tolist()
         self.populate_cb_tiles()
         self.pauseAction = False
+        self.station_map_file = ""
         self.station_map = []
         if "station_map" in self.profile['Station'].keys():
-            self.wg.qline_map_file.setText(self.profile['Station']["station_map"])
-            self.station_map = self.loadStationMap(self.profile['Station']["station_map"])
+            if os.path.exists(self.profile['Station']["station_map"]):
+                self.station_map_file = self.profile['Station']["station_map"]
+                self.wg.qline_map_file.setText(self.profile['Station']["station_map"])
+                self.loadMap()
+        self.populate_help(uifile=uiFile)
+
+    def loadMap(self):
+        if os.path.exists(self.station_map_file):
+            self.station_map = self.loadStationMap(self.station_map_file)
             ant_id_list = sorted(["%03d" % x['id'] for x in self.station_map])
             tpm_list = list(dict.fromkeys(["%d" % x['tile'] for x in self.station_map]))
             input_list = ["%d" % x for x in np.arange(1, 17)]
             self.wg.combo_antenna.addItems(ant_id_list)
             self.wg.combo_tpm.addItems(tpm_list)
             self.wg.combo_input.addItems(input_list)
-            self.mapPlot = MapPlot(self.wg.plotWidgetMap, self.station_map, self.maks_tiles)
+            self.mapPlot = MapPlot(self.wg.plotWidgetMap, self.station_map, self.mask_tiles)
             self.mapPlot.plotMap()
             self.mapPlot.canvas.mpl_connect('motion_notify_event', self.onmotion)
             self.plotMap()
             self.annot = self.mapPlot.canvas.ax.annotate("", xy=(0, 0), xytext=(20, 20), textcoords="offset points",
-                                bbox=dict(boxstyle="round", fc="w"),
-                                arrowprops=dict(arrowstyle="->"))
+                                                         bbox=dict(boxstyle="round", fc="w"),
+                                                         arrowprops=dict(arrowstyle="->"))
             self.annot.set_visible(False)
-        self.populate_help(uifile=uiFile)
 
     def update_annot(self, x, y, text):
         pos = (x, y)
@@ -255,6 +262,8 @@ class SkalabStation(SkalabBase):
         self.wg.cb_tooltip.stateChanged.connect(lambda: self.enableTooltip())
         self.wg.qbutton_map_deselect.clicked.connect(lambda: self.tile_select_none())
         self.wg.qbutton_map_select.clicked.connect(lambda: self.tile_select_all())
+        self.wg.qbutton_map_browse.clicked.connect(lambda: self.browse_map())
+        self.wg.qbutton_map_load.clicked.connect(lambda: self.loadMap())
 
     def browse_config(self):
         fd = QtWidgets.QFileDialog()
@@ -263,6 +272,14 @@ class SkalabStation(SkalabBase):
         self.config_file = fd.getOpenFileName(self, caption="Select a Station Config File...",
                                               directory="/opt/aavs/config/", options=options)[0]
         self.wg.qline_configfile.setText(self.config_file)
+
+    def browse_map(self):
+        fd = QtWidgets.QFileDialog()
+        fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        options = fd.options()
+        self.station_map_file = fd.getOpenFileName(self, caption="Select a Station Map File...",
+                                              directory="StationMap/", options=options)[0]
+        self.wg.qline_map_file.setText(self.station_map_file)
 
     def loadStationMap(self, map_file):
         with open(map_file) as f:
