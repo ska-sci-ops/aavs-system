@@ -278,53 +278,51 @@ class MonitorTPM(TileInitialization):
         while True:
             self.wait_check_tpm.wait()
             # Get tm from tpm
-            with self._tpm_lock:
-                for i in range(0,15,2):
-                    index = int(i/2)
-                    if self.tpm_on_off[index]:
-                        try:
-                            L = list(self.tpm_active[index].get_health_status().values())
-                            tpm_monitoring_points = {}
-                            for d in L:
-                                tpm_monitoring_points.update(d)
-                        except:
-                            self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
-                            #self.logger.warning(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?")
-                            tpm_monitoring_points = "ERROR"
-                            continue
-                        self.signal_update_tpm_attribute.emit(tpm_monitoring_points,i)
+            for index in range(8):
+                if self.tpm_active[index]:
+                    try:
+                        L = list(self.tpm_active[index].get_health_status().values())
+                        tpm_monitoring_points = {}
+                        for d in L:
+                            tpm_monitoring_points.update(d)
+                    except:
+                        self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
+                        #self.logger.warning(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?")
+                        tpm_monitoring_points = "ERROR"
+                        continue
+                with self._tpm_lock:
+                    self.signal_update_tpm_attribute.emit(tpm_monitoring_points,index)
             #if self.wg.check_savedata.isChecked(): self.saveTlm(tpm_monitoring_points)
             sleep(float(self.interval_monitor))    
 
-
     def writeTpmAttribute(self,tpm_tmp,i):
-        for attr in self.tile_table_attr:
+        for i in self.tile_table:
             value = tpm_tmp[attr]
             self.tile_table_attr[attr][i].setStyleSheet("color: black; background:white")
             self.tile_table_attr[attr][i].setText(str(value))
             self.tile_table_attr[attr][i].setAlignment(QtCore.Qt.AlignCenter)
-            with self._lock_tab1:
-                if not(type(value)==str or type(value)==str) and not(self.alarm_values[attr][0] <= value <= self.alarm_values[attr][1]):
-                    # # tile_table_attr[attr][i].setStyleSheet("color: white; background:red")  
-                    # segmentation error or free() pointer error
-                    self.tile_table_attr[attr][i+1].setText(str(value))
-                    self.tile_table_attr[attr][i+1].setStyleSheet("color: white; background:red")
-                    self.tile_table_attr[attr][i+1].setAlignment(QtCore.Qt.AlignCenter)
-                    self.alarm[attr][int(i/2)] = True
-                    self.logger.error(f"ERROR: {attr} parameter is out of range!")
-                    with self._lock_led:
-                        self.qled_alert[int(i/2)].Colour = Led.Red
-                        self.qled_alert[int(i/2)].value = True
-                elif not(type(value)==str or type(value)==str) and not(self.warning[attr][0] <= value <= self.warning[attr][1]):
-                    if not self.alarm[attr][int(i/2)]:
-                        self.tile_table_attr[attr][i+1].setText(str(value))
-                        self.tile_table_attr[attr][i+1].setStyleSheet("color: white; background:orange")
-                        self.tile_table_attr[attr][i+1].setAlignment(QtCore.Qt.AlignCenter)
-                        self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
-                        if self.qled_alert[int(i/2)].Colour==4:
-                            with self._lock_led:
-                                self.qled_alert[int(i/2)].Colour=Led.Orange
-                                self.qled_alert[int(i/2)].value = True        
+            # with self._lock_tab1:
+            #     if not(type(value)==str or type(value)==str) and not(self.alarm_values[attr][0] <= value <= self.alarm_values[attr][1]):
+            #         # # tile_table_attr[attr][i].setStyleSheet("color: white; background:red")  
+            #         # segmentation error or free() pointer error
+            #         self.tile_table_attr[attr][i+1].setText(str(value))
+            #         self.tile_table_attr[attr][i+1].setStyleSheet("color: white; background:red")
+            #         self.tile_table_attr[attr][i+1].setAlignment(QtCore.Qt.AlignCenter)
+            #         self.alarm[attr][int(i/2)] = True
+            #         self.logger.error(f"ERROR: {attr} parameter is out of range!")
+            #         with self._lock_led:
+            #             self.qled_alert[int(i/2)].Colour = Led.Red
+            #             self.qled_alert[int(i/2)].value = True
+            #     elif not(type(value)==str or type(value)==str) and not(self.warning[attr][0] <= value <= self.warning[attr][1]):
+            #         if not self.alarm[attr][int(i/2)]:
+            #             self.tile_table_attr[attr][i+1].setText(str(value))
+            #             self.tile_table_attr[attr][i+1].setStyleSheet("color: white; background:orange")
+            #             self.tile_table_attr[attr][i+1].setAlignment(QtCore.Qt.AlignCenter)
+            #             self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
+            #             if self.qled_alert[int(i/2)].Colour==4:
+            #                 with self._lock_led:
+            #                     self.qled_alert[int(i/2)].Colour=Led.Orange
+            #                     self.qled_alert[int(i/2)].value = True        
                  
 
 class MonitorSubrack(MonitorTPM):
