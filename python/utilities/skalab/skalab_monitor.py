@@ -39,6 +39,7 @@ def populateTable(frame, attributes,top):
     qtable = []
     sub_attr = []
     size_a = len(attributes)
+    #error if monitor.ini has ",," in top level entry
     for j in range(size_a):
         qtable.append(getattr(frame, f"table{top[j]}"))
         sub_attr.append(list(list(attributes[j].values())[0].keys()))
@@ -504,14 +505,18 @@ class MonitorSubrack(Monitor):
     
     def getTelemetry(self):
         tkey = ""
+        check_subrack_ready = 0
         telem = {}
-        data = self.client.execute_command(command="get_health_status")
-        if data["status"] == "OK":
-            self.from_subrack =  data['retvalue']
-            if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
-        else:
-            self.logger.warning("Subrack Data NOT AVAILABLE...")
-            self.from_subrack =  data['retvalue']
+        while check_subrack_ready<5:
+            data = self.client.execute_command(command="get_health_status")
+            if data["status"] == "OK":
+                self.from_subrack =  data['retvalue']
+                if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
+                break
+            else:
+                self.logger.warning(f"Subrack Data NOT AVAILABLE...try again: {check_subrack_ready}/5")
+                self.from_subrack =  data['retvalue']
+                check_subrack_ready +=1
         try:
             for tlmk in standard_subrack_attribute:
                 tkey = tlmk
@@ -567,27 +572,30 @@ class MonitorSubrack(Monitor):
         diz = self.from_subrack
         for index_table in range(len(self.top_attr)):
             table = self.subrack_table[index_table]
-            if not(self.top_attr[index_table] in diz.keys()):
-                res = {}
-                for key, value in diz.items():
-                    if isinstance(value, dict):
-                        for subkey, subvalue in value.items():
-                            if isinstance(subvalue, dict) and self.top_attr[index_table] in subvalue:
-                                res[subkey] = subvalue[self.top_attr[index_table]]
-                                diz[key][subkey].pop(self.top_attr[index_table])
-                attribute_data = res
-                with self._subrack_lock_threshold:
-                    filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
-                    filtered_warning = self.warning[index_table][self.top_attr[index_table]]
-            else:
-                if (list(diz[self.top_attr[index_table]]) == self.sub_attribute[index_table]):
-                    attribute_data = diz[self.top_attr[index_table]]
+            try:
+                if not(self.top_attr[index_table] in diz.keys()):
+                    res = {}
+                    for key, value in diz.items():
+                        if isinstance(value, dict):
+                            for subkey, subvalue in value.items():
+                                if isinstance(subvalue, dict) and self.top_attr[index_table] in subvalue:
+                                    res[subkey] = subvalue[self.top_attr[index_table]]
+                                    diz[key][subkey].pop(self.top_attr[index_table])
+                    attribute_data = res
                     with self._subrack_lock_threshold:
                         filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
                         filtered_warning = self.warning[index_table][self.top_attr[index_table]]
-                    diz.pop(self.top_attr[index_table])
                 else:
-                    break
+                    if (list(diz[self.top_attr[index_table]]) == self.sub_attribute[index_table]):
+                        attribute_data = diz[self.top_attr[index_table]]
+                        with self._subrack_lock_threshold:
+                            filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
+                            filtered_warning = self.warning[index_table][self.top_attr[index_table]]
+                        diz.pop(self.top_attr[index_table])
+                    else:
+                        break
+            except:
+                return
             #self.tlm_keys.append(diz)
             attrs = list(attribute_data.keys())
             values = list(attribute_data.values())
