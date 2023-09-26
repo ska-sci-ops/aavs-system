@@ -367,7 +367,7 @@ class SkalabStation(SkalabBase):
                         for i in tpm_ip_list:
                             details += "\n%s" % i
                         details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(self.tpm_ips_from_subrack)
-                        for i in tpm_ip_from_subrack_short:
+                        for i in self.tpm_ips_from_subrack:
                             details += "\n%s" % i
                         msgBox.setDetailedText(details)
                         msgBox.exec_()
@@ -410,7 +410,7 @@ class SkalabStation(SkalabBase):
                     for i in tpm_ip_list:
                         details += "\n%s" % i
                     details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(self.tpm_ips_from_subrack)
-                    for i in tpm_ip_from_subrack:
+                    for i in self.tpm_ips_from_subrack:
                         details += "\n%s" % i
                     msgBox.setDetailedText(details)
                     msgBox.exec_()
