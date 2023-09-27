@@ -9,6 +9,7 @@ build:
   jobs:
     post_install:
       - pip install -r python/requirements.pip
+      - pip install -r python/requirements_docs.pip
       - pip install git+https://lessju@bitbucket.org/lessju/pyfabil.git@master --force-reinstall
 
 sphinx:
