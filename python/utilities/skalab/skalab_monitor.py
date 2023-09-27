@@ -73,6 +73,7 @@ def populateTable(frame, attributes, top):
     sub_attr = []
     qtable_tpm = [None] * 8
     size_a = len(attributes)
+    #error if monitor.ini has ",," in top level entry
     for j in range(size_a):
         qtable.append(getattr(frame, f"table{top[j]}"))
         sub_attr.append(list(list(attributes[j].values())[0].keys()))
@@ -153,7 +154,7 @@ class MonitorTPM(TileInitialization):
         self._tpm_lock = Lock()
         self._tpm_lock_threshold = Lock()
         self.wait_check_tpm = Event()
-        self.check_tpm_tm.start()
+        #self.check_tpm_tm.start()
 
 
     def setTpmThreshold(self, warning_factor):
@@ -575,14 +576,18 @@ class MonitorSubrack(MonitorTPM):
     
     def getTelemetry(self):
         tkey = ""
+        check_subrack_ready = 0
         telem = {}
-        data = self.client.execute_command(command="get_health_status")
-        if data["status"] == "OK":
-            self.from_subrack =  data['retvalue']
-            if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
-        else:
-            self.logger.warning("Subrack Data NOT AVAILABLE...")
-            self.from_subrack =  data['retvalue']
+        while check_subrack_ready<5:
+            data = self.client.execute_command(command="get_health_status")
+            if data["status"] == "OK":
+                self.from_subrack =  data['retvalue']
+                if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
+                break
+            else:
+                self.logger.warning(f"Subrack Data NOT AVAILABLE...try again: {check_subrack_ready}/5")
+                self.from_subrack =  data['retvalue']
+                check_subrack_ready +=1
         # try:
         #     for tlmk in standard_subrack_attribute:
         #         tkey = tlmk
