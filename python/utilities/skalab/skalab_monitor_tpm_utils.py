@@ -164,9 +164,9 @@ class TileInitialization(SkalabBase):
                 # Check wether the TPM are ON or OFF
                 station_on = True
                 tpm_ip_list = list(station.configuration['tiles'])
-                tpm_ip_from_subrack = self.tpm_status_info['tpm_ips']
+                tpm_ip_from_subrack = self.client.get_attribute('tpm_ips')
                 if tpm_ip_from_subrack:
-                    tpm_ip_from_subrack_short = [x for x in tpm_ip_from_subrack if not x == '0']
+                    tpm_ip_from_subrack_short = [x for x in tpm_ip_from_subrack['value'] if not x == '0']
                     if not len(tpm_ip_list) == len(tpm_ip_from_subrack_short):
                         self.wg.initbar.hide()
                         msgBox = QtWidgets.QMessageBox()

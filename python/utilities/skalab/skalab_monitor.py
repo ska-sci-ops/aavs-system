@@ -577,28 +577,16 @@ class MonitorSubrack(MonitorTPM):
     def getTelemetry(self):
         tkey = ""
         check_subrack_ready = 0
+        self.from_subrack = {}
         telem = {}
-        while check_subrack_ready<5:
-            data = self.client.execute_command(command="get_health_status")
+        for i in range(len(self.top_attr)):
+            data = self.client.execute_command(command="get_health_status",parameters=self.top_attr[i])
             if data["status"] == "OK":
-                self.from_subrack =  data['retvalue']
-                if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
-                break
+                self.from_subrack = {**self.from_subrack,** data['retvalue']}
             else:
                 self.logger.warning(f"Subrack Data NOT AVAILABLE...try again: {check_subrack_ready}/5")
                 self.from_subrack =  data['retvalue']
-                check_subrack_ready +=1
-        # try:
-        #     for tlmk in standard_subrack_attribute:
-        #         tkey = tlmk
-        #         if not tlmk in self.query_deny:
-        #             if self.connected:
-        #                 data = self.client.get_attribute(tlmk)
-        #                 if data["status"] == "OK":
-        #                     telem[tlmk] = data["value"]
-        #                     self.tpm_status_info[tlmk] = telem[tlmk]
-        # except:
-        #     self.signal_update_log.emit("Error reading Telemetry [attribute: %s], skipping..." % tkey,"error")
+        if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
         return
 
     
@@ -632,7 +620,6 @@ class MonitorSubrack(MonitorTPM):
 
     
     def readwriteSubrackAttribute(self):
-        return
         diz = copy.deepcopy(self.from_subrack)
         if diz == '':
             self.logger.error(f"Warning: get_health_status return an empty dictionary. Try again at the next polling cycle")
