@@ -616,7 +616,7 @@ class Subrack(SkalabBase):
             path = Path(fname)
             self.logger.info("Generating directory for Subrack HDF5 Telemetry Files on " + fname)
             path.mkdir(parents=True, exist_ok=True)
-            fname += datetime.datetime.strftime(datetime.datetime.utcnow(), "subrack_tlm_%Y-%m-%d_%H%M%S.h5")
+            fname += datetime.datetime.strftime(datetime.datetime.utcnow(), "/subrack_tlm_%Y-%m-%d_%H%M%S.h5")
             self.logger.info("Started recording Subrack HDF5 Telemetry Files in " + fname)
             return h5py.File(fname, 'a')
         else:
@@ -639,10 +639,10 @@ class Subrack(SkalabBase):
                             self.tlm_hdf.create_dataset(tlmk, data=[[self.telemetry[tlmk]]],
                                                         chunks=True, maxshape=(None, 1))
                     except:
-                        if self.telemetry[tlmk].__class__ == list:
-                            self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk].__str__())
-                        else:
-                            self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk])
+                        # if self.telemetry[tlmk].__class__ == list:
+                        #     self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk].__str__())
+                        # else:
+                        self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk])
                 else:
                     if type(self.telemetry[tlmk]) is list:
                         self.tlm_hdf[tlmk].resize((self.tlm_hdf[tlmk].shape[0] +
