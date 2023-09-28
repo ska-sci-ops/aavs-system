@@ -1,8 +1,8 @@
 # Observation-related configuration, specifying the channel region
 # for the station beamformer
 observation:
-    start_frequency_channel: 131.25e6
-    bandwidth: 6.25e6
+    start_frequency_channel: 50.00e6
+    bandwidth: 300.00e6
 
 # Station configuration parameters
 station:
@@ -13,6 +13,7 @@ station:
     beam_integration_time: 1
     channel_integration_time: 2
     beamformer_scaling: 4
+    start_beamformer: True
     bitfile: "/opt/aavs/bitfiles/itpm_v1_5_tpm_test_wrap_sbf415.bit"
     default_preadu_attenuation: 10
     equalize_preadu: No

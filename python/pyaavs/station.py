@@ -177,10 +177,10 @@ def initialise_tile(params):
             station_id=config['station']['id'],
             tile_id=tile_number,
             lmc_use_40g=config['network']['lmc']['use_teng'],
-            lmc_dst_ip=config['network']['lmc']['lmc_ip']
+            lmc_dst_ip=config['network']['lmc']['lmc_ip'],
             lmc_dst_port=config['network']['lmc']['lmc_port'],
             lmc_integrated_use_40g=config['network']['lmc']['use_teng_integrated'],
-            lmc_integrated_dst_ip=config['network']['lmc']['lmc_ip']
+            lmc_integrated_dst_ip=config['network']['lmc']['lmc_ip'],
             src_ip_fpga1=src_ip_40g_fpga1,
             src_ip_fpga2=src_ip_40g_fpga2,
             dst_ip_fpga1=dst_ip_40g_fpga1,
@@ -916,7 +916,6 @@ if __name__ == "__main__":
     # Load station configuration
     configuration = load_station_configuration(conf)
 
-    print(f"Configuration: {configuration}")
     # Create station
     station = Station(configuration)
 
