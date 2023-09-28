@@ -31,19 +31,19 @@
     "Init": {
         "station_file": {
             "desc": "n/a",
-            "type": "string",
+            "type": "file",
             "value": "/opt/aavs/config/aavs2.yml"
         }
     },
     "Monitor": {
         "data_path": {
             "desc": "n/a",
-            "type": "string",
+            "type": "path",
             "value": "/storage/monitoring/monitor"
         },
         "query_interval": {
             "desc": "n/a",
-            "type": "string",
+            "type": "float",
             "value": "2.0"
         },
         "tiles_slot_ip": {
@@ -77,12 +77,12 @@
         },
         "port": {
             "desc": "n/a",
-            "type": "string",
+            "type": "int",
             "value": "8081"
         },
         "query_interval": {
             "desc": "n/a",
-            "type": "string",
+            "type": "float",
             "value": "3"
         }
     },

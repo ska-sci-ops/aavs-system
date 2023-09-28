@@ -52,16 +52,16 @@
         "preadu_version": {
             "desc": "PreADU version number",
             "type": "float",
-            "value": 3.1
+            "value": 3.2
         },
         "query_interval": {
             "desc": "Query interval (seconds)",
-            "type": "int",
-            "value": 3
+            "type": "float",
+            "value": 3.0
         },
         "station_file": {
             "desc": "The Station File",
-            "type": "path",
+            "type": "file",
             "value": "/opt/aavs/config/aavs2.yml"
         }
     }

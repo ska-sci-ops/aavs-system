@@ -24,7 +24,7 @@
         },
         "station_file": {
             "desc": "The Station Configuration File",
-            "type": "path",
+            "type": "file",
             "value": "/opt/aavs/config/aavs2.yml"
         }
     }
