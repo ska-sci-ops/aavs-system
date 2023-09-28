@@ -30,6 +30,7 @@ configuration = {'tiles': None,
                      'qsfp_detection': "auto",
                      'start_beamformer': False,
                      'bitfile': None,
+                     'single_tile_mode': False,
                      'channel_truncation': 5,
                      'channel_integration_time': -1,
                      'beam_integration_time': -1,
@@ -128,20 +129,22 @@ def initialise_tile(params):
     nof_tiles = len(config['tiles'])
     this_tile_ip = socket.gethostbyname(config['tiles'][tile_number])
     next_tile_ip = socket.gethostbyname(config['tiles'][(tile_number + 1) % nof_tiles])
+    is_first = (tile_number == 0) or config['station']['single_tile_mode']
+    is_last = (tile_number == nof_tiles - 1) or config['station']['single_tile_mode']
 
     src_ip_40g_fpga1 = f"10.0.1.{this_tile_ip.split('.')[3]}"
     src_ip_40g_fpga2 = f"10.0.2.{this_tile_ip.split('.')[3]}"
-    dst_ip_40g_fpga1 = f"10.0.1.{next_tile_ip.split('.')[3]}"
-    dst_ip_40g_fpga2 = f"10.0.2.{next_tile_ip.split('.')[3]}"
-    src_port_40g=config['network']['csp_ingest']['src_port']
-    dst_port_40g=config['network']['csp_ingest']['dst_port']
-    is_first = tile_number == 0
-    is_last = tile_number == nof_tiles - 1
-
-    if tile_number == nof_tiles - 1:
-        if config['network']['csp_ingest']['dst_ip'] != "0.0.0.0":
+    if config['station']['single_tile_mode']:  # connect the two 40G ports on each FPGA 
+        dst_ip_40g_fpga1 = f"10.0.2.{this_tile_ip.split('.')[3]}"
+        dst_ip_40g_fpga2 = f"10.0.1.{this_tile_ip.split('.')[3]}"
+    else:                           # connect to ports on next TPM
+        dst_ip_40g_fpga1 = f"10.0.1.{next_tile_ip.split('.')[3]}"
+        dst_ip_40g_fpga2 = f"10.0.2.{next_tile_ip.split('.')[3]}"
+        if is_last and config['network']['csp_ingest']['dst_ip'] != "0.0.0.0":
             dst_ip_40g_fpga1=config['network']['csp_ingest']['dst_ip']
             dst_ip_40g_fpga2=config['network']['csp_ingest']['dst_ip']
+    src_port_40g=config['network']['csp_ingest']['src_port']
+    dst_port_40g=config['network']['csp_ingest']['dst_port']
 
     # get pps delay for current tile
     pps_delay = 0
@@ -174,10 +177,10 @@ def initialise_tile(params):
             station_id=config['station']['id'],
             tile_id=tile_number,
             lmc_use_40g=config['network']['lmc']['use_teng'],
-            lmc_dst_ip=config['network']['lmc']['lmc_ip'],
+            lmc_dst_ip=config['network']['lmc']['lmc_ip']
             lmc_dst_port=config['network']['lmc']['lmc_port'],
             lmc_integrated_use_40g=config['network']['lmc']['use_teng_integrated'],
-            lmc_integrated_dst_ip=config['network']['lmc']['lmc_ip'],
+            lmc_integrated_dst_ip=config['network']['lmc']['lmc_ip']
             src_ip_fpga1=src_ip_40g_fpga1,
             src_ip_fpga2=src_ip_40g_fpga2,
             dst_ip_fpga1=dst_ip_40g_fpga1,
@@ -842,6 +845,8 @@ def load_station_configuration(config_params):
     if config_params.use_teng is not None:
         configuration['network']['lmc']['use_teng'] = config_params.use_teng
 
+    if config_params.single_tile_mode is not None:
+        configuration['station']['single_tile_mode'] = config_params.single_tile_mode
     return configuration
 
 
@@ -871,6 +876,8 @@ if __name__ == "__main__":
                       default=False, help="Initialise TPM [default: False]")
     parser.add_option("-C", "--program_cpld", action="store_true", dest="program_cpld",
                       default=False, help="Update CPLD firmware (requires -f option) [default: False]")
+    parser.add_option("--single_tile_mode", action="store_true", dest="single_tile_mode",
+                      default=False, help="Program all tiles as a single tile station, for testing")
     parser.add_option("-T", "--enable-test", action="store_true", dest="enable_test",
                       default=False, help="Enable test pattern [default: False]")
     # parser.add_option("--use_internal_pps", action="store_true", dest="use_internal_pps",
@@ -909,6 +916,7 @@ if __name__ == "__main__":
     # Load station configuration
     configuration = load_station_configuration(conf)
 
+    print(f"Configuration: {configuration}")
     # Create station
     station = Station(configuration)
 

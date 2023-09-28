@@ -1,0 +1,49 @@
+# Observation-related configuration, specifying the channel region
+# for the station beamformer
+observation:
+    start_frequency_channel: 131.25e6
+    bandwidth: 6.25e6
+
+# Station configuration parameters
+station:
+    id: 0
+    name: "Arcetri"
+    number_of_antennas: 16
+    channel_truncation: 3
+    beam_integration_time: 1
+    channel_integration_time: 2
+    beamformer_scaling: 4
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_5_tpm_test_wrap_sbf415.bit"
+    default_preadu_attenuation: 10
+    equalize_preadu: No
+    single_tile_mode: True
+    pps_delays: [ 0, 0 ]
+
+# Network configuration parameters
+network:
+    lmc:
+        lmc_ip: "10.0.0.98" # Arcetri 1Gb IP
+        lmc_port: 4660
+        tpm_cpld_port: 10000
+        use_teng: False
+        
+        # Integrated data configuration
+        integrated_data_port: 5000
+        integrated_data_ip: "10.0.0.98"
+        use_teng_integrated: False
+
+    csp_ingest:
+        dst_ip: "10.0.0.98"     # 40Gb MAC
+        dst_port: 4660
+        src_mac: Null
+        src_ip: Null
+        src_port: Null
+
+# List of TPM IPs (or names) which will form station
+tiles:
+    - "10.0.10.71"
+    - "10.0.10.74"
+# Time delay to apply to each antenna (one entry per TPM, optional)        
+time_delays:
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
