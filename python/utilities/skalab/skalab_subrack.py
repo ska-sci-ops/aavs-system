@@ -5,7 +5,7 @@ from skalab_base import SkalabBase
 from skalab_log import SkalabLog
 import gc
 import os.path
-import glob
+import copy
 import shutil
 import sys
 import numpy as np
@@ -562,6 +562,10 @@ class Subrack(SkalabBase):
                 if not tlmk in self.query_deny:
                     if self.connected:
                         data = self.client.get_attribute(tlmk)
+                        if "tpm_voltages" in tlmk:
+                            c = copy.deepcopy(data)
+                            c["value"][c["value"] == None] = 0.0
+                            data = c
                         if data["status"] == "OK":
                             telemetry[tlmk] = data["value"]
                 if self.query_once_armed and (tlmk in self.query_once):
