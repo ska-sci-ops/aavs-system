@@ -633,10 +633,8 @@ class Subrack(SkalabBase):
                 if tlmk not in self.tlm_hdf:
                     try:
                         if type(self.telemetry[tlmk]) is list:
-                            c = self.telemetry[tlmk].copy()
-                            c[c == None] = 0.0
-                            self.tlm_hdf.create_dataset(tlmk, data=[c], chunks=True,
-                                                        maxshape=(None, len(c)))
+                            self.tlm_hdf.create_dataset(tlmk, data=[self.telemetry[tlmk]], chunks=True,
+                                                        maxshape=(None, len(self.telemetry[tlmk])))
                         else:
                             self.tlm_hdf.create_dataset(tlmk, data=[[self.telemetry[tlmk]]],
                                                         chunks=True, maxshape=(None, 1))
