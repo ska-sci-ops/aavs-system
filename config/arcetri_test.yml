@@ -6,6 +6,8 @@ observation:
 
 # Station configuration parameters
 station:
+    single_tile_mode: True
+    start_beamformer: True
     id: 0
     name: "Arcetri"
     number_of_antennas: 16
@@ -13,11 +15,9 @@ station:
     beam_integration_time: 1
     channel_integration_time: 2
     beamformer_scaling: 4
-    start_beamformer: True
     bitfile: "/opt/aavs/bitfiles/itpm_v1_5_tpm_test_wrap_sbf415.bit"
     default_preadu_attenuation: 10
     equalize_preadu: No
-    single_tile_mode: True
     pps_delays: [ 0, 0 ]
 
 # Network configuration parameters
