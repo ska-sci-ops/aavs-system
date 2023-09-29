@@ -804,14 +804,15 @@ def load_station_configuration(config_params):
     load_configuration_file(config_params.config)
 
     # Go through command line options and update where necessary
+    # Command line options have priority. This means that all bool parameters which can
+    # be set in the command line are ALWAYS overriden as false if not set.
+    # Config file values are not used
     if config_params.beam_bandwidth is not None:
         configuration['observation']['bandwidth'] = config_params.beam_bandwidth
     if config_params.beam_integ is not None:
         configuration['station']['beam_integration_time'] = config_params.beam_integ
     if config_params.beam_scaling is not None:
         configuration['station']['beamformer_scaling'] = config_params.beam_scaling
-    if config_params.beamf_start is not None:
-        configuration['station']['start_beamformer'] = config_params.beamf_start
     if config_params.bitfile is not None:
         configuration['station']['bitfile'] = config_params.bitfile
     if config_params.chan_trunc is not None:
@@ -844,9 +845,18 @@ def load_station_configuration(config_params):
         configuration['tiles'] = config_params.tiles.split(',')
     if config_params.use_teng is not None:
         configuration['network']['lmc']['use_teng'] = config_params.use_teng
-
+    # for these parameters, the configuration is True if they are set either 
+    # in the config file or in the command line options
+    configuration['station']['single_tile_mode'] = configuration['station'].get('single_tile_mode', False)
     if config_params.single_tile_mode is not None:
-        configuration['station']['single_tile_mode'] = config_params.single_tile_mode
+        configuration['station']['single_tile_mode'] = (
+            config_params.single_tile_mode or configuration['station']['single_tile_mode']
+        )
+    configuration['station']['start_beamformer'] = configuration['station'].get('start_beamformer', False)
+    if config_params.beamf_start is not None:
+        configuration['station']['start_beamformer'] = (
+            config_params.beamf_start or configuration['station']['start_beamformer']
+        )
     return configuration
 
 
