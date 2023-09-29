@@ -117,7 +117,12 @@ class SkalabLog(QtWidgets.QMainWindow):
             profile = {'Base': {'app': "TEST"}}
             logname = "TEST"
         pname = Path(logname)
-        pname.mkdir(parents=True, exist_ok=True)
+        try:
+            pname.mkdir(parents=True, exist_ok=True)
+        except:
+            logname = default_app_dir + "/log"
+            pname = Path(logname)
+            pname.mkdir(parents=True, exist_ok=True)
         fname = logname + "/" + logname[logname.rfind("/") + 1:].lower() + \
                 datetime.datetime.strftime(datetime.datetime.utcnow(), "_log_%Y-%m-%d_%H%M%S.txt")
         self.file_handler = TimedRotatingFileHandler(fname, when="h", interval=1, backupCount=180, utc=True)
