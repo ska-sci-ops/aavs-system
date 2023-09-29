@@ -577,17 +577,17 @@ class MonitorSubrack(MonitorTPM):
     def getTelemetry(self):
         tkey = ""
         check_subrack_ready = 0
-        self.from_subrack = {}
         telem = {}
-        for i in range(len(self.top_attr)):
-            data = self.client.execute_command(command="get_health_status",parameters=self.top_attr[i])
+        while check_subrack_ready<5:
+            data = self.client.execute_command(command="get_health_status")
             if data["status"] == "OK":
-                self.from_subrack = {**self.from_subrack,** data['retvalue']}
+                self.from_subrack =  data['retvalue']
+                if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
+                break
             else:
                 self.logger.warning(f"Subrack Data NOT AVAILABLE...try again: {check_subrack_ready}/5")
                 self.from_subrack =  data['retvalue']
-        if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
-        return
+                check_subrack_ready +=1
 
     
     def readSubrackTlm(self):
