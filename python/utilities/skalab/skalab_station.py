@@ -82,7 +82,7 @@ class SkalabStation(SkalabBase):
             if 'text_editor' in self.profile['Extras'].keys():
                 self.text_editor = self.profile['Extras']['text_editor']
 
-        self.load_events()
+        self.mapPlot = None
         self.config_file = self.profile['Station']['station_file']
         self.setup_config()
         self.tpm_ips_from_subrack = []
@@ -97,22 +97,26 @@ class SkalabStation(SkalabBase):
                 self.station_map_file = self.profile['Station']["station_map"]
                 self.wg.qline_map_file.setText(self.profile['Station']["station_map"])
                 self.loadMap()
+        self.load_events()
         self.populate_help(uifile=uiFile)
 
     def loadMap(self):
         if os.path.exists(self.station_map_file):
             self.station_map = self.loadStationMap(self.station_map_file)
-            ant_id_list = sorted(["%03d" % x['id'] for x in self.station_map])
+            ant_id_list = sorted([x['id'] for x in self.station_map])
             tpm_list = list(dict.fromkeys(["%d" % x['tile'] for x in self.station_map]))
             input_list = ["%d" % x for x in np.arange(1, 17)]
+            self.wg.combo_antenna.clear()
             self.wg.combo_antenna.addItems(ant_id_list)
+            self.wg.combo_tpm.clear()
             self.wg.combo_tpm.addItems(tpm_list)
+            self.wg.combo_input.clear()
             self.wg.combo_input.addItems(input_list)
             self.mapPlot = MapPlot(self.wg.plotWidgetMap, self.station_map, self.mask_tiles)
             self.mapPlot.plotMap()
             self.mapPlot.canvas.mpl_connect('motion_notify_event', self.onmotion)
             self.plotMap()
-            self.annot = self.mapPlot.canvas.ax.annotate("", xy=(0, 0), xytext=(20, 20), textcoords="offset points",
+            self.annot = self.mapPlot.canvas.ax.annotate("", xy=(0, 0), xytext=(30, 30), textcoords="offset points",
                                                          bbox=dict(boxstyle="round", fc="w"),
                                                          arrowprops=dict(arrowstyle="->"))
             self.annot.set_visible(False)
@@ -120,6 +124,13 @@ class SkalabStation(SkalabBase):
     def update_annot(self, x, y, text):
         pos = (x, y)
         self.annot.xy = pos
+        new_x = x
+        if x > 0:
+            new_x = -130 - x
+        new_y = y
+        if y > 0:
+            new_y = -80 - y
+        self.annot.set_position((new_x+30, new_y+40))
         self.annot.set_text(text)
         self.annot.get_bbox_patch().set_facecolor('w')
 
@@ -127,7 +138,7 @@ class SkalabStation(SkalabBase):
         for a in self.station_map:
             if (a['East'] > x - 0.6) and (a['East'] < x + 0.6):
                 if (a['North'] > y - 0.6) and (a['North'] < y + 0.6):
-                    return "Antenna ID: " + str(a['id']) + "\nTILE: " + str(int(a['tile'])) + ", Input: " + str(
+                    return "Ant Name: " + str(a['id']) + "\nTILE: " + str(int(a['tile'])) + ", Input: " + str(
                         int(a['input']))
         return ""
 
@@ -195,7 +206,7 @@ class SkalabStation(SkalabBase):
     def locateAntenna(self):
         self.mapPlot.highlightClear()
         if self.wg.cb_locate_enable_antenna.isChecked():
-            antId = [ant['id'] for ant in self.station_map if ant['id'] == int(self.wg.combo_antenna.currentText())]
+            antId = [ant['id'] for ant in self.station_map if ant['id'] == self.wg.combo_antenna.currentText()]
             if len(antId):
                 self.mapPlot.highlightAntenna(antId=antId, color='yellow')
         if self.wg.cb_locate_enable_antenna_list.isChecked():
@@ -203,10 +214,12 @@ class SkalabStation(SkalabBase):
                 ant_records = self.wg.qline_find_antlist.text().split(",")
                 ant_list = []
                 for a in ant_records:
-                    if "-" in a:
-                        ant_list += np.arange(int(a.split("-")[0]), int(a.split("-")[1])+1).tolist()
-                    else:
-                        ant_list += [int(a)]
+                    # Deprecated since new AAVS3 Antenna names are text
+                    # if "-" in a:
+                    #     ant_list += np.arange(int(a.split("-")[0]), int(a.split("-")[1])+1).tolist()
+                    # else:
+                    #     ant_list += [a]
+                    ant_list += [a]
                 antId = []
                 for a in ant_list:
                     antId += [ant['id'] for ant in self.station_map if ant['id'] == a]
@@ -285,11 +298,12 @@ class SkalabStation(SkalabBase):
         with open(map_file) as f:
             data = f.readlines()
         station_map = []
-        for d in data:
+        # Skip first line as header
+        for d in data[1:]:
             if (len(d.split()) == 5) and (d[0] != "#"):
                 antenna_map = {'tile': int(d.split()[0]),
                                'input': int(d.split()[1]),
-                               'id': int(d.split()[2]),
+                               'id': d.split()[2],
                                'North': float(d.split()[3]),
                                'East': float(d.split()[4])}
                 station_map += [antenna_map]

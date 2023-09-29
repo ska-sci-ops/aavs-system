@@ -51,13 +51,13 @@
         },
         "port": {
             "desc": "Subrack IP Port",
-            "type": "string",
-            "value": "8081"
+            "type": "int",
+            "value": 8081
         },
         "query_interval": {
             "desc": "Query Interval in seconds",
-            "type": "int",
-            "value": 3
+            "type": "float",
+            "value": 3.0
         }
     }
 }

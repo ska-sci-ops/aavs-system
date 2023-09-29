@@ -31,13 +31,13 @@
         },
         "station_file": {
             "desc": "The Station File",
-            "type": "path",
+            "type": "file",
             "value": "~/Software/aavs-system/config/aavs2.yml"
         },
         "station_map": {
             "desc": "The Station Map File",
-            "type": "path",
-            "value": "~/Software/aavs-system/python/utilities/skalab/StationMap/AAVS2.txt"
+            "type": "file",
+            "value": "~/Software/aavs-system/python/utilities/skalab/StationMap/AAVS3.txt"
         }
     }
 }

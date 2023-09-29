@@ -373,7 +373,7 @@ class SkalabBase(QtWidgets.QMainWindow):
                     self.wgProfile.qline_col.setText(str(col))
                     self.wgProfile.qline_edit_key.setText(key.text())
                     for s in self.jprofile.keys():
-                        print(self.jprofile[s].keys())
+                        #print(self.jprofile[s].keys())
                         if key.text() in self.jprofile[s].keys():
                             self.wgProfile.qlabel_type.setText(str(self.jprofile[s][key.text()]['type']))
                             self.wgProfile.qlabel_desc.setText(str(self.jprofile[s][key.text()]['desc']))
@@ -412,7 +412,7 @@ class SkalabBase(QtWidgets.QMainWindow):
                     self.wgProfile.qcombo_profile.setCurrentIndex(n)
 
     def browse(self):
-        if 'file' in self.wgProfile.qline_edit_key.text():
+        if 'file' in self.wgProfile.qlabel_type.text():
             fd = QtWidgets.QFileDialog()
             fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
             options = fd.options()
@@ -422,7 +422,7 @@ class SkalabBase(QtWidgets.QMainWindow):
                                         directory=base_path,
                                         options=options)[0]
             self.wgProfile.qline_edit_newvalue.setText(result)
-        if 'path' in self.wgProfile.qline_edit_key.text():
+        if 'path' in self.wgProfile.qlabel_type.text():
             fd = QtWidgets.QFileDialog()
             fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
             fd.setOption(QtWidgets.QFileDialog.ShowDirsOnly, True)

@@ -1438,7 +1438,7 @@ class MapPlot(QtWidgets.QWidget):
         self.tiles = [int(a['tile']) for a in ant]
         self.x = [float(str(a['East']).replace(",", ".")) for a in ant]
         self.y = [float(str(a['North']).replace(",", ".")) for a in ant]
-        self.ids = [int(str(a['id'])) for a in ant]
+        self.ids = [a['id'] for a in ant]
         self.mask = mask
         self.circle = []
         self.cross = []
@@ -1466,7 +1466,7 @@ class MapPlot(QtWidgets.QWidget):
                 self.cross[-1].set(visible=False)
                 self.locate += [locate]
                 self.locate[-1].set(visible=False)
-                self.names += [self.canvas.ax.text(self.x[i] + 0.1, self.y[i] + 0.3, ("%d" % ant), fontsize=10)]
+                self.names += [self.canvas.ax.text(self.x[i] + 0.1, self.y[i] + 0.3, ant, fontsize=10)]
                 self.names[-1].set(visible=False)
             self.updatePlot()
 

@@ -1,0 +1,54 @@
+# Observation-related configuration, specifying the channel region
+# for the station beamformer
+observation:
+    start_frequency_channel: 131.25e6
+    bandwidth: 6.25e6
+
+# Station configuration parameters
+station:
+    id: 0
+    name: "Arcetri"
+    channel_truncation: 3
+    beam_integration_time: 1
+    channel_integration_time: 1
+    beamformer_scaling: 4
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_5_tpm_test_wrap_sbf406.bit"
+    #bitfile: "/home/comore/aavs-system/bitfiles/itpm_v1_1_tpm_test_wrap_phase2.bit"
+    #bitfile: "/home/comore/aavs-system/bitfiles/itpm_v1_1_tpm_test_wrap_master.bit"
+    equalize_preadu: No
+    pps_delays: [ 0, 0 ]
+
+# Network configuration parameters
+network:
+    lmc:
+        lmc_mac: 0xf4f26d031432 # Arcetri 1Gb MAC
+        lmc_ip: "10.0.0.98" # Arcetri 1Gb IP
+        #lmc_mac: 0xe41d2db40640 #Arcetri 40G
+        #lmc_ip: "192.168.10.99" # 40Gb IP
+        lmc_port: 4660
+        tpm_cpld_port: 10000
+        use_teng: True
+        
+        # Integrated data configuration
+        integrated_data_port: 5000
+        integrated_data_ip: "10.0.0.98"
+        use_teng_integrated: True
+
+    csp_ingest:
+        #dst_mac: 0xAC1F6B404A4D  # 1Gb MAC
+        #dst_ip: "10.0.10.200" # 1Gb IP
+        dst_mac: 0xe41d2db40640 #Arcetri 40G
+        dst_ip: "10.0.0.98"  # 40Gb MAC
+        dst_port: 4660
+        src_mac: Null
+        src_ip: Null
+        src_port: Null
+
+# List of TPM IPs (or names) which will form station
+tiles:
+    - "10.0.10.71"
+    - "10.0.10.74"
+# Time delay to apply to each antenna (one entry per TPM, optional)        
+time_delays:
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
