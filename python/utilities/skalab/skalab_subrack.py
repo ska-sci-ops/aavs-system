@@ -642,8 +642,8 @@ class Subrack(SkalabBase):
                         # if self.telemetry[tlmk].__class__ == list:
                         #     self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk].__str__())
                         # else:
-                        print("\n\nTLM KEYS", tlmk, "\n\n")
-                        self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk].__str__())
+                        #print("\n\nTLM KEYS", tlmk, "\n\n")
+                        self.logger.error("HDF5 WRITE TLM ERROR in " + tlmk + "\nData: " + self.telemetry[tlmk].__str__())
                 else:
                     if type(self.telemetry[tlmk]) is list:
                         self.tlm_hdf[tlmk].resize((self.tlm_hdf[tlmk].shape[0] +
