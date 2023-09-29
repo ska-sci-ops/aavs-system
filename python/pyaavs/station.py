@@ -30,6 +30,7 @@ configuration = {'tiles': None,
                      'qsfp_detection': "auto",
                      'start_beamformer': False,
                      'bitfile': None,
+                     'single_tile_mode': False,
                      'channel_truncation': 5,
                      'channel_integration_time': -1,
                      'beam_integration_time': -1,
@@ -128,20 +129,22 @@ def initialise_tile(params):
     nof_tiles = len(config['tiles'])
     this_tile_ip = socket.gethostbyname(config['tiles'][tile_number])
     next_tile_ip = socket.gethostbyname(config['tiles'][(tile_number + 1) % nof_tiles])
+    is_first = (tile_number == 0) or config['station']['single_tile_mode']
+    is_last = (tile_number == nof_tiles - 1) or config['station']['single_tile_mode']
 
     src_ip_40g_fpga1 = f"10.0.1.{this_tile_ip.split('.')[3]}"
     src_ip_40g_fpga2 = f"10.0.2.{this_tile_ip.split('.')[3]}"
-    dst_ip_40g_fpga1 = f"10.0.1.{next_tile_ip.split('.')[3]}"
-    dst_ip_40g_fpga2 = f"10.0.2.{next_tile_ip.split('.')[3]}"
-    src_port_40g=config['network']['csp_ingest']['src_port']
-    dst_port_40g=config['network']['csp_ingest']['dst_port']
-    is_first = tile_number == 0
-    is_last = tile_number == nof_tiles - 1
-
-    if tile_number == nof_tiles - 1:
-        if config['network']['csp_ingest']['dst_ip'] != "0.0.0.0":
+    if config['station']['single_tile_mode']:  # connect the two 40G ports on each FPGA 
+        dst_ip_40g_fpga1 = f"10.0.2.{this_tile_ip.split('.')[3]}"
+        dst_ip_40g_fpga2 = f"10.0.1.{this_tile_ip.split('.')[3]}"
+    else:                           # connect to ports on next TPM
+        dst_ip_40g_fpga1 = f"10.0.1.{next_tile_ip.split('.')[3]}"
+        dst_ip_40g_fpga2 = f"10.0.2.{next_tile_ip.split('.')[3]}"
+        if is_last and config['network']['csp_ingest']['dst_ip'] != "0.0.0.0":
             dst_ip_40g_fpga1=config['network']['csp_ingest']['dst_ip']
             dst_ip_40g_fpga2=config['network']['csp_ingest']['dst_ip']
+    src_port_40g=config['network']['csp_ingest']['src_port']
+    dst_port_40g=config['network']['csp_ingest']['dst_port']
 
     # get pps delay for current tile
     pps_delay = 0
@@ -801,14 +804,15 @@ def load_station_configuration(config_params):
     load_configuration_file(config_params.config)
 
     # Go through command line options and update where necessary
+    # Command line options have priority. This means that all bool parameters which can
+    # be set in the command line are ALWAYS overriden as false if not set.
+    # Config file values are not used
     if config_params.beam_bandwidth is not None:
         configuration['observation']['bandwidth'] = config_params.beam_bandwidth
     if config_params.beam_integ is not None:
         configuration['station']['beam_integration_time'] = config_params.beam_integ
     if config_params.beam_scaling is not None:
         configuration['station']['beamformer_scaling'] = config_params.beam_scaling
-    if config_params.beamf_start is not None:
-        configuration['station']['start_beamformer'] = config_params.beamf_start
     if config_params.bitfile is not None:
         configuration['station']['bitfile'] = config_params.bitfile
     if config_params.chan_trunc is not None:
@@ -841,7 +845,18 @@ def load_station_configuration(config_params):
         configuration['tiles'] = config_params.tiles.split(',')
     if config_params.use_teng is not None:
         configuration['network']['lmc']['use_teng'] = config_params.use_teng
-
+    # for these parameters, the configuration is True if they are set either 
+    # in the config file or in the command line options
+    configuration['station']['single_tile_mode'] = configuration['station'].get('single_tile_mode', False)
+    if config_params.single_tile_mode is not None:
+        configuration['station']['single_tile_mode'] = (
+            config_params.single_tile_mode or configuration['station']['single_tile_mode']
+        )
+    configuration['station']['start_beamformer'] = configuration['station'].get('start_beamformer', False)
+    if config_params.beamf_start is not None:
+        configuration['station']['start_beamformer'] = (
+            config_params.beamf_start or configuration['station']['start_beamformer']
+        )
     return configuration
 
 
@@ -871,6 +886,8 @@ if __name__ == "__main__":
                       default=False, help="Initialise TPM [default: False]")
     parser.add_option("-C", "--program_cpld", action="store_true", dest="program_cpld",
                       default=False, help="Update CPLD firmware (requires -f option) [default: False]")
+    parser.add_option("--single_tile_mode", action="store_true", dest="single_tile_mode",
+                      default=False, help="Program all tiles as a single tile station, for testing")
     parser.add_option("-T", "--enable-test", action="store_true", dest="enable_test",
                       default=False, help="Enable test pattern [default: False]")
     # parser.add_option("--use_internal_pps", action="store_true", dest="use_internal_pps",
