@@ -115,7 +115,7 @@ class TileInitialization(SkalabBase):
 
 
     def do_station_init(self):
-        self.wg.initbar.setValue(20)
+        self.wg.initbar.setValue(40)
         station.configuration['station']['initialise'] = True
         station.configuration['station']['program'] = True
         try:
@@ -163,6 +163,7 @@ class TileInitialization(SkalabBase):
                 station.load_configuration_file(self.config_file)
                 # Check wether the TPM are ON or OFF
                 station_on = True
+                self.wg.initbar.setValue(10)
                 tpm_ip_list = list(station.configuration['tiles'])
                 tpm_ip_from_subrack = self.client.get_attribute('tpm_ips')
                 if tpm_ip_from_subrack:
@@ -203,7 +204,7 @@ class TileInitialization(SkalabBase):
                             station.configuration['tiles'] = list(tpm_ip_from_subrack_short)
                             self.wgLive.setupNewTilesIPs(list(tpm_ip_from_subrack))
                 for tpm_ip in station.configuration['tiles']:
-                    self.wg.initbar.setValue(10)
+                    self.wg.initbar.setValue(20)
                     try:
                         tpm = TPMGeneric()
                         tpm_version = tpm.get_tpm_version(socket.gethostbyname(tpm_ip), 10000)
