@@ -275,7 +275,8 @@ def merge_dicts(dict_a, dict_b):
         return output
 
 
-def getThreshold(wg,tlm,top_attr,warning_factor):
+# TODO USE this 2 methods when subrack attributes are defined
+""" def getThreshold(wg,tlm,top_attr,warning_factor):
     default = wg.qline_subrack_threshold.text()
     if default != 'API_alarm.txt':
         try:
@@ -304,8 +305,7 @@ def getThreshold(wg,tlm,top_attr,warning_factor):
         [alarm,warning] = getDefaultThreshold(tlm,top_attr,warning_factor)
 
     writeThresholds(wg.ala_text,wg.war_text, alarm, warning)
-    return alarm, warning
-    
+    return alarm, warning 
 
 def getDefaultThreshold(tlm,top_attr,warning_factor):
     #log load default api values
@@ -328,16 +328,59 @@ def getDefaultThreshold(tlm,top_attr,warning_factor):
     for item in alarm:
         file.write(str(item) + "\n")
     file.close()
-    return alarm, warning
+    return alarm, warning """
+
+# TODO this methods are temnporaney
+def getThreshold(wg,tlm,top_attr):
+    default = wg.qline_subrack_threshold.text()
+    if default != 'API_alarm.txt':
+        try:
+            with open(default, 'r') as file:
+                a_lines = []
+                for line in file:
+                    line = line.strip()
+                    line = eval(line)
+                    a_lines.append(line)
+            alarm = a_lines
+            for i in range(len(top_attr)):
+                keys = list(alarm[i][top_attr[i]].keys())
+                for j in range(len(keys)):
+                    alarm_values = list(alarm[i][top_attr[i]][keys[j]])
+        except:
+            #log error
+            alarm = getDefaultThreshold(tlm,top_attr)
+    else: 
+        alarm = getDefaultThreshold(tlm,top_attr)
+
+    writeThresholds(wg.ala_text,wg.war_text, alarm)
+    return alarm
+    
+def getDefaultThreshold(tlm,top_attr):
+    #log load default api values
+    alarm = copy.deepcopy(tlm)
+    alarm_values = {}
+    for i in range(len(top_attr)):
+        keys = list(tlm[i][top_attr[i]].keys())
+        for j in range(len(keys)):
+            alarm_values = list(tlm[i][top_attr[i]][keys[j]]['exp_value'].values())
+            alarm[i][top_attr[i]][keys[j]] =  alarm_values
+    file = open('API_alarm.txt','w+')
+    for item in alarm:
+        file.write(str(item) + "\n")
+    file.close()
+    return alarm
 
 
-def writeThresholds(alarm_box, warning_box, alarm, warning):
+def writeThresholds(alarm_box, warning_box, alarm, *warning):
     alarm_box.clear()
     warning_box.clear()
     for item in alarm:
         alarm_box.appendPlainText(str(item))
-    for item in warning:
-        warning_box.appendPlainText(str(item))
+    if warning:
+        for item in warning:
+            warning_box.appendPlainText(str(item))
+    else:
+        warning_box.appendPlainText("Subrack warning thresholds are not implementd yet.")
     return
 
     

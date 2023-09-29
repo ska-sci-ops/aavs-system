@@ -405,6 +405,9 @@
        <zorder>subrackbar</zorder>
       </widget>
       <widget class="QFrame" name="frame_station">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>650</x>
@@ -478,6 +481,9 @@
         </property>
        </widget>
        <widget class="QPushButton" name="qbutton_station_init">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>560</x>
