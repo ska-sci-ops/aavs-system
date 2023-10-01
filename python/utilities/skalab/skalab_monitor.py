@@ -154,7 +154,7 @@ class MonitorTPM(TileInitialization):
         self._tpm_lock = Lock()
         self._tpm_lock_threshold = Lock()
         self.wait_check_tpm = Event()
-        #self.check_tpm_tm.start()
+        self.check_tpm_tm.start()
 
 
     def setTpmThreshold(self, warning_factor):
@@ -239,7 +239,7 @@ class MonitorTPM(TileInitialization):
             self.tpm_active = [None] * 8
             #self.tpm_slot_ip = list(station.configuration['tiles'])
             # Comparing ip to assign slot number to ip: file .ini and .yaml
-            self.tpm_slot_ip = self.tpm_status_info['tpm_ips']
+            self.tpm_slot_ip = self.tpm_status_info['assigned_tpm_ip_adds']
             self.tpm_ip_check= station.configuration['tiles']
             for j in self.tpm_ip_check:
                 if j in self.tpm_slot_ip:
@@ -279,29 +279,48 @@ class MonitorTPM(TileInitialization):
         while True:
             self.wait_check_tpm.wait()
             # Get tm from tpm
-            for index in range(8):
+            for index in range(8): # loop to select tpm
                 if self.tpm_active[index]:
                     try:
-                        L = list(self.tpm_active[index].get_health_status().values())
-                        tpm_monitoring_points = {}
-                        for d in L:
-                            tpm_monitoring_points.update(d)
+                        L = self.tpm_active[index].get_health_status()
                     except:
                         self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
-                        #self.logger.warning(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?")
-                        tpm_monitoring_points = "ERROR"
                         continue
                 with self._tpm_lock:
-                    self.signal_update_tpm_attribute.emit(tpm_monitoring_points,index)
+                    self.signal_update_tpm_attribute.emit(L,index)
             #if self.wg.check_savedata.isChecked(): self.saveTlm(tpm_monitoring_points)
             sleep(float(self.interval_monitor))    
 
-    def writeTpmAttribute(self,tpm_tmp,i):
-        for i in self.tile_table:
-            value = tpm_tmp[attr]
-            self.tile_table_attr[attr][i].setStyleSheet("color: black; background:white")
-            self.tile_table_attr[attr][i].setText(str(value))
-            self.tile_table_attr[attr][i].setAlignment(QtCore.Qt.AlignCenter)
+    def UnfoldTpmAttribute(self, tpm_dict, tpm_index):
+        with self._tpm_lock:
+            for i in range(len(self.tpm_table[tpm_index])): #loop to select table
+                table = self.tpm_table[tpm_index][i]
+
+                for key in list(self.tpm_table_address[i].values()): # loop to select the content of the table
+                    if isinstance(key,list):
+                        tpm_values = []
+                        for attribute in key:
+                            v = eval("tpm_dict" + attribute)
+                            tpm_values.extend(list(v.values())) if not(isinstance(v,bool)) else tpm_values.append(v)
+                    elif not(isinstance(eval("tpm_dict" + key),tuple)) and not(isinstance(eval("tpm_dict" + key),bool)):
+                        tpm_values = list(eval('tpm_dict'+key).values())
+                    else:
+                        tpm_values = [eval('tpm_dict'+key)] #for a tuple
+
+                    for j in range(len(tpm_values)): #loop to write values in the proper table cell
+                        value = tpm_values[j]
+                        table.setItem(j,0, QtWidgets.QTableWidgetItem(str(value)))
+                        item = table.item(j, 0)
+                        item.setTextAlignment(QtCore.Qt.AlignCenter)
+                    #self.writeTpmAttribute(tpm_values,table) 
+
+    def writeTpmAttribute(self, tpm_values, table):
+         values = list(tpm_values.values())
+         for i in range(len(values)):
+            value = values[i]
+            table.setItem(i,0, QtWidgets.QTableWidgetItem(str(value)))
+            item = table.item(i, 0)
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
             # with self._lock_tab1:
             #     if not(type(value)==str or type(value)==str) and not(self.alarm_values[attr][0] <= value <= self.alarm_values[attr][1]):
             #         # # tile_table_attr[attr][i].setStyleSheet("color: white; background:red")  
@@ -460,8 +479,6 @@ class MonitorSubrack(MonitorTPM):
                     self.wg.tpmbar.setValue(40)
             sleep(4.0) # Sleep required to wait for the turn_off/on_tpm command to complete
             self.wg.tpmbar.setValue(70)
-            self.tpm_status_info['tpm_ips'] = self.client.get_attribute('tpm_ips')['value'] # update tpm ip
-            self.wg.tpmbar.setValue(80)
             self.tpm_status_info['tpm_on_off'] = self.client.get_attribute('tpm_on_off')['value'] # update tpm on/off
             self.wg.tpmbar.setValue(90)
             self.updateTpmStatus()
@@ -624,7 +641,6 @@ class MonitorSubrack(MonitorTPM):
                 sleep(0.1)
                 cycle = cycle + 0.1
             self.skipThreadPause = False
-            sleep(0.5)  
 
     
     def readwriteSubrackAttribute(self):
@@ -856,7 +872,7 @@ if __name__ == "__main__":
         window.signalTlm.connect(window.updateTpmStatus)
         window.signal_to_monitor.connect(window.readwriteSubrackAttribute)
         window.signal_to_monitor_for_tpm.connect(window.tpmStatusChanged)
-        window.signal_update_tpm_attribute.connect(window.writeTpmAttribute)
+        window.signal_update_tpm_attribute.connect(window.UnfoldTpmAttribute)
         window.signal_update_log.connect(window.writeLog)
         window.signal_station_init.connect(window.do_station_init)
         sys.exit(app.exec_())

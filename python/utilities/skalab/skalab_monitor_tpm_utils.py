@@ -158,6 +158,7 @@ class TileInitialization(SkalabBase):
                                             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if result == QtWidgets.QMessageBox.Yes:
             if self.config_file:
+                tpm_ip_from_subrack = []
                 self.wg.initbar.show()
                 # Create station
                 station.load_configuration_file(self.config_file)
@@ -165,10 +166,19 @@ class TileInitialization(SkalabBase):
                 station_on = True
                 self.wg.initbar.setValue(10)
                 tpm_ip_list = list(station.configuration['tiles'])
-                tpm_ip_from_subrack = self.tpm_status_info['tpm_ips']
+                # TODO : self.client.get_attribute('tpm_ips')['value'] sometimes gives None 
+                """  with self._subrack_lock:
+                    self.tpm_status_info['tpm_ips'] = self.client.get_attribute('tpm_ips')['value'] # update tpm ip
+                tpm_ip_from_subrack = self.tpm_status_info['tpm_ips'] """
+                
+                # workaround
+                for i in range(8):
+                    if self.tpm_status_info['tpm_on_off'][i]:
+                        tpm_ip_from_subrack.append(self.tpm_status_info['assigned_tpm_ip_adds'][i])
+
+                self.wg.initbar.setValue(20)
                 if tpm_ip_from_subrack:
-                    tpm_ip_from_subrack_short = [x for x in tpm_ip_from_subrack if not x == '0']
-                    if not len(tpm_ip_list) == len(tpm_ip_from_subrack_short):
+                    if not len(tpm_ip_list) == len(tpm_ip_from_subrack):
                         self.wg.initbar.hide()
                         msgBox = QtWidgets.QMessageBox()
                         message = "STATION\nOne or more TPMs forming the station are OFF\nPlease check the power!"
@@ -178,15 +188,15 @@ class TileInitialization(SkalabBase):
                         details = "STATION IP LIST FROM CONFIG FILE (%d): " % len(tpm_ip_list)
                         for i in tpm_ip_list:
                             details += "\n%s" % i
-                        details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack_short)
-                        for i in tpm_ip_from_subrack_short:
+                        details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack)
+                        for i in tpm_ip_from_subrack:
                             details += "\n%s" % i
                         msgBox.setDetailedText(details)
                         msgBox.exec_()
                         #self.logger.info(self.wgSubrack.telemetry)
                         return
                     else:
-                        if not np.array_equal(tpm_ip_list, tpm_ip_from_subrack_short):
+                        if not np.array_equal(tpm_ip_list, tpm_ip_from_subrack):
                             msgBox = QtWidgets.QMessageBox()
                             message = "STATION\nIPs provided by the Subrack are different from what defined in the " \
                                     "config file.\nINIT will use the new assigned IPs."
@@ -196,15 +206,15 @@ class TileInitialization(SkalabBase):
                             details = "STATION IP LIST FROM CONFIG FILE (%d): " % len(tpm_ip_list)
                             for i in tpm_ip_list:
                                 details += "\n%s" % i
-                            details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack_short)
-                            for i in tpm_ip_from_subrack_short:
+                            details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack)
+                            for i in tpm_ip_from_subrack:
                                 details += "\n%s" % i
                             msgBox.setDetailedText(details)
                             msgBox.exec_()
-                            station.configuration['tiles'] = list(tpm_ip_from_subrack_short)
+                            station.configuration['tiles'] = list(tpm_ip_from_subrack)
                             self.wgLive.setupNewTilesIPs(list(tpm_ip_from_subrack))
                 for tpm_ip in station.configuration['tiles']:
-                    self.wg.initbar.setValue(20)
+                    self.wg.initbar.setValue(30)
                     try:
                         tpm = TPMGeneric()
                         tpm_version = tpm.get_tpm_version(socket.gethostbyname(tpm_ip), 10000)
