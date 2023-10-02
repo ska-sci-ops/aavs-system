@@ -563,9 +563,9 @@ class Subrack(SkalabBase):
                     if self.connected:
                         data = self.client.get_attribute(tlmk)
                         if "tpm_voltages" in tlmk:
-                            c = np.array(copy.deepcopy(data))
-                            c["value"][c["value"] == None] = 0.0
-                            data = c
+                            c = np.array(copy.deepcopy(data)["value"])
+                            c[c == None] = 0.0
+                            data["value"] = c.tolist()
                         if data["status"] == "OK":
                             telemetry[tlmk] = data["value"]
                 if self.query_once_armed and (tlmk in self.query_once):
