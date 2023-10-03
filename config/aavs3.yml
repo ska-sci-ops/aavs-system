@@ -53,22 +53,22 @@ network:
 
 # List of TPM IPs (or names) which will form station
 tiles:
-    - 10.137.0.151
-    - 10.137.0.152
-    - 10.137.0.153
-    - 10.137.0.154
-    - 10.137.0.155
-    - 10.137.0.156
-    - 10.137.0.157
-    - 10.137.0.158
-    - 10.137.0.167
-    - 10.137.0.168
-    - 10.137.0.169
-    - 10.137.0.170
-    - 10.137.0.171
-    - 10.137.0.172
-    - 10.137.0.173
-    - 10.137.0.174
+    - tpm-1
+    - tpm-2
+    - tpm-3
+    - tpm-4
+    - tpm-5
+    - tpm-6
+    - tpm-7
+    - tpm-8
+    - tpm-9
+    - tpm-10
+    - tpm-11
+    - tpm-12
+    - tpm-13
+    - tpm-14
+    - tpm-15
+    - tpm-16
 
 
 # Time delay to apply to each antenna (one entry per TPM, optional)
