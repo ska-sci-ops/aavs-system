@@ -61,13 +61,17 @@ def populateTpmTable(frame, table, alarm):
                     result = eval(a[-1])
                     qtable_tpm[i][-1].setRowCount(len(result))
                     qtable_tpm[i][-1].setVerticalHeaderLabels(result)
+                    qtable_tpm[i][-1].horizontalHeader().setFixedHeight(20)
+                    qtable_tpm[i][-1].resizeRowsToContents()
                     break 
                 qtable_tpm[i][-1].setRowCount(len(result))
-                qtable_tpm[i][-1].setVerticalHeaderLabels(result)  
+                qtable_tpm[i][-1].setVerticalHeaderLabels(result) 
+                qtable_tpm[i][-1].horizontalHeader().setFixedHeight(20)
+                if not(j in {4,5,6}):
+                    qtable_tpm[i][-1].resizeRowsToContents()                
     return qtable_tpm
 
-
-def populateTable(frame, attributes, top):
+def populateSubrackTable(frame, attributes, top):
     "Create Subrack table"
     qtable = []
     sub_attr = []
@@ -131,14 +135,6 @@ class MonitorTPM(TileInitialization):
             if 'text_editor' in self.profile['Extras'].keys():
                 self.text_editor = self.profile['Extras']['text_editor']
         self.tpm_warning_factor = eval(self.profile['Warning Factor']['tpm_warning_parameter'])
-        #self.tile_table_attr = copy.deepcopy(self.tpm_alarm)
-        # for i in self.tile_table_attr.keys():
-        #     self.tile_table_attr[i] = [None] * 16            
-        # self.alarm = dict(self.tile_table_attr, **subrack_attribute)
-        # for k in self.alarm.keys():
-        #     self.alarm[k] = [False]*8
-            #load_tpm_1_6_lookup
-        #populateTable(self.wg.qtable_tile, self.tile_table_attr)
         self.show()
         with open(r'tpm_monitoring_min_max.yaml') as file:
             MIN_MAX_MONITORING_POINTS = (yaml.load(file, Loader=yaml.Loader)["tpm_monitoring_points"] or {})
@@ -146,6 +142,7 @@ class MonitorTPM(TileInitialization):
             self.tpm_alarm_thresholds.append({k:v})
         self.setTpmThreshold(self.tpm_warning_factor)
         self.tpm_table = populateTpmTable(self.wg,self.tpm_table_address,MIN_MAX_MONITORING_POINTS)
+        self.populateTpmLed(MIN_MAX_MONITORING_POINTS)
         # Start thread
         # self._lock_led = Lock()
         self._lock_tab1 = Lock()
@@ -156,6 +153,15 @@ class MonitorTPM(TileInitialization):
         self.wait_check_tpm = Event()
         self.check_tpm_tm.start()
 
+    def populateTpmLed(self,MIN_MAX_MONITORING_POINTS):
+        self.qled_tpm = [None] * 8 
+        for i in range(8):
+            self.qled_tpm[i] = []
+            for j in range(len(MIN_MAX_MONITORING_POINTS)):
+                led = Led(self.wg.table_alarms)
+                self.qled_tpm[i].append(led)
+                self.wg.led_layout.addWidget(led,j,i,QtCore.Qt.AlignCenter)
+                
 
     def setTpmThreshold(self, warning_factor):
         attr = ['temperatures','voltages','currents']
@@ -246,23 +252,6 @@ class MonitorTPM(TileInitialization):
                     pass
                 else:
                     self.logger.warning(f"ATTENTION: TMP IP: {j} in {self.config_file} is not detected by the Subrack.")
-
-
-    def loadTopLevelAttributes(self):
-        # self.tpm_warning = self.profile['TPM Warning']
-        # self.warning = dict(self.tpm_warning, **self.subrack_warning)
-        # self.subrack_alarm = self.profile['Subrack Alarm']
-        # self.tpm_alarm = self.profile['TPM Alarm']
-        # self.alarm_values = dict(self.tpm_alarm, **self.subrack_alarm)
-        # for attr in self.warning:
-        #     self.warning[attr] = eval(self.warning[attr])
-        #     self.alarm_values[attr] = eval(self.alarm_values[attr])
-        #     if self.warning[attr][0] == None: self.warning[attr][0] = -float('inf')
-        #     if self.alarm_values[attr][0]   == None: self.alarm_values[attr][0]   = -float('inf')
-        #     if self.warning[attr][1] == None: self.warning[attr][1] =  float('inf')
-        #     if self.alarm_values[attr][1]   == None: self.alarm_values[attr][1]   =  float('inf')   
-        # skalab_monitor_tab.populateWarningAlarmTable(self.wg.true_table, self.warning, self.alarm_values)
-        pass
 
 
     def tpmStatusChanged(self):
@@ -535,7 +524,7 @@ class MonitorSubrack(MonitorTPM):
                         self.tlm_keys.append(diz)
 
                     self.logger.info("Populate monitoring table...")
-                    [self.subrack_table, self.sub_attribute] = populateTable(self.wg,self.tlm_keys,self.top_attr)
+                    [self.subrack_table, self.sub_attribute] = populateSubrackTable(self.wg,self.tlm_keys,self.top_attr)
                     self.wg.subrackbar.setValue(40)
                     self.wg.qbutton_clear_subrack.setEnabled(True)
                     for tlmk in self.query_once:
