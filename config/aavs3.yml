@@ -1,0 +1,92 @@
+# Observation-related configuration, specifying the channel region
+# for the station beamformer
+observation:
+    start_frequency_channel: 156.25e6 # 4 channels below central channel 204 
+#    start_frequency_channel: 113.28125e6
+#    start_frequency_channel: 96.09375e6
+#    start_frequency_channel: 226.5625e6
+#    start_frequency_channel: 133.59375e6
+#    start_frequency_channel: 134.375e6
+#    start_frequency_channel: 226.5625e6 # 4 channels below central channel 294 226.5625e6
+#    start_frequency_channel: 107.03125e6 # 4 channels below central channel 141 ...
+#    start_frequency_channel: 67.1875e6 # 4 channels below central channel 90 (70.3125 MHz) -> 86 (67.1875 MHz)
+#    start_frequency_channel: 46.875e6 # 4 channels below central channel 64
+#    start_frequency_channel: 317.1875e6 # 4 channels below central channel 410
+#    start_frequency_channel: 129.6875e6
+    bandwidth: 6.25e6
+
+# Station configuration parameters
+station:
+    id: 5
+    name: "AAVS3"
+    number_of_antennas: 256
+    channel_truncation: 2
+    beam_integration_time: -1
+    channel_integration_time: 2
+    beamformer_scaling: 5
+    bitfile: "/home/ubuntu/Software/aavs-system/bitfiles/itpm_v1_5_tpm_test_wrap_sbf415.bit"
+    default_preadu_attenuation: 10
+    equalize_preadu: 16 # modified by MS on 2020-04-16 after discussion during the 2020-04-15 TELECON
+    pps_delays: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+# Network configuration parameters
+network:
+    lmc:
+        lmc_mac: 0xb83fd2240548
+        lmc_ip: "10.137.0.103"
+        lmc_port: 4660
+        tpm_cpld_port: 10000
+        use_teng: True
+
+        # Integrated data configuration
+        integrated_data_port: 5005
+        integrated_data_ip: "10.132.47.5"
+        use_teng_integrated: False
+
+    csp_ingest:
+        dst_mac: 0xb83fd2240548
+        dst_ip: "10.137.0.103"
+        dst_port: 4660
+        src_mac: Null
+        src_ip: Null
+        src_port: Null
+
+# List of TPM IPs (or names) which will form station
+tiles:
+    - 10.137.0.151
+    - 10.137.0.152
+    - 10.137.0.153
+    - 10.137.0.154
+    - 10.137.0.155
+    - 10.137.0.156
+    - 10.137.0.157
+    - 10.137.0.158
+    - 10.137.0.167
+    - 10.137.0.168
+    - 10.137.0.169
+    - 10.137.0.170
+    - 10.137.0.171
+    - 10.137.0.172
+    - 10.137.0.173
+    - 10.137.0.174
+
+
+# Time delay to apply to each antenna (one entry per TPM, optional)
+time_delays:
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
