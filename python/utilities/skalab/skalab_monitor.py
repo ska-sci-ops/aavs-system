@@ -8,7 +8,6 @@ import numpy as np
 import logging
 import yaml
 import datetime
-import json
 #from timeit import default_timer as timer
 
 from pyaavs.tile_wrapper import Tile
@@ -124,7 +123,7 @@ class MonitorTPM(TileInitialization):
         table_address = self.profile['Tpm']['tpm_tables_address'].split(",,")
         for d in range(len(table_address)):
             self.tpm_table_address.append(eval(table_address[d]))
-        self.tlm_hdf_monitor = None
+        self.tlm_hdf_tpm_monitor = []
         self.tpm_initialized = [False] * 8
         self.tpm_table = []
         # Populate table
@@ -143,6 +142,7 @@ class MonitorTPM(TileInitialization):
         self.setTpmThreshold(self.tpm_warning_factor)
         self.tpm_table = populateTpmTable(self.wg,self.tpm_table_address,MIN_MAX_MONITORING_POINTS)
         self.populateTpmLed(MIN_MAX_MONITORING_POINTS)
+        self.tlm_hdf_tpm_monitor = self.setupTpmHdf5()
         # Start thread
         # self._lock_led = Lock()
         self._lock_tab1 = Lock()
@@ -261,8 +261,10 @@ class MonitorTPM(TileInitialization):
                 if not self.tpm_on_off[k] and self.tpm_active[k]:
                     self.tpm_active[k] = None
         if any(self.tpm_initialized):
+            self.wg.check_tpm_savedata.setEnabled(True)
             self.wait_check_tpm.set()
-            
+        else:
+            self.wg.check_tpm_savedata.setEnabled(False)
 
     def monitoringTpm(self):
         while True:
@@ -272,12 +274,12 @@ class MonitorTPM(TileInitialization):
                 if self.tpm_active[index]:
                     try:
                         L = self.tpm_active[index].get_health_status()
+                        if self.wg.check_tpm_savedata.isChecked(): self.saveTpmData(L,index)
                     except:
                         self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
                         continue
-                with self._tpm_lock:
-                    self.signal_update_tpm_attribute.emit(L,index)
-            #if self.wg.check_savedata.isChecked(): self.saveTlm(tpm_monitoring_points)
+                    with self._tpm_lock:
+                        self.signal_update_tpm_attribute.emit(L,index)
             sleep(float(self.interval_monitor))    
 
     def UnfoldTpmAttribute(self, tpm_dict, tpm_index):
@@ -331,7 +333,44 @@ class MonitorTPM(TileInitialization):
             #             if self.qled_alert[int(i/2)].Colour==4:
             #                 with self._lock_led:
             #                     self.qled_alert[int(i/2)].Colour=Led.Orange
-            #                     self.qled_alert[int(i/2)].value = True        
+            #                     self.qled_alert[int(i/2)].value = True      
+            
+
+    def setupTpmHdf5(self):
+        default_app_dir = str(Path.home()) + "/.skalab/monitoring/tpm_monitor/"
+        if not(self.tlm_hdf_tpm_monitor):
+            if not self.profile['Tpm']['tpm_data_path'] == "":
+                fname = self.profile['Tpm']['tpm_data_path']
+                if not fname[-1] == "/":
+                    fname = fname + "/"
+                    if  os.path.exists(str(Path.home()) + fname) != True:
+                        try:
+                            os.makedirs(str(Path.home()) + fname)
+                        except:
+                            fname = default_app_dir
+                for tpm_id in range(8):
+                    temp = fname+datetime.datetime.strftime(datetime.datetime.utcnow(), "monitor_tpm"+ f"{tpm_id}"+"_%Y-%m-%d_%H%M%S.h5")
+                    self.tlm_hdf_tpm_monitor.append(h5py.File(str(Path.home()) + temp, 'a'))
+                return self.tlm_hdf_tpm_monitor
+            else:
+                msgBox = QtWidgets.QMessageBox()
+                msgBox.setText("Please Select a valid path to save the Monitor data and save it into the current profile")
+                msgBox.setWindowTitle("Error!")
+                msgBox.setIcon(QtWidgets.QMessageBox.Critical)
+                msgBox.exec_()
+                return None
+
+    def saveTpmData(self, tpm_tlm, tpm_id):
+        currentDateAndTime = datetime.datetime.now()
+        currentTime = currentDateAndTime.strftime("%H:%M:%S:%SS")
+        if self.tlm_hdf_tpm_monitor[tpm_id]:
+            filename = self.tlm_hdf_tpm_monitor[tpm_id]
+            try:
+                dt = h5py.special_dtype(vlen=str) 
+                feature_names = np.array(str(tpm_tlm), dtype=dt) 
+                filename.create_dataset(currentTime,data=feature_names)
+            except:
+                self.logger.error(f"WRITE SUBRACK TELEMETRY ERROR at {datetime}")    
                  
 
 class MonitorSubrack(MonitorTPM):
@@ -587,12 +626,12 @@ class MonitorSubrack(MonitorTPM):
                 self.client.disconnect()
                 del self.client
                 gc.collect()
-                if (type(self.tlm_hdf) is not None) or (type(self.tlm_hdf_monitor) is not None):
-                    try:
-                        self.tlm_hdf.close()
-                        self.tlm_hdf_monitor.close()
-                    except:
-                        pass
+                # if (type(self.tlm_hdf) is not None) or (type(self.tlm_hdf_tpm_monitor) is not None):
+                #     try:
+                #         self.tlm_hdf.close()
+                #         self.tlm_hdf_tpm_monitor.close()
+                #     except:
+                #         pass
         else:
             self.wg.qlabel_connection.setText("Missing IP!")
             self.wait_check_tpm.clear()
@@ -753,7 +792,7 @@ class MonitorSubrack(MonitorTPM):
     
     def setupSubrackHdf5(self):
         default_app_dir = str(Path.home()) + "/.skalab/monitoring/subrack_monitor/"
-        if not(self.tlm_hdf_monitor):
+        if not(self.tlm_hdf):
             if not self.profile['Subrack']['subrack_data_path'] == "":
                 fname = self.profile['Subrack']['subrack_data_path']
                 if not fname[-1] == "/":
@@ -764,8 +803,8 @@ class MonitorSubrack(MonitorTPM):
                         except:
                             fname = default_app_dir
                 fname += datetime.datetime.strftime(datetime.datetime.utcnow(), "monitor_subrack_%Y-%m-%d_%H%M%S.h5")
-                self.tlm_hdf_monitor = h5py.File(str(Path.home()) + fname, 'a')
-                return self.tlm_hdf_monitor
+                self.tlm_hdf = h5py.File(str(Path.home()) + fname, 'a')
+                return self.tlm_hdf
             else:
                 msgBox = QtWidgets.QMessageBox()
                 msgBox.setText("Please Select a valid path to save the Monitor data and save it into the current profile")
@@ -778,33 +817,14 @@ class MonitorSubrack(MonitorTPM):
     def saveSubrackData(self, subrack_tlm):
         datetime = subrack_tlm['iso_datetime']
         del subrack_tlm['iso_datetime']
-        if self.tlm_hdf_monitor:
+        if self.tlm_hdf:
             try:
-                    #self.tlm_hdf_monitor.create_dataset(datetime, data=str(subrack_tlm))
                 dt = h5py.special_dtype(vlen=str) 
                 feature_names = np.array(str(subrack_tlm), dtype=dt) 
-                self.tlm_hdf_monitor.create_dataset(datetime, data=feature_names)
+                self.tlm_hdf.create_dataset(datetime, data=feature_names)
 
             except:
-                self.logger.error(f"WRITE SUBRACK TELEMETRY ERROR at {datetime}")
-                # else:
-                #     self.tlm_hdf_monitor[attr].resize((self.tlm_hdf_monitor[attr].shape[0] +
-                #                                 np.asarray([self.tlm_hdf_monitor[attr]]).shape[0]), axis=0)
-                #     self.tlm_hdf_monitor[attr][self.tlm_hdf_monitor[attr].shape[0]-1]=np.asarray([data_tile[attr]]) 
-
-    def saveTlm(self,data_tile):
-        if self.tlm_hdf_monitor:
-            for attr in self.tile_table_attr:
-                data_tile[attr][:] = [0.0 if type(x) is str else x for x in data_tile[attr]]
-                if attr not in self.tlm_hdf_monitor:
-                    try:
-                        self.tlm_hdf_monitor.create_dataset(attr, data=np.asarray([data_tile[attr]]), chunks = True, maxshape =(None,None))
-                    except:
-                        self.logger.error("WRITE TLM ERROR in ", attr, "\nData: ", data_tile[attr])
-                else:
-                    self.tlm_hdf_monitor[attr].resize((self.tlm_hdf_monitor[attr].shape[0] +
-                                                np.asarray([self.tlm_hdf_monitor[attr]]).shape[0]), axis=0)
-                    self.tlm_hdf_monitor[attr][self.tlm_hdf_monitor[attr].shape[0]-1]=np.asarray([data_tile[attr]])                  
+                self.logger.error(f"WRITE SUBRACK TELEMETRY ERROR at {datetime}")            
 
     
     def closeEvent(self, event):
@@ -820,7 +840,7 @@ class MonitorSubrack(MonitorTPM):
             if type(self.tlm_hdf) is not None:
                 try:
                     self.tlm_hdf.close()
-                    self.tlm_hdf_monitor.close()
+                    self.tlm_hdf_tpm_monitor.close()
                 except:
                     pass
         self.logger.logger.info("Stopping Threads")

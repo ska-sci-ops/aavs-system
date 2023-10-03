@@ -377,6 +377,12 @@
         <property name="text">
          <string>Save TPMs Data </string>
         </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="tristate">
+         <bool>false</bool>
+        </property>
        </widget>
        <widget class="QProgressBar" name="subrackbar">
         <property name="enabled">
