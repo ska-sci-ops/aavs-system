@@ -16,7 +16,8 @@ from PyQt5.QtGui import QPainter
 import sys
 sys.path.append("../../pyaavs/tests/")
 from pydaq.persisters import *
-from get_nic import getnic
+#from get_nic import getnic
+import netifaces as ni
 from colorsys import rgb_to_hls, hls_to_rgb
 from PyQt5.QtWidgets import QWidget, QStyleOption
 from PyQt5.QtGui import QPainter
@@ -855,15 +856,30 @@ def decodeChannelList(stringa="1-16"):
 #     return mediato, power_rf
 
 
+# def get_if_name(lmc_ip):
+#     #print("Scan for TPM Network interface...")
+#     tpm_nic = ""
+#     interfaces = os.listdir('/sys/class/net/') # getnic.interfaces() replaced!
+#     for i in interfaces:
+#         if 'inet4' in getnic.ipaddr([i])[i].keys():
+#             if lmc_ip in getnic.ipaddr([i])[i]['inet4']:
+#                 #print("IF: %s, Addr: %s" %(i, getnic.ipaddr([i])[i]['inet4']))
+#                 tpm_nic = i
+#     return tpm_nic
+#
+
+
 def get_if_name(lmc_ip):
-    #print("Scan for TPM Network interface...")
+    nics = ni.interfaces()
     tpm_nic = ""
-    interfaces = os.listdir('/sys/class/net/') # getnic.interfaces() replaced!
-    for i in interfaces:
-        if 'inet4' in getnic.ipaddr([i])[i].keys():
-            if lmc_ip in getnic.ipaddr([i])[i]['inet4']:
-                #print("IF: %s, Addr: %s" %(i, getnic.ipaddr([i])[i]['inet4']))
-                tpm_nic = i
+    for n in nics:
+        conf = ni.ifaddresses(n)
+        for k in conf.keys():
+            for l in conf[k]:
+                if 'addr' in l.keys():
+                    if l['addr'] == lmc_ip:
+                        tpm_nic = n
+                        break
     return tpm_nic
 
 

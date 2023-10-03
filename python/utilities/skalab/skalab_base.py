@@ -289,7 +289,7 @@ class SkalabBase(QtWidgets.QMainWindow):
         if ok:
             profile = self.readTableProfile()
             profile['Base']['profile'] = text
-            print(profile)
+            # print(profile)
             self.writeConfig(profile)
             self.load_profile(App=self.profile['Base']['app'],
                               Profile=text,

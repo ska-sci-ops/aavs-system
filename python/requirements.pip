@@ -20,4 +20,5 @@ psutil
 get_nic
 pyqt5 
 typing_extensions
+netifaces
 
