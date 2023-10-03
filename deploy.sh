@@ -127,7 +127,7 @@ function create_install() {
   # Create install directory if it does not exist
   if [ ! -d "$AAVS_INSTALL" ]; then
 	  sudo mkdir -p $AAVS_INSTALL
-	  sudo chown $USER $AAVS_INSTALL
+	  sudo chown -R $USER $AAVS_INSTALL
   fi
 
   # Create lib directory
@@ -176,6 +176,7 @@ function create_install() {
   # Create python3 virtual environment
   if [[ ! -d "$VENV_INSTALL/python" ]]; then
     mkdir -p $VENV_INSTALL/python
+    install_package python3.10-venv
 
     # Create python virtual environment
     # virtualenv -p python3 $AAVS_INSTALL/python
@@ -227,9 +228,12 @@ pip install -U pip
 # Install ipython
 pip install ipython
 
-# Give python interpreter required capabilities for accessing raw sockets and kernel space
-PYTHON_BINARY=`readlink -f $VENV_INSTALL/python/bin/python`
-sudo setcap cap_net_raw,cap_ipc_lock,cap_sys_nice,cap_sys_admin,cap_kill+ep $PYTHON_BINARY || exit
+# Install required python packages
+pushd python || exit
+  sudo python3 -m pip install -r requirements.pip || exit
+  $PYTHON setup.py install || exit
+popd
+
 
 # Create a temporary setup directory and cd into it
 if [[ ! -d "third_party" ]]; then
@@ -262,6 +266,10 @@ pushd third_party || exit
 
 popd
 
+# Give python interpreter required capabilities for accessing raw sockets and kernel space
+PYTHON_BINARY=`readlink -f $VENV_INSTALL/python/bin/python`
+sudo setcap cap_net_raw,cap_ipc_lock,cap_sys_nice,cap_sys_admin,cap_kill+ep $PYTHON_BINARY || exit
+
 # Install C++ src
 pushd src || exit
   if [ ! -d build ]; then
@@ -275,11 +283,6 @@ pushd src || exit
 popd
 
 
-# Install required python packages
-pushd python || exit
-  pip install -r requirements.pip || exit
-  python setup.py install || exit
-popd
 
 # Link required scripts to bin directory
 FILE=$AAVS_BIN/acquire_station_beam
