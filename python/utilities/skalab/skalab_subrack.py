@@ -563,9 +563,9 @@ class Subrack(SkalabBase):
                     if self.connected:
                         data = self.client.get_attribute(tlmk)
                         if "tpm_voltages" in tlmk:
-                            c = copy.deepcopy(data)
-                            c["value"][c["value"] == None] = 0.0
-                            data = c
+                            c = np.array(copy.deepcopy(data)["value"])
+                            c[c == None] = 0.0
+                            data["value"] = c.tolist()
                         if data["status"] == "OK":
                             telemetry[tlmk] = data["value"]
                 if self.query_once_armed and (tlmk in self.query_once):
@@ -642,7 +642,8 @@ class Subrack(SkalabBase):
                         # if self.telemetry[tlmk].__class__ == list:
                         #     self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk].__str__())
                         # else:
-                        self.logger.error("HDF5 WRITE TLM ERROR in ", tlmk, "\nData: ", self.telemetry[tlmk])
+                        #print("\n\nTLM KEYS", tlmk, "\n\n")
+                        self.logger.error("HDF5 WRITE TLM ERROR in " + tlmk + "\nData: " + self.telemetry[tlmk].__str__())
                 else:
                     if type(self.telemetry[tlmk]) is list:
                         self.tlm_hdf[tlmk].resize((self.tlm_hdf[tlmk].shape[0] +
