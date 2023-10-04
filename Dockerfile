@@ -10,8 +10,9 @@ RUN apt-get update && \
 
 ENV AAVS_PYTHON_BIN=/usr/bin/python3.10
 
-RUN ["/bin/bash", "-c", "source /app/deploy.sh -c"]
+RUN chmod +x /app/deploy.sh
+
+RUN ["/bin/bash", "-c", "/app/deploy.sh -c"]
+RUN source /opt/aavs/python/bin/activate
 
 WORKDIR /app/
-
-USER aavs

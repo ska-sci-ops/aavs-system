@@ -268,7 +268,7 @@ popd
 
 # Give python interpreter required capabilities for accessing raw sockets and kernel space
 PYTHON_BINARY=`readlink -f $VENV_INSTALL/python/bin/python`
-sudo setcap cap_net_raw,cap_ipc_lock,cap_sys_nice,cap_sys_admin,cap_kill+ep $PYTHON_BINARY || exit
+# sudo setcap cap_net_raw,cap_ipc_lock,cap_sys_nice,cap_sys_admin,cap_kill+ep $PYTHON_BINARY || exit
 
 # Install C++ src
 pushd src || exit
