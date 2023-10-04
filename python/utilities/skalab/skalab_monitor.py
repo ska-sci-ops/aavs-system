@@ -282,7 +282,7 @@ class MonitorTPM(TileInitialization):
                         self.signal_update_tpm_attribute.emit(L,index)
             sleep(float(self.interval_monitor))    
 
-    def UnfoldTpmAttribute(self, tpm_dict, tpm_index):
+    def unfoldTpmAttribute(self, tpm_dict, tpm_index):
         with self._tpm_lock:
             for i in range(len(self.tpm_table[tpm_index])): #loop to select table
                 table = self.tpm_table[tpm_index][i]
@@ -303,6 +303,9 @@ class MonitorTPM(TileInitialization):
                         table.setItem(j,0, QtWidgets.QTableWidgetItem(str(value)))
                         item = table.item(j, 0)
                         item.setTextAlignment(QtCore.Qt.AlignCenter)
+                    with self._tpm_lock_threshold:
+                        filtered_alarm =  self.tpm_alarm_thresholds[tpm_index][self.top_attr[tpm_index]]
+                        filtered_warning = self.tpm_warning_thresholds[tpm_index][self.top_attr[tpm_index]]
                     #self.writeTpmAttribute(tpm_values,table) 
 
     def writeTpmAttribute(self, tpm_values, table):
@@ -726,7 +729,7 @@ class MonitorSubrack(MonitorTPM):
                 item = table.item(i, 0)
                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                 # TODO: Add bool comparison
-                if not(type(value)==str or type(value)==bool or value==None or filtered_alarm[attr][0]==None):
+                if not(type(value)==str or value==None or filtered_alarm[attr][0]==None):
                     if not(filtered_alarm[attr][0] <= value <= filtered_alarm[attr][1]): 
                         with self._lock_tab2:
                             table.setItem(i,1, QtWidgets.QTableWidgetItem(str(value)))
@@ -741,7 +744,7 @@ class MonitorSubrack(MonitorTPM):
                                 with self._subrack_lock_led:
                                     self.subrack_led.Colour = Led.Red
                                     self.subrack_led.value = True
-                                    # TODO: Uncomment when subrack attributes are definitive.
+                            # TODO: Uncomment when subrack attributes are definitive.
                             """                     
                             elif not(filtered_warning[attr][0] < value < filtered_warning[attr][1]) and not(item.background().color().name() == '#ff0000'):
                             with self._lock_tab2:
@@ -881,7 +884,7 @@ if __name__ == "__main__":
         window.signalTlm.connect(window.updateTpmStatus)
         window.signal_to_monitor.connect(window.readwriteSubrackAttribute)
         window.signal_to_monitor_for_tpm.connect(window.tpmStatusChanged)
-        window.signal_update_tpm_attribute.connect(window.UnfoldTpmAttribute)
+        window.signal_update_tpm_attribute.connect(window.unfoldTpmAttribute)
         window.signal_update_log.connect(window.writeLog)
         window.signal_station_init.connect(window.do_station_init)
         sys.exit(app.exec_())
