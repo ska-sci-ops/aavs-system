@@ -79,7 +79,7 @@ class Playback(SkalabBase):
         self.wgProBox.setVisible(True)
         self.wgProBox.show()
         super(Playback, self).__init__(App="playback", Profile=profile, Path=swpath, parent=self.wgProBox)
-        self.logger = SkalabLog(parent=self.wg.qw_log, logname=__name__, profile=self.profile)
+        self.loggerger = SkalabLog(parent=self.wg.qw_log, logname=__name__, profile=self.profile)
         self.setCentralWidget(self.wg)
         self.resize(size[0], size[1])
 
@@ -396,7 +396,7 @@ class Playback(SkalabBase):
         elif self.wg.qradio_power.isChecked():
             move_avg_len = int(float(self.wg.qline_movavgwdw.text()))
             if self.wg.qcheck_movavg.isChecked() and (move_avg_len < 2):
-                self.log.error("Invalid Moving Average Window Length. It must be greater than 1. (found %d)"
+                self.logger.error("Invalid Moving Average Window Length. It must be greater than 1. (found %d)"
                                % move_avg_len)
             else:
                 lw = 1
@@ -433,7 +433,7 @@ class Playback(SkalabBase):
                     self.move_avg = {}
                     if self.wg.qcheck_movavg.isChecked():
                         if move_avg_len > len(self.power_x):
-                            self.log.error("Invalid Moving Average Window Length. "
+                            self.logger.error("Invalid Moving Average Window Length. "
                                            "Forced to the maximum allowed length as size of data vector %d" % len(x))
                             move_avg_len = len(self.power_x)
                             self.power_x = [self.power_x[int(move_avg_len / 2)]]
@@ -573,9 +573,9 @@ class Playback(SkalabBase):
             if result == QtWidgets.QMessageBox.Yes:
                 fpath = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select a destination Directory"))
                 if os.path.exists(fpath) and fpath:
-                    self.log.info("Saving data in " + fpath)
+                    self.logger.info("Saving data in " + fpath)
                     for k in self.move_avg.keys():
-                        self.log.info("Saving: " + fpath + "/" + k + ".txt")
+                        self.logger.info("Saving: " + fpath + "/" + k + ".txt")
                         with open(fpath + "/" + k + ".txt", "w") as f:
                             for n, d in enumerate(self.move_avg[k]):
                                 f.write("%d\t%6.3f\n" % (self.power_x[n], d))
@@ -598,7 +598,7 @@ class Playback(SkalabBase):
                 fpath = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select a destination Directory"))
                 if os.path.exists(fpath) and fpath:
                     tnow = datetime.datetime.strftime(datetime.datetime.utcnow(), "TILE-%02d_SPECTOGRAM_SAVED_ON_%Y-%m-%d_%H%M%S.png")
-                    self.log.info("Saving: " + fpath + "/" + tnow)
+                    self.logger.info("Saving: " + fpath + "/" + tnow)
                     self.spectrogramPlots.savePicture(fpath + "/" + tnow)
         elif self.wg.qradio_avg.isChecked():
             result = QtWidgets.QMessageBox.question(self, "Save Picture...",
@@ -608,7 +608,7 @@ class Playback(SkalabBase):
                 fpath = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select a destination Directory"))
                 if os.path.exists(fpath) and fpath:
                     tnow = datetime.datetime.strftime(datetime.datetime.utcnow(), "TILE-%02d_AVERAGED_SPECTRA_SAVED_ON_%Y-%m-%d_%H%M%S.png")
-                    self.log.info("Saving: " + fpath + "/" + tnow)
+                    self.logger.info("Saving: " + fpath + "/" + tnow)
                     self.miniPlots.savePicture(fpath + "/" + tnow)
         elif self.wg.qradio_raw.isChecked():
             result = QtWidgets.QMessageBox.question(self, "Save Picture...",
@@ -618,7 +618,7 @@ class Playback(SkalabBase):
                 fpath = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select a destination Directory"))
                 if os.path.exists(fpath) and fpath:
                     tnow = datetime.datetime.strftime(datetime.datetime.utcnow(), "TILE-%02d_ADC-RAW-DATA_SAVED_ON_%Y-%m-%d_%H%M%S.png")
-                    self.log.info("Saving: " + fpath + "/" + tnow)
+                    self.logger.info("Saving: " + fpath + "/" + tnow)
                     self.rawPlots.savePicture(fpath + "/" + tnow)
         elif self.wg.qradio_rms.isChecked():
             result = QtWidgets.QMessageBox.question(self, "Save Picture...",
@@ -628,7 +628,7 @@ class Playback(SkalabBase):
                 fpath = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select a destination Directory"))
                 if os.path.exists(fpath) and fpath:
                     tnow = datetime.datetime.strftime(datetime.datetime.utcnow(), "TILE-%02d_RMS_SAVED_ON_%Y-%m-%d_%H%M%S.png")
-                    self.log.info("Saving: " + fpath + "/" + tnow)
+                    self.logger.info("Saving: " + fpath + "/" + tnow)
                     self.rmsPlots.savePicture(fpath + "/" + tnow)
         elif self.wg.qradio_power.isChecked():
             result = QtWidgets.QMessageBox.question(self, "Save Picture...",
@@ -638,7 +638,7 @@ class Playback(SkalabBase):
                 fpath = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select a destination Directory"))
                 if os.path.exists(fpath) and fpath:
                     tnow = datetime.datetime.strftime(datetime.datetime.utcnow(), "TILE-%02d_POWER_SAVED_ON_%Y-%m-%d_%H%M%S.png")
-                    self.log.info("Saving: " + fpath + "/" + tnow)
+                    self.logger.info("Saving: " + fpath + "/" + tnow)
                     self.powerPlots.savePicture(fpath + "/" + tnow)
 
     def reformat_plots(self):
@@ -855,8 +855,8 @@ class Playback(SkalabBase):
 
     def cmdClose(self):
         self.stopThreads = True
-        self.logger.logger.info("Stopping Threads")
-        self.logger.stopLog()
+        self.loggerger.logger.info("Stopping Threads")
+        self.loggerger.stopLog()
 
     def closeEvent(self, event):
         result = QtWidgets.QMessageBox.question(self,
