@@ -113,13 +113,20 @@ def getDefaultThreshold(tlm,top_attr):
 def writeThresholds(alarm_box, warning_box, alarm, *warning):
     alarm_box.clear()
     warning_box.clear()
-    for item in alarm:
-        alarm_box.appendPlainText(str(item))
-    if warning:
-        for item in warning:
-            warning_box.appendPlainText(str(item))
+    if isinstance(alarm,list):
+        for item in alarm:
+            alarm_box.appendPlainText(str(item))
+        if warning:
+            for item in warning:
+                warning_box.appendPlainText(str(item))
+        else:
+            warning_box.appendPlainText("Warning thresholds are not implementd yet.")
     else:
-        warning_box.appendPlainText("Subrack warning thresholds are not implementd yet.")
+        for key, value in alarm.items():  
+            alarm_box.appendPlainText('%s:%s\n' % (key, value))
+        if warning:
+            for key, value in warning[0].items():  
+                warning_box.appendPlainText('%s:%s\n' % (key, value))
     return
 
 def populateWarningAlarmTable(true_table, warning, alarm):

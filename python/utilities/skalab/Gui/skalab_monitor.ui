@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1329</width>
-    <height>904</height>
+    <width>1317</width>
+    <height>903</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1008,7 +1008,7 @@
            <x>360</x>
            <y>690</y>
            <width>241</width>
-           <height>81</height>
+           <height>99</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
@@ -22427,7 +22427,7 @@
          <x>600</x>
          <y>710</y>
          <width>431</width>
-         <height>81</height>
+         <height>91</height>
         </rect>
        </property>
        <property name="html">
@@ -22435,8 +22435,8 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;API_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; cannot be overwritten. &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Save your changes using  a different filename.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;API_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; wil be overwritten once the tool is restarted. &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Please save your changes using  a different filename.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Once the file has been modified, it must be reloaded to be activated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
@@ -22552,7 +22552,7 @@ p, li { white-space: pre-wrap; }
          <x>600</x>
          <y>720</y>
          <width>511</width>
-         <height>81</height>
+         <height>91</height>
         </rect>
        </property>
        <property name="html">
@@ -22560,8 +22560,8 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;default_tpm_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; cannot be overwritten. &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Save your changes using  a different filename.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;default_tpm_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; wil be overwritten once the tool is restarted. &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Please save your changes using  a different filename.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Once the file has been modified, it must be reloaded to be activated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
@@ -22578,7 +22578,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>0</x>
        <y>10</y>
-       <width>661</width>
+       <width>971</width>
        <height>851</height>
       </rect>
      </property>
