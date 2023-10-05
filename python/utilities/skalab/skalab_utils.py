@@ -680,7 +680,7 @@ def calc_disk_usage(directory=".", pattern="*.hdf5"):
         # if len(str(total)) > 3:
         #     total = total / 1000.
         #     unit = 'GB'
-        return "%d%s" % (float(l[0].replace(",", ".")[:-1]), l[0][-1])
+        return "%s" % (l[0].replace(",", "."))
     except:
         return "0 MB"
 
