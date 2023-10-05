@@ -4,14 +4,14 @@ import socket
 import numpy as np
 
 from pyaavs import station
+from pyaavs.station import configuration
 from skalab_base import SkalabBase
+from skalab_utils import editClone
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from time import sleep
 from pyfabil import TPMGeneric
 from future.utils import iteritems
 from pyfabil.base.definitions import LibraryError, BoardError, PluginError, InstrumentError
-#from skalab_monitor import MonitorSubrack
-
 
 def populateWarningAlarmTable(true_table, warning, alarm):
         true_table.setEditTriggers(QtWidgets.QTableWidget.AllEditTriggers)
@@ -40,6 +40,19 @@ class TileInitialization(SkalabBase):
         if 'Extras' in self.profile.keys():
             if 'text_editor' in self.profile['Extras'].keys():
                 self.text_editor = self.profile['Extras']['text_editor']
+        self.wg.initbar.setStyleSheet("QProgressBar"
+                          "{"
+                            "background-color : rgba(255, 0, 0, 255);"
+                            "border : 1px"
+                          "}"
+  
+                          "QProgressBar::chunk"
+                          "{"
+                            "background : rgba(0, 255, 0, 255);"
+                          "}"
+                          )
+        self.wg.initbar.hide()
+
         if self.config_file:  
             station.load_configuration_file(self.config_file)
             self.station_name = station.configuration['station']['name']
@@ -57,21 +70,71 @@ class TileInitialization(SkalabBase):
 
     def loadEventStation(self):
         self.wg.qbutton_station_init.clicked.connect(lambda: self.station_init())
+        self.wg.qbutton_load_configuration.clicked.connect(lambda: self.setup_config())
+        self.wg.qbutton_browse.clicked.connect(lambda: self.browse_config())
+        self.wg.qbutton_edit.clicked.connect(lambda: editClone(self.wg.qline_configfile.text(), self.text_editor))
+
+    def browse_config(self):
+        fd = QtWidgets.QFileDialog()
+        fd.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        options = fd.options()
+        self.config_file = fd.getOpenFileName(self, caption="Select a Station Config File...",
+                                              directory="/opt/aavs/config/", options=options)[0]
+        self.wg.qline_configfile.setText(self.config_file)
+
+    def setup_config(self):
+        if not self.config_file == "":
+            # self.wgPlay.config_file = self.config_file
+            # self.wgLive.config_file = self.config_file
+            station.configuration = configuration.copy()
+            station.load_configuration_file(self.config_file)
+            self.wg.qline_configfile.setText(self.config_file)
+            self.station_name = station.configuration['station']['name']
+            self.nof_tiles = len(station.configuration['tiles'])
+            self.nof_antennas = int(station.configuration['station']['number_of_antennas'])
+            self.bitfile = station.configuration['station']['bitfile']
+            self.wg.qlabel_bitfile.setText(self.bitfile)
+            self.truncation = int(station.configuration['station']['channel_truncation'])
+            self.populate_table_station()
+            # if not self.wgPlay == None:
+            #     self.wgPlay.wg.qcombo_tpm.clear()
+            # if not self.wgLive == None:
+            #     self.wgLive.wg.qcombo_tpm.clear()
+            self.tiles = []
+            for n, i in enumerate(station.configuration['tiles']):
+                # if not self.wgPlay == None:
+                #     self.wgPlay.wg.qcombo_tpm.addItem("TPM-%02d (%s)" % (n + 1, i))
+                # if not self.wgLive == None:
+                #     self.wgLive.wg.qcombo_tpm.addItem("TPM-%02d (%s)" % (n + 1, i))
+                self.tiles += [i]
+        else:
+            msgBox = QtWidgets.QMessageBox()
+            msgBox.setText("SKALAB: Please SELECT a valid configuration file first...")
+            msgBox.setWindowTitle("Error!")
+            msgBox.exec_()
+
 
     def do_station_init(self):
+        self.wg.initbar.setValue(40)
         station.configuration['station']['initialise'] = True
         station.configuration['station']['program'] = True
         try:
             self.tpm_station = station.Station(station.configuration)
             self.wg.qbutton_station_init.setEnabled(False)
+            self.wg.initbar.setValue(70)
             self.tpm_station.connect()
+            self.wg.initbar.hide()
             station.configuration['station']['initialise'] = False
             station.configuration['station']['program'] = False
             if self.tpm_station.properly_formed_station:
                 self.wg.qbutton_station_init.setStyleSheet("background-color: rgb(78, 154, 6);")
-                for k in self.tpm_slot_ip.keys():
-                    self.tpm_initialized[k-1] = True
-                self.wait_check_tpm.set()
+                for k in range(len(self.tpm_slot_ip)):
+                    if self.tpm_slot_ip[k] in self.tpm_station.configuration['tiles'] and self.tpm_slot_ip[k] != '0' :
+                        self.tpm_initialized[k] = True
+                        self.tpm_station.configuration['tiles'].index(self.tpm_slot_ip[k])
+                        self.tpm_active[k] = self.tpm_station.tiles[self.tpm_station.configuration['tiles'].index(self.tpm_slot_ip[k])]
+                self.tpmStatusChanged()
+                #self.wait_check_tpm.set()
                 # Switch On the PreADUs
                 for tile in self.tpm_station.tiles:
                     tile["board.regfile.enable.fe"] = 1
@@ -79,8 +142,6 @@ class TileInitialization(SkalabBase):
                 sleep(1)
                 self.tpm_station.set_preadu_attenuation(0)
                 self.logger.info("TPM PreADUs Powered ON")
-
-
             else:
                 self.wg.qbutton_station_init.setStyleSheet("background-color: rgb(204, 0, 0);")
             self.wg.qbutton_station_init.setEnabled(True)
@@ -97,15 +158,28 @@ class TileInitialization(SkalabBase):
                                             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if result == QtWidgets.QMessageBox.Yes:
             if self.config_file:
+                tpm_ip_from_subrack = []
+                self.wg.initbar.show()
                 # Create station
                 station.load_configuration_file(self.config_file)
                 # Check wether the TPM are ON or OFF
                 station_on = True
+                self.wg.initbar.setValue(10)
                 tpm_ip_list = list(station.configuration['tiles'])
-                tpm_ip_from_subrack = MonitorSubrack.getTiles(self)
+                # TODO : self.client.get_attribute('tpm_ips')['value'] sometimes gives None 
+                """  with self._subrack_lock:
+                    self.tpm_status_info['tpm_ips'] = self.client.get_attribute('tpm_ips')['value'] # update tpm ip
+                tpm_ip_from_subrack = self.tpm_status_info['tpm_ips'] """
+                
+                # workaround
+                for i in range(8):
+                    if self.tpm_status_info['tpm_on_off'][i]:
+                        tpm_ip_from_subrack.append(self.tpm_status_info['assigned_tpm_ip_adds'][i])
+
+                self.wg.initbar.setValue(20)
                 if tpm_ip_from_subrack:
-                    tpm_ip_from_subrack_short = [x for x in tpm_ip_from_subrack if not x == '0']
-                    if not len(tpm_ip_list) == len(tpm_ip_from_subrack_short):
+                    if not len(tpm_ip_list) == len(tpm_ip_from_subrack):
+                        self.wg.initbar.hide()
                         msgBox = QtWidgets.QMessageBox()
                         message = "STATION\nOne or more TPMs forming the station are OFF\nPlease check the power!"
                         msgBox.setText(message)
@@ -114,15 +188,15 @@ class TileInitialization(SkalabBase):
                         details = "STATION IP LIST FROM CONFIG FILE (%d): " % len(tpm_ip_list)
                         for i in tpm_ip_list:
                             details += "\n%s" % i
-                        details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack_short)
-                        for i in tpm_ip_from_subrack_short:
+                        details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack)
+                        for i in tpm_ip_from_subrack:
                             details += "\n%s" % i
                         msgBox.setDetailedText(details)
                         msgBox.exec_()
-                        self.logger.info(self.wgSubrack.telemetry)
+                        #self.logger.info(self.wgSubrack.telemetry)
                         return
                     else:
-                        if not np.array_equal(tpm_ip_list, tpm_ip_from_subrack_short):
+                        if not np.array_equal(tpm_ip_list, tpm_ip_from_subrack):
                             msgBox = QtWidgets.QMessageBox()
                             message = "STATION\nIPs provided by the Subrack are different from what defined in the " \
                                     "config file.\nINIT will use the new assigned IPs."
@@ -132,14 +206,15 @@ class TileInitialization(SkalabBase):
                             details = "STATION IP LIST FROM CONFIG FILE (%d): " % len(tpm_ip_list)
                             for i in tpm_ip_list:
                                 details += "\n%s" % i
-                            details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack_short)
-                            for i in tpm_ip_from_subrack_short:
+                            details += "\n\nSUBRACK IP LIST OF TPM POWERED ON: (%d): " % len(tpm_ip_from_subrack)
+                            for i in tpm_ip_from_subrack:
                                 details += "\n%s" % i
                             msgBox.setDetailedText(details)
                             msgBox.exec_()
-                            station.configuration['tiles'] = list(tpm_ip_from_subrack_short)
+                            station.configuration['tiles'] = list(tpm_ip_from_subrack)
                             self.wgLive.setupNewTilesIPs(list(tpm_ip_from_subrack))
                 for tpm_ip in station.configuration['tiles']:
+                    self.wg.initbar.setValue(30)
                     try:
                         tpm = TPMGeneric()
                         tpm_version = tpm.get_tpm_version(socket.gethostbyname(tpm_ip), 10000)
