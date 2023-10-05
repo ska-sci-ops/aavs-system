@@ -35,7 +35,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from skalab_live import Live
 from skalab_playback import Playback
 from skalab_subrack import Subrack
-from skalab_monitor import Monitor
+#from skalab_monitor import MonitorTPM
 from skalab_station import SkalabStation
 from skalab_utils import parse_profile, getTextFromFile
 from skalab_base import ConfWizard
