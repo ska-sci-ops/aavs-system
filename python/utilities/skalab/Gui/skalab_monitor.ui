@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1317</width>
+    <width>1310</width>
     <height>903</height>
    </rect>
   </property>
@@ -765,7 +765,7 @@
            <x>0</x>
            <y>3</y>
            <width>651</width>
-           <height>651</height>
+           <height>611</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout">
@@ -825,8 +825,8 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>710</x>
-           <y>470</y>
+           <x>680</x>
+           <y>490</y>
            <width>551</width>
            <height>301</height>
           </rect>
@@ -940,7 +940,7 @@
            <x>680</x>
            <y>4</y>
            <width>291</width>
-           <height>211</height>
+           <height>411</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
@@ -1005,8 +1005,8 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>360</x>
-           <y>690</y>
+           <x>370</x>
+           <y>620</y>
            <width>241</width>
            <height>99</height>
           </rect>
@@ -1039,8 +1039,8 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>680</x>
-           <y>234</y>
+           <x>30</x>
+           <y>620</y>
            <width>281</width>
            <height>171</height>
           </rect>
@@ -1280,7 +1280,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tpm1_attribute_tab">
         <attribute name="title">
@@ -3914,7 +3914,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tpm1_attribute_tab_2">
         <attribute name="title">
@@ -22398,7 +22398,7 @@
         <item>
          <widget class="QLineEdit" name="qline_subrack_threshold">
           <property name="text">
-           <string>API_alarm.txt</string>
+           <string>default_subrack_alarm.txt</string>
           </property>
           <property name="readOnly">
            <bool>true</bool>
@@ -22435,10 +22435,10 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;API_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; wil be overwritten once the tool is restarted. &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600;&quot;&gt;default_subrack&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; wil be overwritten everytime ther subrack is connected. &lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Please save your changes using  a different filename.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Once the file has been modified, it must be reloaded to be activated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Once the file has been modified, it must be loaded to be activated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </widget>

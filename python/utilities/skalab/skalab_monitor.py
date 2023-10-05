@@ -120,9 +120,7 @@ class MonitorTPM(TileInitialization):
         self.tpm_table_address = []       
         self.tpm_alarm_thresholds = {}
         self.tpm_interval = self.profile['Monitor']['tpm_query_interval']
-        table_address = self.profile['Tpm']['tpm_tables_address'].split(",,")
-        for d in range(len(table_address)):
-            self.tpm_table_address.append(eval(table_address[d]))
+        self.tpm_table_address = tpm_tables_address
         self.tlm_hdf_tpm_monitor = []
         self.tpm_initialized = [False] * 8
         self.tpm_table = []
@@ -159,9 +157,8 @@ class MonitorTPM(TileInitialization):
         for i in range(8):
             self.qled_tpm[i] = []
             for j in range(len(MIN_MAX_MONITORING_POINTS)):
-                led = Led(self.wg.table_alarms)
-                self.qled_tpm[i].append(led)
-                self.wg.led_layout.addWidget(led,j,i,QtCore.Qt.AlignCenter)
+                self.qled_tpm[i].append(Led(self.wg.table_alarms))
+                self.wg.led_layout.addWidget(self.qled_tpm[i][-1],j,i,QtCore.Qt.AlignCenter)
                 
 
     def setTpmThreshold(self, warning_factor):
@@ -229,20 +226,13 @@ class MonitorTPM(TileInitialization):
     
 
     def clearTpmValues(self):
-        with (self._lock_led):
-            self.subrack_led.Colour = Led.Grey
-            self.subrack_led.m_value = False
-            for table in self.subrack_table:
-                table.clearContents()
-            
-            # for i in range(16):
-            #     self.qled_alert[int(i/2)].Colour = Led.Grey
-            #     self.qled_alert[int(i/2)].value = False  
-            #     for attr in self.alarm:
-            #         self.alarm[attr][int(i/2)] = False
-            #         if attr in self.tile_table_attr:
-            #             self.tile_table_attr[attr][i].setText(str(""))
-            #             self.tile_table_attr[attr][i].setStyleSheet("color: black; background:white")  
+        with (self._tpm_lock_led and self._tpm_lock_threshold):
+            for i in range(8):
+                for led in self.qled_tpm[i]:
+                    led.Colour = Led.Grey
+                    led.m_value = False
+                for table in self.tpm_table[i]:
+                    table.clearContents()
                          
 
     def populateTileInstance(self):
@@ -259,6 +249,7 @@ class MonitorTPM(TileInitialization):
                     pass
                 else:
                     self.logger.warning(f"ATTENTION: TMP IP: {j} in {self.config_file} is not detected by the Subrack.")
+
 
 
     def tpmStatusChanged(self):
@@ -284,35 +275,40 @@ class MonitorTPM(TileInitialization):
                             L = self.tpm_active[index].get_health_status()
                         if self.wg.check_tpm_savedata.isChecked(): self.saveTpmData(L,index)
                     except:
-                        with self._tpm_lock_threshold:
-                            self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
+                        self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
                         continue
-                    self.signal_update_tpm_attribute.emit(L,index)
+                    with self._tpm_lock_threshold:
+                        self.signal_update_tpm_attribute.emit(L,index)
             sleep(float(self.interval_monitor))    
 
     def unfoldTpmAttribute(self, tpm_dict, tpm_index):
         with self._tpm_lock_threshold:
             for i in range(len(self.tpm_table[tpm_index])): #loop to select table
+                led_id = self.select_led(i)
                 table = self.tpm_table[tpm_index][i]
                 for key in list(self.tpm_table_address[i].values()): # loop to select the content of the table
                     if isinstance(key,list):
                         tpm_values = []
                         filtered_alarm =  []
                         filtered_warning = []
+                        tpm_attr = []
                         for attribute in key:
                             v = eval("tpm_dict" + attribute)
                             va = eval("self.tpm_alarm_shadow" + attribute)
                             vw = eval("self.tpm_warning_thresholds" + attribute)
                             tpm_values.extend(list(v.values())) if not(isinstance(v,bool)) else tpm_values.append(v)
+                            ta = list(v.keys()) if not(isinstance(v,bool)) else v
+                            tpm_attr.extend([f"{attribute} {x}" for x in ta] if not (isinstance(v,bool)) else [attribute])
                             filtered_alarm.extend(list(va.values())) if not(isinstance(va,bool)) else filtered_alarm.append(va)
                             filtered_warning.extend(list(vw.values())) if not(isinstance(vw,bool)) else filtered_warning.append(vw)
                     elif not(isinstance(eval("tpm_dict" + key),tuple)) and not(isinstance(eval("tpm_dict" + key),bool)):
-                        #tpm_top_attr = eval(key)
                         tpm_values = list(eval('tpm_dict'+key).values())
-                        tpm_attr = list(eval('tpm_dict'+key).keys())
+                        ta = list(eval('tpm_dict'+key).keys())
+                        tpm_attr = [f"{key} {x}" for x in ta]
                         filtered_alarm = list(eval('self.tpm_alarm_shadow'+key).values())
                         filtered_warning = list(eval('self.tpm_warning_thresholds'+key).values())
                     else:
+                        tpm_attr = [key]
                         tpm_values = [eval('tpm_dict'+key)] #for a tuple
                         filtered_alarm = [eval('self.tpm_alarm_shadow'+key)]
                         filtered_warning = [eval('self.tpm_warning_thresholds'+key)]
@@ -338,26 +334,36 @@ class MonitorTPM(TileInitialization):
                                 item = table.item(j,1)
                                 item.setForeground(QColor("white"))
                                 item.setBackground(QColor("#ff0000")) # red
-                                self.logger.error(f"ERROR: {tpm_attr[j]} parameter is out of range!") #key instead of tpm_attr[j]?
-                                #self.alarm[attr][int(ind/2)] = True
+                                self.logger.error(f"ERROR in TPM{tpm_index}: {tpm_attr[j]} parameter is out of range!")
                                 # Change the color only if it not 1=red
-                                # if not(self.qled_tpm[top].Colour==1):
-                                #     with self._tpm_lock_led:
-                                #         self.self.qled_tpm[top].Colour = Led.Red
-                                #         self.self.qled_tpm[top].value = True 
+                                if not(self.qled_tpm[tpm_index][led_id].Colour==1):
+                                    with self._tpm_lock_led:
+                                        self.qled_tpm[tpm_index][led_id].Colour = Led.Red
+                                        self.qled_tpm[tpm_index][led_id].value = True 
                             elif not(min_warn <= value <= max_warn) and not(item.background().color().name() == '#ff0000'):
                                 table.setItem(j,1, QtWidgets.QTableWidgetItem(str(value)))
                                 item = table.item(j, 1)
                                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                                 item.setForeground(QColor("white"))
                                 item.setBackground(QColor("#ff8000")) #orange
-                                self.logger.warning(f"WARNING: {tpm_attr[j]} parameter is near the out of range threshold!")
+                                self.logger.warning(f"WARNING in TPM{tpm_index}: {tpm_attr[j]} parameter is near the out of range threshold!")
                                 # Change the color only if it is 4=Grey
-                                # if self.subrack_led.Colour==4: 
-                                #     with self._subrack_lock_led:
-                                #         self.subrack_led.Colour=Led.Orange
-                                #         self.subrack_led.value = True
-
+                                if self.qled_tpm[tpm_index][led_id].Colour==4: 
+                                    with self._tpm_lock_led:
+                                        self.qled_tpm[tpm_index][led_id].Colour=Led.Orange
+                                        self.qled_tpm[tpm_index][led_id].value = True
+    def select_led(self,index):
+        # with if for python<3.10
+        if index < 5:
+            return index
+        elif index > 27:
+            return 8
+        elif 4<index<8:
+            return 5
+        elif 7<index<12:
+            return 6
+        else:
+            return 7
 
     def setupTpmHdf5(self):
         default_app_dir = str(Path.home()) + "/.skalab/monitoring/tpm_monitor/"
@@ -466,7 +472,10 @@ class MonitorSubrack(MonitorTPM):
             self.wg.qline_subrack_threshold.setText(self.filename)
             with self._subrack_lock_threshold:
                 if self.connected:
-                    [self.alarm, self.warning] = getThreshold(self.wg,self.tlm_keys,self.top_attr,self.subrack_warning_factor)
+                    # TODO
+                    self.alarm = getThreshold(self.wg,self.tlm_keys,self.top_attr)#,self.subrack_warning_factor)
+                else:
+                    self.logger.warning("Connect to the Subrack to load the threshold table.")    
         return
 
 
@@ -589,7 +598,6 @@ class MonitorSubrack(MonitorTPM):
                     self.logger.info("Populate monitoring table...")
                     [self.subrack_table, self.sub_attribute] = populateSubrackTable(self.wg,self.tlm_keys,self.top_attr)
                     self.wg.subrackbar.setValue(40)
-                    self.wg.qbutton_clear_subrack.setEnabled(True)
                     for tlmk in self.query_once:
                         data = self.client.get_attribute(tlmk)
                         if data["status"] == "OK":
@@ -622,6 +630,8 @@ class MonitorSubrack(MonitorTPM):
                     with self._subrack_lock:
                         self.updateTpmStatus()
                     self.wg.subrackbar.setValue(100)
+                    self.wg.qbutton_clear_subrack.setEnabled(True)
+                    self.wg.qbutton_clear_tpm.setEnabled(True)
                     # print("start temperature thread")
                     # self.temperature_thread.start()
                     # print("start slot thread")
@@ -643,9 +653,12 @@ class MonitorSubrack(MonitorTPM):
                 self.wait_check_tpm.clear()
                 self.wait_check_subrack.clear()
                 self.connected = False
+                self.wg.qbutton_station_init.setStyleSheet("background-color: rgb(255, 255, 255);")
                 self.wg.qbutton_station_init.setEnabled(False) 
                 self.wg.subrack_button.setStyleSheet("background-color: rgb(204, 0, 0);")
                 self.wg.subrack_button.setText("OFFLINE")
+                self.wg.qbutton_clear_subrack.setEnabled(False)
+                self.wg.qbutton_clear_tpm.setEnabled(False)
                 #[item.setEnabled(False) for item in self.qbutton_tpm]
                 self.client.disconnect()
                 del self.client

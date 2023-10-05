@@ -13,7 +13,21 @@ from pyfabil import TPMGeneric
 from future.utils import iteritems
 from pyfabil.base.definitions import LibraryError, BoardError
 
-
+tpm_tables_address = [
+    {'temperature': '["temperatures"]'},\
+    {'voltage': '["voltages"]'},\
+    {'current': '["currents"]'},\
+    {'alarm': '["alarms"]'},\
+    {'adcpll': '["adcs"]["pll_status"]'}, {'adcsysref': '["adcs"]["sysref_timing_requirements"]'}, {'adccounter': '["adcs"]["sysref_counter"]'},\
+    {'clock_fpga0': ['["timing"]["clocks"]["FPGA0"]', '["timing"]["clock_managers"]["FPGA0"]']}, {'clock_fpga1': ['["timing"]["clocks"]["FPGA1"]',\
+    '["timing"]["clock_managers"]["FPGA1"]']}, {'pps': '["timing"]["pps"]'}, {'pll': '["timing"]["pll"]'},\
+    {'jesd': ['["io"]["jesd_interface"]["link_status"]', '["io"]["jesd_interface"]["lane_status"]']}, {'jesdlane_fpga0_core0': '["io"]["jesd_interface"]["lane_error_count"]["FPGA0"]["Core0"]'},\
+    {'jesdlane_fpga0_core1': '["io"]["jesd_interface"]["lane_error_count"]["FPGA0"]["Core1"]'}, {'jesdlane_fpga1_core0': '["io"]["jesd_interface"]["lane_error_count"]["FPGA1"]["Core0"]'},\
+    {'jesdlane_fpga1_core1': '["io"]["jesd_interface"]["lane_error_count"]["FPGA1"]["Core1"]'}, {'jesdfpga0': '["io"]["jesd_interface"]["resync_count"]'}, {'jesdfpga1': '["io"]["jesd_interface"]["qpll_status"]'},\
+    {'ddr': '["io"]["ddr_interface"]["initialisation"]'}, {'ddr1_reset': '["io"]["ddr_interface"]["reset_counter"]'}, {'f2f': '["io"]["f2f_interface"]'}, {'udp': ['["io"]["udp_interface"]["arp"]', '["io"]["udp_interface"]["status"]']},\
+    {'crcerrorcount': '["io"]["udp_interface"]["crc_error_count"]'}, {'linkuplosscount': '["io"]["udp_interface"]["linkup_loss_count"]'}, {'biperrorcount_fpga0': '["io"]["udp_interface"]["bip_error_count"]["FPGA0"]'},\
+    {'biperrorcount_fpga1': '["io"]["udp_interface"]["bip_error_count"]["FPGA1"]'}, {'decodeerrorcount_fpga0': '["io"]["udp_interface"]["bip_error_count"]["FPGA0"]'}, {'decodeerrorcount_fpga1': '["io"]["udp_interface"]["bip_error_count"]["FPGA1"]'},\
+    {'dsp': '["dsp"]["tile_beamf"]'}, {'dsp_station': '["dsp"]["station_beamf"]["status"]'}, {'ddr_parity': '["dsp"]["station_beamf"]["ddr_parity_error_count"]'}]
 # TODO USE this 2 methods when subrack attributes are defined
 """ def getThreshold(wg,tlm,top_attr,warning_factor):
     default = wg.qline_subrack_threshold.text()
@@ -72,7 +86,7 @@ def getDefaultThreshold(tlm,top_attr,warning_factor):
 # TODO this methods are temnporaney
 def getThreshold(wg,tlm,top_attr):
     default = wg.qline_subrack_threshold.text()
-    if default != 'API_alarm.txt':
+    if default != 'default_subrack_alarm.txt':
         try:
             with open(default, 'r') as file:
                 a_lines = []
@@ -81,10 +95,6 @@ def getThreshold(wg,tlm,top_attr):
                     line = eval(line)
                     a_lines.append(line)
             alarm = a_lines
-            for i in range(len(top_attr)):
-                keys = list(alarm[i][top_attr[i]].keys())
-                for j in range(len(keys)):
-                    alarm_values = list(alarm[i][top_attr[i]][keys[j]])
         except:
             #log error
             alarm = getDefaultThreshold(tlm,top_attr)
@@ -103,7 +113,7 @@ def getDefaultThreshold(tlm,top_attr):
         for j in range(len(keys)):
             alarm_values = list(tlm[i][top_attr[i]][keys[j]]['exp_value'].values())
             alarm[i][top_attr[i]][keys[j]] =  alarm_values
-    file = open('API_alarm.txt','w+')
+    file = open('default_subrack_alarm.txt','w+')
     for item in alarm:
         file.write(str(item) + "\n")
     file.close()
