@@ -79,7 +79,7 @@ class Playback(SkalabBase):
         self.wgProBox.setVisible(True)
         self.wgProBox.show()
         super(Playback, self).__init__(App="playback", Profile=profile, Path=swpath, parent=self.wgProBox)
-        self.loggerger = SkalabLog(parent=self.wg.qw_log, logname=__name__, profile=self.profile)
+        self.logger = SkalabLog(parent=self.wg.qw_log, logname=__name__, profile=self.profile)
         self.setCentralWidget(self.wg)
         self.resize(size[0], size[1])
 
