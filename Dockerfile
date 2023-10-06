@@ -13,14 +13,10 @@ ENV AAVS_PYTHON_BIN=/usr/bin/python3.10
 RUN chmod +x /app/deploy.sh
 
 RUN ["/bin/bash", "-c", "/app/deploy.sh -c"]
-# RUN setcap cap_net_raw,cap_ipc_lock,cap_sys_nice,cap_sys_admin,cap_kill+ep /usr/bin/python3.10
 
-# RUN ["/bin/bash", "-c", "source /opt/aavs/python/bin/activate"]
 ENV VIRTUAL_ENV=/opt/aavs/python/
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 WORKDIR /app/
 USER tango
-
-# ENV PATH="/opt/aavs/python/bin/activate"

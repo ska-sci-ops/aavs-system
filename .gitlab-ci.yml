@@ -12,11 +12,27 @@
 # Stages run in sequential order, but jobs within stages run in parallel.
 #
 # For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
+# GitLab CI in conjunction with GitLab Runner can use Docker Engine to test and build any application.
+# Docker, when used with GitLab CI, runs each job in a separate and isolated container using the predefined image that is set up in .gitlab-ci.yml.
+# In this case we use the latest python docker image to build and test this project.
+
+image: $SKA_K8S_TOOLS_DOCKER_BUILDER_IMAGE
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+# cache is used to specify a list of files and directories which should be cached between jobs. You can only use paths that are within the project workspace.
+# If cache is defined outside the scope of jobs, it means it is set globally and all jobs will use that definition
+cache:
+  paths:
+    - build
+
 
 stages:          # List of stages for jobs, and their order of execution
   - build
   - test
   - deploy
+  - publish
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
@@ -43,3 +59,9 @@ deploy-job:      # This job runs in the deploy stage.
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
+
+
+include:
+  # OCI
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'
