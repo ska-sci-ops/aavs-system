@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1329</width>
-    <height>904</height>
+    <width>1310</width>
+    <height>903</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -753,7 +753,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabAttributes">
         <attribute name="title">
@@ -763,13 +763,13 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>20</y>
-           <width>551</width>
-           <height>216</height>
+           <y>3</y>
+           <width>651</width>
+           <height>611</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
+          <item row="0" column="0" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_454">
             <property name="font">
              <font>
@@ -785,7 +785,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_456">
             <property name="font">
              <font>
@@ -794,7 +794,7 @@
              </font>
             </property>
             <property name="text">
-             <string>PSU1</string>
+             <string>PSU2</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -825,14 +825,14 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>250</y>
+           <x>680</x>
+           <y>490</y>
            <width>551</width>
-           <height>436</height>
+           <height>301</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0" alignment="Qt::AlignLeft">
+          <item row="0" column="0" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_455">
             <property name="font">
              <font>
@@ -848,7 +848,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1" alignment="Qt::AlignLeft">
+          <item row="0" column="1" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_457">
             <property name="font">
              <font>
@@ -882,7 +882,7 @@
             </column>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="2" column="0" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_460">
             <property name="font">
              <font>
@@ -898,7 +898,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" alignment="Qt::AlignHCenter">
            <widget class="QLabel" name="label_459">
             <property name="font">
              <font>
@@ -937,10 +937,10 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>600</x>
-           <y>20</y>
-           <width>271</width>
-           <height>436</height>
+           <x>680</x>
+           <y>4</y>
+           <width>291</width>
+           <height>411</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
@@ -971,10 +971,10 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>930</x>
-           <y>10</y>
-           <width>311</width>
-           <height>401</height>
+           <x>990</x>
+           <y>3</y>
+           <width>261</width>
+           <height>411</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
@@ -1005,10 +1005,10 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>930</x>
-           <y>420</y>
-           <width>311</width>
-           <height>141</height>
+           <x>370</x>
+           <y>620</y>
+           <width>241</width>
+           <height>99</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
@@ -1039,10 +1039,10 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>930</x>
-           <y>560</y>
-           <width>311</width>
-           <height>181</height>
+           <x>30</x>
+           <y>620</y>
+           <width>281</width>
+           <height>171</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
@@ -1280,7 +1280,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tpm1_attribute_tab">
         <attribute name="title">
@@ -3914,7 +3914,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tpm1_attribute_tab_2">
         <attribute name="title">
@@ -22398,7 +22398,7 @@
         <item>
          <widget class="QLineEdit" name="qline_subrack_threshold">
           <property name="text">
-           <string>API_alarm.txt</string>
+           <string>default_subrack_alarm.txt</string>
           </property>
           <property name="readOnly">
            <bool>true</bool>
@@ -22427,7 +22427,7 @@
          <x>600</x>
          <y>710</y>
          <width>431</width>
-         <height>81</height>
+         <height>91</height>
         </rect>
        </property>
        <property name="html">
@@ -22435,10 +22435,10 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;API_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; cannot be overwritten. &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Save your changes using  a different filename.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600;&quot;&gt;default_subrack&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; wil be overwritten everytime ther subrack is connected. &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Please save your changes using  a different filename.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Once the file has been modified, it must be reloaded to be activated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Once the file has been modified, it must be loaded to be activated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </widget>
@@ -22552,7 +22552,7 @@ p, li { white-space: pre-wrap; }
          <x>600</x>
          <y>720</y>
          <width>511</width>
-         <height>81</height>
+         <height>91</height>
         </rect>
        </property>
        <property name="html">
@@ -22560,8 +22560,8 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;default_tpm_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; cannot be overwritten. &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Save your changes using  a different filename.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ATTENTION&lt;/span&gt;: the default file &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;default_tpm_alarm&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;txt&lt;/span&gt;&amp;quot; wil be overwritten once the tool is restarted. &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Please save your changes using  a different filename.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Once the file has been modified, it must be reloaded to be activated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
@@ -22578,7 +22578,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>0</x>
        <y>10</y>
-       <width>661</width>
+       <width>971</width>
        <height>851</height>
       </rect>
      </property>

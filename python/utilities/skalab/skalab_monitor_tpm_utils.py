@@ -2,16 +2,142 @@ import gc
 import logging
 import socket
 import numpy as np
-
+import copy
 from pyaavs import station
 from pyaavs.station import configuration
 from skalab_base import SkalabBase
 from skalab_utils import editClone
-from PyQt5 import QtWidgets, uic, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore, QtGui
 from time import sleep
 from pyfabil import TPMGeneric
 from future.utils import iteritems
-from pyfabil.base.definitions import LibraryError, BoardError, PluginError, InstrumentError
+from pyfabil.base.definitions import LibraryError, BoardError
+
+tpm_tables_address = [
+    {'temperature': '["temperatures"]'},\
+    {'voltage': '["voltages"]'},\
+    {'current': '["currents"]'},\
+    {'alarm': '["alarms"]'},\
+    {'adcpll': '["adcs"]["pll_status"]'}, {'adcsysref': '["adcs"]["sysref_timing_requirements"]'}, {'adccounter': '["adcs"]["sysref_counter"]'},\
+    {'clock_fpga0': ['["timing"]["clocks"]["FPGA0"]', '["timing"]["clock_managers"]["FPGA0"]']}, {'clock_fpga1': ['["timing"]["clocks"]["FPGA1"]',\
+    '["timing"]["clock_managers"]["FPGA1"]']}, {'pps': '["timing"]["pps"]'}, {'pll': '["timing"]["pll"]'},\
+    {'jesd': ['["io"]["jesd_interface"]["link_status"]', '["io"]["jesd_interface"]["lane_status"]']}, {'jesdlane_fpga0_core0': '["io"]["jesd_interface"]["lane_error_count"]["FPGA0"]["Core0"]'},\
+    {'jesdlane_fpga0_core1': '["io"]["jesd_interface"]["lane_error_count"]["FPGA0"]["Core1"]'}, {'jesdlane_fpga1_core0': '["io"]["jesd_interface"]["lane_error_count"]["FPGA1"]["Core0"]'},\
+    {'jesdlane_fpga1_core1': '["io"]["jesd_interface"]["lane_error_count"]["FPGA1"]["Core1"]'}, {'jesdfpga0': '["io"]["jesd_interface"]["resync_count"]'}, {'jesdfpga1': '["io"]["jesd_interface"]["qpll_status"]'},\
+    {'ddr': '["io"]["ddr_interface"]["initialisation"]'}, {'ddr1_reset': '["io"]["ddr_interface"]["reset_counter"]'}, {'f2f': '["io"]["f2f_interface"]'}, {'udp': ['["io"]["udp_interface"]["arp"]', '["io"]["udp_interface"]["status"]']},\
+    {'crcerrorcount': '["io"]["udp_interface"]["crc_error_count"]'}, {'linkuplosscount': '["io"]["udp_interface"]["linkup_loss_count"]'}, {'biperrorcount_fpga0': '["io"]["udp_interface"]["bip_error_count"]["FPGA0"]'},\
+    {'biperrorcount_fpga1': '["io"]["udp_interface"]["bip_error_count"]["FPGA1"]'}, {'decodeerrorcount_fpga0': '["io"]["udp_interface"]["bip_error_count"]["FPGA0"]'}, {'decodeerrorcount_fpga1': '["io"]["udp_interface"]["bip_error_count"]["FPGA1"]'},\
+    {'dsp': '["dsp"]["tile_beamf"]'}, {'dsp_station': '["dsp"]["station_beamf"]["status"]'}, {'ddr_parity': '["dsp"]["station_beamf"]["ddr_parity_error_count"]'}]
+# TODO USE this 2 methods when subrack attributes are defined
+""" def getThreshold(wg,tlm,top_attr,warning_factor):
+    default = wg.qline_subrack_threshold.text()
+    if default != 'API_alarm.txt':
+        try:
+            with open(default, 'r') as file:
+                a_lines = []
+                for line in file:
+                    line = line.strip()
+                    line = eval(line)
+                    a_lines.append(line)
+            alarm = a_lines
+            warning = copy.deepcopy(alarm)
+            for i in range(len(top_attr)):
+                keys = list(alarm[i][top_attr[i]].keys())
+                for j in range(len(keys)):
+                    alarm_values = list(alarm[i][top_attr[i]][keys[j]])
+                    if alarm_values != [None,None]:
+                        factor = (alarm_values[1]-alarm_values[0]) * (warning_factor)
+                        warning_values = [round(alarm_values[0] + factor,2), round(alarm_values[1] - factor,2)]
+                    else:
+                        warning_values = [None,None]
+                    warning[i][top_attr[i]][keys[j]] =  warning_values
+        except:
+            #log error
+            [alarm,warning] = getDefaultThreshold(tlm,top_attr,warning_factor)
+    else: 
+        [alarm,warning] = getDefaultThreshold(tlm,top_attr,warning_factor)
+
+    writeThresholds(wg.ala_text,wg.war_text, alarm, warning)
+    return alarm, warning 
+
+def getDefaultThreshold(tlm,top_attr,warning_factor):
+    #log load default api values
+    alarm = copy.deepcopy(tlm)
+    warning = copy.deepcopy(tlm)
+    alarm_values = {}
+    warning_values = {}
+    for i in range(len(top_attr)):
+        keys = list(tlm[i][top_attr[i]].keys())
+        for j in range(len(keys)):
+            alarm_values = list(tlm[i][top_attr[i]][keys[j]]['exp_value'].values())
+            alarm[i][top_attr[i]][keys[j]] =  alarm_values
+            if alarm_values != [None,None]:
+                factor = (alarm_values[1]-alarm_values[0]) * (warning_factor)
+                warning_values = [round(alarm_values[0] + factor,2), round(alarm_values[1] - factor,2)]
+            else:
+                warning_values = [None,None]
+            warning[i][top_attr[i]][keys[j]] =  warning_values
+    file = open('API_alarm.txt','w+')
+    for item in alarm:
+        file.write(str(item) + "\n")
+    file.close()
+    return alarm, warning """
+
+# TODO this methods are temnporaney
+def getThreshold(wg,tlm,top_attr):
+    default = wg.qline_subrack_threshold.text()
+    if default != 'default_subrack_alarm.txt':
+        try:
+            with open(default, 'r') as file:
+                a_lines = []
+                for line in file:
+                    line = line.strip()
+                    line = eval(line)
+                    a_lines.append(line)
+            alarm = a_lines
+        except:
+            #log error
+            alarm = getDefaultThreshold(tlm,top_attr)
+    else: 
+        alarm = getDefaultThreshold(tlm,top_attr)
+
+    writeThresholds(wg.ala_text,wg.war_text, alarm)
+    return alarm
+    
+def getDefaultThreshold(tlm,top_attr):
+    #log load default api values
+    alarm = copy.deepcopy(tlm)
+    alarm_values = {}
+    for i in range(len(top_attr)):
+        keys = list(tlm[i][top_attr[i]].keys())
+        for j in range(len(keys)):
+            alarm_values = list(tlm[i][top_attr[i]][keys[j]]['exp_value'].values())
+            alarm[i][top_attr[i]][keys[j]] =  alarm_values
+    file = open('default_subrack_alarm.txt','w+')
+    for item in alarm:
+        file.write(str(item) + "\n")
+    file.close()
+    return alarm
+
+
+def writeThresholds(alarm_box, warning_box, alarm, *warning):
+    alarm_box.clear()
+    warning_box.clear()
+    if isinstance(alarm,list):
+        for item in alarm:
+            alarm_box.appendPlainText(str(item))
+        if warning:
+            for item in warning:
+                warning_box.appendPlainText(str(item))
+        else:
+            warning_box.appendPlainText("Warning thresholds are not implementd yet.")
+    else:
+        for key, value in alarm.items():  
+            alarm_box.appendPlainText('%s:%s\n' % (key, value))
+        if warning:
+            for key, value in warning[0].items():  
+                warning_box.appendPlainText('%s:%s\n' % (key, value))
+    return
 
 def populateWarningAlarmTable(true_table, warning, alarm):
         true_table.setEditTriggers(QtWidgets.QTableWidget.AllEditTriggers)
