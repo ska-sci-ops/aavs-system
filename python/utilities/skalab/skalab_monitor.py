@@ -251,7 +251,6 @@ class MonitorTPM(TileInitialization):
                     self.logger.warning(f"ATTENTION: TMP IP: {j} in {self.config_file} is not detected by the Subrack.")
 
 
-
     def tpmStatusChanged(self):
         self.wait_check_tpm.clear()
         with self._tpm_lock:
@@ -328,7 +327,7 @@ class MonitorTPM(TileInitialization):
                             min_alarm = max_alarm
                             max_warn = filtered_warning[j]
                             min_warn = max_warn
-                        if not(type(value)==str or value==None):
+                        if not(type(value) == str or value == None):
                             if not(min_alarm <= value <= max_alarm): 
                                 table.setItem(j,1, QtWidgets.QTableWidgetItem(str(value)))
                                 item = table.item(j,1)
@@ -352,6 +351,7 @@ class MonitorTPM(TileInitialization):
                                     with self._tpm_lock_led:
                                         self.qled_tpm[tpm_index][led_id].Colour=Led.Orange
                                         self.qled_tpm[tpm_index][led_id].value = True
+    
     def select_led(self,index):
         # with if for python<3.10
         if index < 5:
