@@ -545,6 +545,7 @@ class MonitorSubrack(MonitorTPM):
             self.updateTpmStatus()
             self.wg.tpmbar.setValue(100)
             self.qbutton_tpm[slot].setEnabled(True)
+            self.wg.qbutton_station_init.setEnabled(False)
         self.wait_check_subrack.set()
         self.wg.tpmbar.hide()
 
