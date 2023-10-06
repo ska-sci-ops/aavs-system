@@ -7,7 +7,10 @@
 		"context": "..",
 		// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
 		"dockerfile": "../Dockerfile"
-	}
+	},
+
+	"remoteUser": "tango"
+	// "postCreateCommand": "source /opt/aavs/python/bin/activate"
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
