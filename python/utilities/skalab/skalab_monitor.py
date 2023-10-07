@@ -27,7 +27,6 @@ default_profile = "Default"
 profile_filename = "monitor.ini"
 
 standard_subrack_attribute = {
-                "tpm_supply_fault": [None]*8,
                 "tpm_present": [None]*8,
                 "tpm_on_off": [None]*8
                 }
@@ -150,7 +149,7 @@ class MonitorTPM(TileInitialization):
         self._tpm_lock_threshold = Lock()
         self._tpm_lock_led = Lock()
         self.wait_check_tpm = Event()
-        self.check_tpm_tm.start()
+        #self.check_tpm_tm.start()
 
     def populateTpmLed(self,MIN_MAX_MONITORING_POINTS):
         self.qled_tpm = [None] * 8 
@@ -236,7 +235,7 @@ class MonitorTPM(TileInitialization):
                          
 
     def populateTileInstance(self):
-        if (self.connected and self.tpm_status_info['tpm_ips']):
+        if (self.connected and self.tpm_status_info['assigned_tpm_ip_adds']):
             keys_to_be_removed = []
             self.tpm_on_off = [False] * 8
             self.tpm_active = [None] * 8
@@ -424,7 +423,6 @@ class MonitorSubrack(MonitorTPM):
         self.last_telemetry = {"tpm_supply_fault":[None] *8,"tpm_present":[None] *8,"tpm_on_off":[None] *8}
         self.query_once = []
         self.query_deny = []
-        self.query_tiles = []
         self.connected = False
         self.reload(ip=ip, port=port)
         self.tlm_file = ""
@@ -516,8 +514,6 @@ class MonitorSubrack(MonitorTPM):
                 self.query_once = list(self.profile['Query']['once'].split(","))
             if 'deny' in self.profile['Query'].keys():
                 self.query_deny = list(self.profile['Query']['deny'].split(","))
-            if 'deny' in self.profile['Query'].keys():
-                self.query_tiles = list(self.profile['Query']['tiles'].split(","))
 
     
     def cmdSwitchTpm(self, slot):
@@ -561,6 +557,8 @@ class MonitorSubrack(MonitorTPM):
                 if self.client.connect():
                     self.logger.info("Successfully connected")
                     self.logger.info("Querying list of Subrack API attributes...")
+                    # The following command is necessary in order to fill the subrack paraemeters table,\
+                    # to set the thresholds values and to know the key paramenters exposed by the API.
                     self.subrack_dictionary = self.client.execute_command(command="get_health_dictionary")["retvalue"]
                     self.wg.subrackbar.setValue(30)
                     del self.subrack_dictionary['iso_datetime']
@@ -612,7 +610,6 @@ class MonitorSubrack(MonitorTPM):
                     self.wg.subrackbar.setValue(60)
                     self.connected = True
                     self.populateTileInstance()
-                    [item.setEnabled(True) for item in self.qbutton_tpm]
                     self.tlm_hdf = self.setupSubrackHdf5()
                     # TODO: Uncomment the next line when subrack attributes are defined 
                     #[self.alarm, self.warning] = getThreshold(self.wg, self.tlm_keys,self.top_attr,self.subrack_warning_factor)
@@ -624,10 +621,12 @@ class MonitorSubrack(MonitorTPM):
                             self.tpm_status_info[tlmk] = data["value"]
                         else:
                             self.tpm_status_info[tlmk] = data["info"]
+                            self.logger.error(f"Error with self.client.get_attribute({tlmk})")
                     self.wg.subrackbar.setValue(80)
                     self.wg.subrack_button.setStyleSheet("background-color: rgb(78, 154, 6);")
                     self.wg.subrack_button.setText("ONLINE")
                     self.wg.subrack_button.setStyleSheet("background-color: rgb(78, 154, 6);")
+                    [item.setEnabled(True) for item in self.qbutton_tpm]
                     with self._subrack_lock:
                         self.updateTpmStatus()
                     self.wg.subrackbar.setValue(100)
@@ -660,7 +659,7 @@ class MonitorSubrack(MonitorTPM):
                 self.wg.subrack_button.setText("OFFLINE")
                 self.wg.qbutton_clear_subrack.setEnabled(False)
                 self.wg.qbutton_clear_tpm.setEnabled(False)
-                #[item.setEnabled(False) for item in self.qbutton_tpm]
+                [item.setEnabled(False) for item in self.qbutton_tpm]
                 self.client.disconnect()
                 del self.client
                 gc.collect()
