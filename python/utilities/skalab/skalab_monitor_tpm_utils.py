@@ -139,21 +139,6 @@ def writeThresholds(alarm_box, warning_box, alarm, *warning):
                 warning_box.appendPlainText('%s:%s\n' % (key, value))
     return
 
-def populateWarningAlarmTable(true_table, warning, alarm):
-        true_table.setEditTriggers(QtWidgets.QTableWidget.AllEditTriggers)
-        row = len(alarm.keys())
-        item = QtWidgets.QTableWidgetItem()
-        item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
-        for i in range(row):
-            attr = list(alarm)[i]
-            true_table.setRowCount(row)
-            row_name = QtWidgets.QTableWidgetItem(list(warning.keys())[i])
-            true_table.setVerticalHeaderItem(i, row_name)
-            true_table.setItem(i , 0, QtWidgets.QTableWidgetItem(str(warning[attr][0])))
-            true_table.setItem(i , 1, QtWidgets.QTableWidgetItem(str(warning[attr][1])))
-            true_table.setItem(i , 2, QtWidgets.QTableWidgetItem(str(alarm[attr][0]))  )
-            true_table.setItem(i , 3, QtWidgets.QTableWidgetItem(str(alarm[attr][1])) )
-        true_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 
 class TileInitialization(SkalabBase):
 
@@ -233,6 +218,7 @@ class TileInitialization(SkalabBase):
                 # if not self.wgLive == None:
                 #     self.wgLive.wg.qcombo_tpm.addItem("TPM-%02d (%s)" % (n + 1, i))
                 self.tiles += [i]
+            self.populateTileInstance()
         else:
             msgBox = QtWidgets.QMessageBox()
             msgBox.setText("SKALAB: Please SELECT a valid configuration file first...")

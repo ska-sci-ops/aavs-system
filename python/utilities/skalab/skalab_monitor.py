@@ -73,7 +73,6 @@ def populateSubrackTable(frame, attributes, top):
     "Create Subrack table"
     qtable = []
     sub_attr = []
-    qtable_tpm = [None] * 8
     size_a = len(attributes)
     #error if monitor.ini has ",," in top level entry
     for j in range(size_a):
@@ -146,10 +145,9 @@ class MonitorTPM(TileInitialization):
         # Start thread
         self.check_tpm_tm = Thread(name= "TPM telemetry", target=self.monitoringTpm, daemon=True)
         self._tpm_lock = Lock()
-        self._tpm_lock_threshold = Lock()
-        self._tpm_lock_led = Lock()
+        self._tpm_lock_GUI = Lock()
         self.wait_check_tpm = Event()
-        #self.check_tpm_tm.start()
+        self.check_tpm_tm.start()
 
     def populateTpmLed(self,MIN_MAX_MONITORING_POINTS):
         self.qled_tpm = [None] * 8 
@@ -203,7 +201,7 @@ class MonitorTPM(TileInitialization):
                                               directory="./", options=options)[0]
         if not(self.filename == ''):
             self.wg.qline_tpm_threshold.setText(self.filename)
-            with self._tpm_lock_threshold:
+            with self._tpm_lock_GUI:
                 self.setTpmThreshold(self.tpm_warning_factor)
         return
 
@@ -225,7 +223,7 @@ class MonitorTPM(TileInitialization):
     
 
     def clearTpmValues(self):
-        with (self._tpm_lock_led and self._tpm_lock_threshold):
+        with (self._tpm_lock_GUI):
             for i in range(8):
                 for led in self.qled_tpm[i]:
                     led.Colour = Led.Grey
@@ -235,13 +233,9 @@ class MonitorTPM(TileInitialization):
                          
 
     def populateTileInstance(self):
-        if (self.connected and self.tpm_status_info['assigned_tpm_ip_adds']):
-            keys_to_be_removed = []
-            self.tpm_on_off = [False] * 8
-            self.tpm_active = [None] * 8
-            #self.tpm_slot_ip = list(station.configuration['tiles'])
+        if (self.connected and self.tpm_assigned_tpm_ip_adds):
             # Comparing ip to assign slot number to ip: file .ini and .yaml
-            self.tpm_slot_ip = self.tpm_status_info['assigned_tpm_ip_adds']
+            self.tpm_slot_ip = self.tpm_assigned_tpm_ip_adds
             self.tpm_ip_check= station.configuration['tiles']
             for j in self.tpm_ip_check:
                 if j in self.tpm_slot_ip:
@@ -252,7 +246,7 @@ class MonitorTPM(TileInitialization):
 
     def tpmStatusChanged(self):
         self.wait_check_tpm.clear()
-        with self._tpm_lock:
+        if not(self.check_tpm_tm.is_alive()):
             for k in range(8):
                 if not self.tpm_on_off[k] and self.tpm_active[k]:
                     self.tpm_active[k] = None
@@ -275,12 +269,12 @@ class MonitorTPM(TileInitialization):
                     except:
                         self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
                         continue
-                    with self._tpm_lock_threshold:
+                    with self._tpm_lock_GUI:
                         self.signal_update_tpm_attribute.emit(L,index)
             sleep(float(self.interval_monitor))    
 
     def unfoldTpmAttribute(self, tpm_dict, tpm_index):
-        with self._tpm_lock_threshold:
+        with self._tpm_lock_GUI:
             for i in range(len(self.tpm_table[tpm_index])): #loop to select table
                 led_id = self.select_led(i)
                 table = self.tpm_table[tpm_index][i]
@@ -332,24 +326,22 @@ class MonitorTPM(TileInitialization):
                                 item = table.item(j,1)
                                 item.setForeground(QColor("white"))
                                 item.setBackground(QColor("#ff0000")) # red
-                                self.logger.error(f"ERROR in TPM{tpm_index}: {tpm_attr[j]} parameter is out of range!")
+                                #self.logger.error(f"ERROR in TPM{tpm_index}: {tpm_attr[j]} parameter is out of range!")
                                 # Change the color only if it not 1=red
                                 if not(self.qled_tpm[tpm_index][led_id].Colour==1):
-                                    with self._tpm_lock_led:
-                                        self.qled_tpm[tpm_index][led_id].Colour = Led.Red
-                                        self.qled_tpm[tpm_index][led_id].value = True 
+                                    self.qled_tpm[tpm_index][led_id].Colour = Led.Red
+                                    self.qled_tpm[tpm_index][led_id].value = True 
                             elif not(min_warn <= value <= max_warn) and not(item.background().color().name() == '#ff0000'):
                                 table.setItem(j,1, QtWidgets.QTableWidgetItem(str(value)))
                                 item = table.item(j, 1)
                                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                                 item.setForeground(QColor("white"))
                                 item.setBackground(QColor("#ff8000")) #orange
-                                self.logger.warning(f"WARNING in TPM{tpm_index}: {tpm_attr[j]} parameter is near the out of range threshold!")
+                                #self.logger.warning(f"WARNING in TPM{tpm_index}: {tpm_attr[j]} parameter is near the out of range threshold!")
                                 # Change the color only if it is 4=Grey
                                 if self.qled_tpm[tpm_index][led_id].Colour==4: 
-                                    with self._tpm_lock_led:
-                                        self.qled_tpm[tpm_index][led_id].Colour=Led.Orange
-                                        self.qled_tpm[tpm_index][led_id].value = True
+                                    self.qled_tpm[tpm_index][led_id].Colour=Led.Orange
+                                    self.qled_tpm[tpm_index][led_id].value = True
     
     def select_led(self,index):
         # with if for python<3.10
@@ -453,10 +445,8 @@ class MonitorSubrack(MonitorTPM):
         #self.temperature_thread = Thread(name="temp", target = self.temp1)   
         self.subrackTlm = Thread(name="Subrack Telemetry", target=self.readSubrackTlm, daemon=True)
         self.wait_check_subrack = Event()
-        self._lock_tab2 = Lock()
         self._subrack_lock = Lock()
-        self._subrack_lock_led = Lock()
-        self._subrack_lock_threshold = Lock()
+        self._subrack_lock_GUI = Lock()
         self.subrackTlm.start()
 
 
@@ -468,9 +458,9 @@ class MonitorSubrack(MonitorTPM):
                                               directory="./", options=options)[0]
         if not(self.filename == ''):
             self.wg.qline_subrack_threshold.setText(self.filename)
-            with self._subrack_lock_threshold:
+            with self._subrack_lock_GUI:
                 if self.connected:
-                    # TODO
+                    # TODO self.subrack_warning_factor
                     self.alarm = getThreshold(self.wg,self.tlm_keys,self.top_attr)#,self.subrack_warning_factor)
                 else:
                     self.logger.warning("Connect to the Subrack to load the threshold table.")    
@@ -516,38 +506,10 @@ class MonitorSubrack(MonitorTPM):
                 self.query_deny = list(self.profile['Query']['deny'].split(","))
 
     
-    def cmdSwitchTpm(self, slot):
-        self.wg.tpmbar.show()
-        self.wait_check_subrack.clear()
-        self.skipThreadPause = True
-        self.qbutton_tpm[slot].setEnabled(False)
-        self.wg.tpmbar.setValue(10)
-        with self._subrack_lock:
-            if self.connected:
-                if self.tpm_status_info["tpm_on_off"][slot]:
-                    self.wg.tpmbar.setValue(30)
-                    self.client.execute_command(command="turn_off_tpm", parameters="%d" % (int(slot) + 1))
-                    self.logger.info("Turn OFF TPM-%02d" % (int(slot) + 1))
-                    self.wg.tpmbar.setValue(40)
-                else:
-                    self.wg.tpmbar.setValue(30)
-                    self.client.execute_command(command="turn_on_tpm", parameters="%d" % (int(slot) + 1))
-                    self.logger.info("Turn ON TPM-%02d" % (int(slot) + 1)) 
-                    self.wg.tpmbar.setValue(40)
-            sleep(4.0) # Sleep required to wait for the turn_off/on_tpm command to complete
-            self.wg.tpmbar.setValue(70)
-            self.tpm_status_info['tpm_on_off'] = self.client.get_attribute('tpm_on_off')['value'] # update tpm on/off
-            self.wg.tpmbar.setValue(90)
-            self.updateTpmStatus()
-            self.wg.tpmbar.setValue(100)
-            self.qbutton_tpm[slot].setEnabled(True)
-            self.wg.qbutton_station_init.setEnabled(False)
-        self.wait_check_subrack.set()
-        self.wg.tpmbar.hide()
-
-    
     def connect(self):
         self.tlm_keys = []
+        self.tpm_on_off = [False] * 8
+        self.tpm_active = [None] * 8
         if not self.wg.qline_ip.text() == "":
             if not self.connected:
                 self.wg.subrackbar.show()
@@ -603,6 +565,10 @@ class MonitorSubrack(MonitorTPM):
                             self.tpm_status_info[tlmk] = data["value"]
                         else:
                             self.tpm_status_info[tlmk] = data["info"]
+                    if 'assigned_tpm_ip_adds' in self.tpm_status_info.keys():
+                        self.tpm_assigned_tpm_ip_adds = self.tpm_status_info['assigned_tpm_ip_adds']
+                    else:
+                        self.tpm_assigned_tpm_ip_adds = self.client.get_attribute('assigned_tpm_ip_adds')
                     if 'api_version' in self.tpm_status_info.keys():
                         self.logger.info("Subrack API version: " + self.tpm_status_info['api_version'])
                     else:
@@ -662,6 +628,8 @@ class MonitorSubrack(MonitorTPM):
                 [item.setEnabled(False) for item in self.qbutton_tpm]
                 self.client.disconnect()
                 del self.client
+                self.tpm_on_off = [False] * 8
+                self.tpm_active = [None] * 8
                 gc.collect()
                 # if (type(self.tlm_hdf) is not None) or (type(self.tlm_hdf_tpm_monitor) is not None):
                 #     try:
@@ -675,31 +643,62 @@ class MonitorSubrack(MonitorTPM):
             self.wait_check_subrack.clear()
 
     
+    def cmdSwitchTpm(self, slot):
+        with (self._subrack_lock and self._tpm_lock):
+            self.wg.tpmbar.show()
+            self.wait_check_subrack.clear()
+            self.skipThreadPause = True
+            self.qbutton_tpm[slot].setEnabled(False)
+            self.wg.tpmbar.setValue(10)
+            if self.connected:
+                if self.tpm_status_info["tpm_on_off"][slot]:
+                    self.wg.tpmbar.setValue(30)
+                    self.client.execute_command(command="turn_off_tpm", parameters="%d" % (int(slot) + 1))
+                    self.logger.info("Turn OFF TPM-%02d" % (int(slot) + 1))
+                    self.wg.tpmbar.setValue(40)
+                else:
+                    self.wg.tpmbar.setValue(30)
+                    self.client.execute_command(command="turn_on_tpm", parameters="%d" % (int(slot) + 1))
+                    self.logger.info("Turn ON TPM-%02d" % (int(slot) + 1)) 
+                    self.wg.tpmbar.setValue(40)
+                sleep(4.0) # Sleep required to wait for the turn_off/on_tpm command to complete
+                self.wg.tpmbar.setValue(70)
+                self.tpm_status_info['tpm_on_off'] = self.client.get_attribute('tpm_on_off')['value'] # update tpm on/off
+                self.wg.tpmbar.setValue(90)
+                self.updateTpmStatus()
+                self.wg.tpmbar.setValue(100)
+                self.qbutton_tpm[slot].setEnabled(True)
+                self.wg.qbutton_station_init.setEnabled(False)
+            self.wait_check_subrack.set()
+            self.wg.tpmbar.hide()
+
+
     def getTelemetry(self):
         check_subrack_ready = 0
         while check_subrack_ready<5:
-            with self._subrack_lock:
-                data = self.client.execute_command(command="get_health_status")
-                if data["status"] == "OK":
-                    self.from_subrack =  data['retvalue']
-                    self.tpm_status_info['tpm_present'] = list(self.from_subrack['slots']['presence'].values())
-                    self.tpm_status_info['tpm_on_off'] = list(self.from_subrack['slots']['on'].values()) 
-                    if not(self.wg.qbutton_station_init.isEnabled()): self.wg.qbutton_station_init.setEnabled(True)
-                    if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
-                    break
-                else:
-                    self.logger.warning(f"Subrack Data NOT AVAILABLE...try again: {check_subrack_ready}/5")
-                    self.from_subrack =  data['retvalue']
-                    check_subrack_ready +=1
+            data = self.client.execute_command(command="get_health_status")
+            if data["status"] == "OK":
+                self.from_subrack =  data['retvalue']
+                self.tpm_status_info['tpm_present'] = list(self.from_subrack['slots']['presence'].values())
+                self.tpm_status_info['tpm_on_off'] = list(self.from_subrack['slots']['on'].values()) 
+                if not(self.wg.qbutton_station_init.isEnabled()): self.wg.qbutton_station_init.setEnabled(True)
+                if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
+                break
+            else:
+                self.logger.warning(f"Subrack Data NOT AVAILABLE...try again: {check_subrack_ready}/5")
+                self.from_subrack =  data['retvalue']
+                check_subrack_ready +=1
 
             
     def readSubrackTlm(self):
         while True:
             self.wait_check_subrack.wait()
             if self.connected:
-                    self.getTelemetry()
-                    self.signalTlm.emit()
-            self.signal_to_monitor.emit()
+                    with self._subrack_lock:
+                        self.getTelemetry()
+                        self.signalTlm.emit()
+            with self._subrack_lock_GUI:            
+                self.signal_to_monitor.emit()
             self.wg.qbutton_station_init.setEnabled(True) 
             cycle = 0.0
             while cycle < (float(self.subrack_interval)) and not self.skipThreadPause:
@@ -713,86 +712,79 @@ class MonitorSubrack(MonitorTPM):
         if diz == '':
             self.logger.error(f"Warning: get_health_status return an empty dictionary. Try again at the next polling cycle")
             return
-        for index_table in range(len(self.top_attr)):
-            table = self.subrack_table[index_table]
-            if self.top_attr[index_table] in diz.keys():
-                if (list(diz[self.top_attr[index_table]]) == self.sub_attribute[index_table]):
-                    attribute_data = diz[self.top_attr[index_table]]
-                    with self._subrack_lock_threshold:
+        with self._subrack_lock_GUI:
+            for index_table in range(len(self.top_attr)):
+                table = self.subrack_table[index_table]
+                if self.top_attr[index_table] in diz.keys():
+                    if (list(diz[self.top_attr[index_table]]) == self.sub_attribute[index_table]):
+                        attribute_data = diz[self.top_attr[index_table]]
                         filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
                         #filtered_warning = self.warning[index_table][self.top_attr[index_table]]
-                    diz.pop(self.top_attr[index_table])
+                        diz.pop(self.top_attr[index_table])
+                    else:
+                        break
+                elif self.top_attr[index_table] != 'others':
+                    res = {}
+                    for key, value in diz.items():
+                        if isinstance(value, dict):
+                            for subkey, subvalue in value.items():
+                                if isinstance(subvalue, dict) and self.top_attr[index_table] in subvalue:
+                                    res[subkey] = subvalue[self.top_attr[index_table]]
+                                    diz[key][subkey].pop(self.top_attr[index_table])
+                            for jk in list(diz[key]):
+                                if not bool(diz[key][jk]): del diz[key][jk]
+                    for k in list(diz.keys()):
+                        if len(diz[k]) == 0:  del diz[k]
+                    attribute_data = res
+                    filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
+                    #filtered_warning = self.warning[index_table][self.top_attr[index_table]]
                 else:
-                    break
-            elif self.top_attr[index_table] != 'others':
-                res = {}
-                for key, value in diz.items():
-                    if isinstance(value, dict):
-                        for subkey, subvalue in value.items():
-                            if isinstance(subvalue, dict) and self.top_attr[index_table] in subvalue:
-                                res[subkey] = subvalue[self.top_attr[index_table]]
-                                diz[key][subkey].pop(self.top_attr[index_table])
-                        for jk in list(diz[key]):
-                            if not bool(diz[key][jk]): del diz[key][jk]
-                for k in list(diz.keys()):
-                    if len(diz[k]) == 0:  del diz[k]
-                attribute_data = res
-                with self._subrack_lock_threshold:
+                    res = {}
+                    temp = []
+                    for key, value in diz.items():
+                        if isinstance(value, dict):
+                            res.update(value)
+                        temp.append(key)
+                    [diz.pop(t) for t in temp]
+                    attribute_data = res
                     filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
                     #filtered_warning = self.warning[index_table][self.top_attr[index_table]]
-            else:
-                res = {}
-                temp = []
-                for key, value in diz.items():
-                    if isinstance(value, dict):
-                        res.update(value)
-                    temp.append(key)
-                [diz.pop(t) for t in temp]
-                attribute_data = res
-                with self._subrack_lock_threshold:
-                    filtered_alarm =  self.alarm[index_table][self.top_attr[index_table]]
-                    #filtered_warning = self.warning[index_table][self.top_attr[index_table]]
-                     
-            #self.tlm_keys.append(diz)
-            attrs = list(attribute_data.keys())
-            values = list(attribute_data.values())
-            for i in range(len(attribute_data)):
-                value = values[i]
-                attr = attrs[i]
-                table.setItem(i,0, QtWidgets.QTableWidgetItem(str(value)))
-                item = table.item(i, 0)
-                item.setTextAlignment(QtCore.Qt.AlignCenter)
-                if not(type(value)==str or value==None or filtered_alarm[attr][0]==None):
-                    if not(filtered_alarm[attr][0] <= value <= filtered_alarm[attr][1]): 
-                        with self._lock_tab2:
+                        
+                attrs = list(attribute_data.keys())
+                values = list(attribute_data.values())
+                for i in range(len(attribute_data)):
+                    value = values[i]
+                    attr = attrs[i]
+                    table.setItem(i,0, QtWidgets.QTableWidgetItem(str(value)))
+                    item = table.item(i, 0)
+                    item.setTextAlignment(QtCore.Qt.AlignCenter)
+                    if not(type(value)==str or value==None or filtered_alarm[attr][0]==None):
+                        if not(filtered_alarm[attr][0] <= value <= filtered_alarm[attr][1]): 
                             table.setItem(i,1, QtWidgets.QTableWidgetItem(str(value)))
                             item = table.item(i, 1)
                             item.setTextAlignment(QtCore.Qt.AlignCenter)
                             item.setForeground(QColor("white"))
                             item.setBackground(QColor("#ff0000")) # red
-                            self.logger.error(f"ERROR: {attr} parameter is out of range!")
+                            #self.logger.error(f"ERROR: {attr} parameter is out of range!")
                             #self.alarm[attr][int(ind/2)] = True
                             # Change the color only if it not 1=red
                             if not(self.subrack_led.Colour==1):
-                                with self._subrack_lock_led:
-                                    self.subrack_led.Colour = Led.Red
-                                    self.subrack_led.value = True
-                            # TODO: Uncomment when subrack attributes are definitive.
-                            """                     
-                            elif not(filtered_warning[attr][0] < value < filtered_warning[attr][1]) and not(item.background().color().name() == '#ff0000'):
-                            with self._lock_tab2:
-                            table.setItem(i,1, QtWidgets.QTableWidgetItem(str(value)))
-                            item = table.item(i, 1)
-                            item.setTextAlignment(QtCore.Qt.AlignCenter)
-                            item.setForeground(QColor("white"))
-                            item.setBackground(QColor("#ff8000")) #orange
-                            self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
-                            # Change the color only if it is 4=Grey
-                            if self.subrack_led.Colour==4: 
-                                with self._subrack_lock_led:
-                                    self.subrack_led.Colour=Led.Orange
-                                    self.subrack_led.value = True
-                             """
+                                self.subrack_led.Colour = Led.Red
+                                self.subrack_led.value = True
+                                # TODO: Uncomment when subrack attributes are definitive.
+                                """                     
+                                elif not(filtered_warning[attr][0] < value < filtered_warning[attr][1]) and not(item.background().color().name() == '#ff0000'):
+                                table.setItem(i,1, QtWidgets.QTableWidgetItem(str(value)))
+                                item = table.item(i, 1)
+                                item.setTextAlignment(QtCore.Qt.AlignCenter)
+                                item.setForeground(QColor("white"))
+                                item.setBackground(QColor("#ff8000")) #orange
+                                self.logger.warning(f"WARNING: {attr} parameter is near the out of range threshold!")
+                                # Change the color only if it is 4=Grey
+                                if self.subrack_led.Colour==4: 
+                                        self.subrack_led.Colour=Led.Orange
+                                        self.subrack_led.value = True
+                                """
 
 
     def updateTpmStatus(self):
@@ -819,7 +811,7 @@ class MonitorSubrack(MonitorTPM):
            
 
     def clearSubrackValues(self):
-        with (self._subrack_lock_led and self._lock_tab2):
+        with (self._subrack_lock_GUI):
             self.subrack_led.Colour = Led.Grey
             self.subrack_led.m_value = False
             for table in self.subrack_table:
