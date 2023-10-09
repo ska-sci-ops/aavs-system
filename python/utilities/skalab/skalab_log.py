@@ -222,12 +222,12 @@ class SkalabLog(QtWidgets.QMainWindow):
     def procLog(self):
         while True:
             if not self.stopThread:
-                if self.logInfo.msgQueue:
-                    self.signalLogInfo.emit()
+                # if self.logInfo.msgQueue:
+                #     self.signalLogInfo.emit()
                 if self.logWarning.msgQueue:
                     self.signalLogWarning.emit()
-                if self.logError.msgQueue:
-                    self.signalLogError.emit()
+                # if self.logError.msgQueue:
+                #     self.signalLogError.emit()
                 time.sleep(0.01)
             else:
                 #print("Stopping Thread Log: ", self.logname, ", Level:", self.level)

@@ -163,11 +163,14 @@ class MonitorTPM(TileInitialization):
         if default != 'default_tpm_alarm.txt':
             with open(default, 'r') as file:
                 a_lines = []
+                self.tpm_alarm_shadow = []
                 for line in file:
                     line = line.strip()
                     line = eval(line)
                     a_lines = line
             self.tpm_alarm_thresholds = a_lines
+            [self.tpm_alarm_shadow.append(copy.deepcopy(self.tpm_alarm_thresholds)) for i in range(8)]
+
         else:
             file = open('default_tpm_alarm.txt','w+')
             file.write(str(self.tpm_alarm_thresholds))
@@ -326,7 +329,7 @@ class MonitorTPM(TileInitialization):
                                 item = table.item(j,1)
                                 item.setForeground(QColor("white"))
                                 item.setBackground(QColor("#ff0000")) # red
-                                #self.logger.error(f"ERROR in TPM{tpm_index}: {tpm_attr[j]} parameter is out of range!")
+                                self.logger.error(f"ERROR in TPM{tpm_index+1}: {tpm_attr[j]} parameter is out of range!")
                                 # Change the color only if it not 1=red
                                 if not(self.qled_tpm[tpm_index][led_id].Colour==1):
                                     self.qled_tpm[tpm_index][led_id].Colour = Led.Red
@@ -337,7 +340,7 @@ class MonitorTPM(TileInitialization):
                                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                                 item.setForeground(QColor("white"))
                                 item.setBackground(QColor("#ff8000")) #orange
-                                #self.logger.warning(f"WARNING in TPM{tpm_index}: {tpm_attr[j]} parameter is near the out of range threshold!")
+                                self.logger.warning(f"WARNING in TPM{tpm_index+1}: {tpm_attr[j]} parameter is near the out of range threshold!")
                                 # Change the color only if it is 4=Grey
                                 if self.qled_tpm[tpm_index][led_id].Colour==4: 
                                     self.qled_tpm[tpm_index][led_id].Colour=Led.Orange
@@ -765,8 +768,7 @@ class MonitorSubrack(MonitorTPM):
                             item.setTextAlignment(QtCore.Qt.AlignCenter)
                             item.setForeground(QColor("white"))
                             item.setBackground(QColor("#ff0000")) # red
-                            #self.logger.error(f"ERROR: {attr} parameter is out of range!")
-                            #self.alarm[attr][int(ind/2)] = True
+                            self.logger.error(f"ERROR: {attr} parameter is out of range!")
                             # Change the color only if it not 1=red
                             if not(self.subrack_led.Colour==1):
                                 self.subrack_led.Colour = Led.Red
