@@ -122,6 +122,7 @@ class MonitorTPM(TileInitialization):
         self.tlm_hdf_tpm_monitor = []
         self.tpm_initialized = [False] * 8
         self.tpm_table = []
+        self.flag = False
         # Populate table
         self.populate_table_profile()
         self.qbutton_tpm = populateSlots(self.wg.grid_tpm)
@@ -146,6 +147,7 @@ class MonitorTPM(TileInitialization):
         self.check_tpm_tm = Thread(name= "TPM telemetry", target=self.monitoringTpm, daemon=True)
         self._tpm_lock = Lock()
         self._tpm_lock_GUI = Lock()
+        self.flag_lock = Lock()
         self.wait_check_tpm = Event()
         self.check_tpm_tm.start()
 
@@ -249,10 +251,9 @@ class MonitorTPM(TileInitialization):
 
     def tpmStatusChanged(self):
         self.wait_check_tpm.clear()
-        if not(self.check_tpm_tm.is_alive()):
-            for k in range(8):
-                if not self.tpm_on_off[k] and self.tpm_active[k]:
-                    self.tpm_active[k] = None
+        for k in range(8):
+            if not(self.tpm_on_off[k]) and self.tpm_active[k]:
+                self.tpm_active[k] = None
         if any(self.tpm_initialized):
             self.wg.check_tpm_savedata.setEnabled(True)
             self.wait_check_tpm.set()
@@ -264,16 +265,16 @@ class MonitorTPM(TileInitialization):
             self.wait_check_tpm.wait()
             # Get tm from tpm
             for index in range(8): # loop to select tpm
-                if self.tpm_active[index]:
-                    try:
-                        with self._tpm_lock:
+                with self._tpm_lock:
+                    if self.tpm_active[index]:
+                        try:
                             L = self.tpm_active[index].get_health_status()
-                        if self.wg.check_tpm_savedata.isChecked(): self.saveTpmData(L,index)
-                    except:
-                        self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
-                        continue
-                    with self._tpm_lock_GUI:
-                        self.signal_update_tpm_attribute.emit(L,index)
+                            if self.wg.check_tpm_savedata.isChecked(): self.saveTpmData(L,index)
+                        except:
+                            self.signal_update_log.emit(f"Failed to get TPM Telemetry. Are you turning off TPM#{index+1}?","warning")
+                            continue
+                        with self._tpm_lock_GUI:
+                            self.signal_update_tpm_attribute.emit(L,index)
             sleep(float(self.interval_monitor))    
 
     def unfoldTpmAttribute(self, tpm_dict, tpm_index):
@@ -647,20 +648,24 @@ class MonitorSubrack(MonitorTPM):
 
     
     def cmdSwitchTpm(self, slot):
-        with (self._subrack_lock and self._tpm_lock):
             self.wg.tpmbar.show()
             self.wait_check_subrack.clear()
             self.skipThreadPause = True
             self.qbutton_tpm[slot].setEnabled(False)
             self.wg.tpmbar.setValue(10)
+            # it seems that with ... and ... does not work
+            self._subrack_lock.acquire()
+            self._tpm_lock.acquire()
             if self.connected:
                 if self.tpm_status_info["tpm_on_off"][slot]:
                     self.wg.tpmbar.setValue(30)
+                    self.wg.qbutton_station_init.setEnabled(False)
                     self.client.execute_command(command="turn_off_tpm", parameters="%d" % (int(slot) + 1))
                     self.logger.info("Turn OFF TPM-%02d" % (int(slot) + 1))
                     self.wg.tpmbar.setValue(40)
                 else:
                     self.wg.tpmbar.setValue(30)
+                    self.wg.qbutton_station_init.setEnabled(False)
                     self.client.execute_command(command="turn_on_tpm", parameters="%d" % (int(slot) + 1))
                     self.logger.info("Turn ON TPM-%02d" % (int(slot) + 1)) 
                     self.wg.tpmbar.setValue(40)
@@ -671,38 +676,38 @@ class MonitorSubrack(MonitorTPM):
                 self.updateTpmStatus()
                 self.wg.tpmbar.setValue(100)
                 self.qbutton_tpm[slot].setEnabled(True)
-                self.wg.qbutton_station_init.setEnabled(False)
+                self._subrack_lock.release()
+                self._tpm_lock.release()
             self.wait_check_subrack.set()
             self.wg.tpmbar.hide()
 
 
     def getTelemetry(self):
         check_subrack_ready = 0
-        while check_subrack_ready<5:
-            data = self.client.execute_command(command="get_health_status")
-            if data["status"] == "OK":
-                self.from_subrack =  data['retvalue']
-                self.tpm_status_info['tpm_present'] = list(self.from_subrack['slots']['presence'].values())
-                self.tpm_status_info['tpm_on_off'] = list(self.from_subrack['slots']['on'].values()) 
-                if not(self.wg.qbutton_station_init.isEnabled()): self.wg.qbutton_station_init.setEnabled(True)
-                if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
-                break
-            else:
-                self.logger.warning(f"Subrack Data NOT AVAILABLE...try again: {check_subrack_ready}/5")
-                self.from_subrack =  data['retvalue']
-                check_subrack_ready +=1
+        with self._subrack_lock:
+            while check_subrack_ready<5:
+                data = self.client.execute_command(command="get_health_status")
+                if data["status"] == "OK":
+                    self.from_subrack =  data['retvalue']
+                    self.tpm_status_info['tpm_present'] = list(self.from_subrack['slots']['presence'].values())
+                    self.tpm_status_info['tpm_on_off'] = list(self.from_subrack['slots']['on'].values()) 
+                    if self.wg.check_subrack_savedata.isChecked(): self.saveSubrackData(self.from_subrack)
+                    if not(self.wg.qbutton_station_init.isEnabled()): self.wg.qbutton_station_init.setEnabled(True)
+                    break
+                else:
+                    self.logger.warning(f"Subrack Data NOT AVAILABLE...try again: {check_subrack_ready}/5")
+                    self.from_subrack =  data['retvalue']
+                    check_subrack_ready +=1
 
             
     def readSubrackTlm(self):
         while True:
             self.wait_check_subrack.wait()
             if self.connected:
-                    with self._subrack_lock:
-                        self.getTelemetry()
-                        self.signalTlm.emit()
+                self.getTelemetry()
+                self.signalTlm.emit()
             with self._subrack_lock_GUI:            
                 self.signal_to_monitor.emit()
-            self.wg.qbutton_station_init.setEnabled(True) 
             cycle = 0.0
             while cycle < (float(self.subrack_interval)) and not self.skipThreadPause:
                 sleep(0.1)
