@@ -109,6 +109,12 @@
           <height>441</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Temperature Unit [°C]&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Voltage Unit [V]&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Current Unit [mA]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>-3</number>
+        </property>
         <attribute name="horizontalHeaderMinimumSectionSize">
          <number>60</number>
         </attribute>
@@ -753,7 +759,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabAttributes">
         <attribute name="title">
@@ -803,6 +809,9 @@
           </item>
           <item row="1" column="0">
            <widget class="QTableWidget" name="tablePSU1">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current Unit [mA]&lt;/p&gt;&lt;p&gt;Fan Pwm Override Unit [rpm]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="whatsThis">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
@@ -813,6 +822,9 @@
           </item>
           <item row="1" column="1">
            <widget class="QTableWidget" name="tablePSU2">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current Unit [mA]&lt;/p&gt;&lt;p&gt;Fan Pwm Override Unit [rpm]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <column>
              <property name="text">
               <string>PSU2</string>
@@ -866,6 +878,9 @@
           </item>
           <item row="1" column="0">
            <widget class="QTableWidget" name="tableFAN1">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Speed Unit [rpm]&lt;/p&gt;&lt;p&gt;Pwm Duty Unit [%] &lt;/p&gt;&lt;p&gt;Mode:&lt;/p&gt;&lt;p&gt;0-&amp;gt; Manual&lt;/p&gt;&lt;p&gt;1-&amp;gt; Auto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <column>
              <property name="text">
               <string>Fan1</string>
@@ -875,6 +890,9 @@
           </item>
           <item row="1" column="1">
            <widget class="QTableWidget" name="tableFAN2">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Speed Unit [rpm]&lt;/p&gt;&lt;p&gt;Pwm Duty Unit [%] &lt;/p&gt;&lt;p&gt;Mode:&lt;/p&gt;&lt;p&gt;0-&amp;gt; Manual&lt;/p&gt;&lt;p&gt;1-&amp;gt; Auto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <column>
              <property name="text">
               <string>Fan2</string>
@@ -916,6 +934,9 @@
           </item>
           <item row="3" column="0">
            <widget class="QTableWidget" name="tableFAN3">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Speed Unit [rpm]&lt;/p&gt;&lt;p&gt;Pwm Duty Unit [%] &lt;/p&gt;&lt;p&gt;Mode:&lt;/p&gt;&lt;p&gt;0-&amp;gt; Manual&lt;/p&gt;&lt;p&gt;1-&amp;gt; Auto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <column>
              <property name="text">
               <string>Fan3</string>
@@ -925,6 +946,9 @@
           </item>
           <item row="3" column="1">
            <widget class="QTableWidget" name="tableFAN4">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Speed Unit [rpm]&lt;/p&gt;&lt;p&gt;Pwm Duty Unit [%] &lt;/p&gt;&lt;p&gt;Mode:&lt;/p&gt;&lt;p&gt;0-&amp;gt; Manual&lt;/p&gt;&lt;p&gt;1-&amp;gt; Auto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <column>
              <property name="text">
               <string>Fan4</string>
@@ -987,7 +1011,7 @@
              </font>
             </property>
             <property name="text">
-             <string>INTERNAL VOLTAGE</string>
+             <string>INTERNAL VOLTAGE [V]</string>
             </property>
            </widget>
           </item>
@@ -1021,7 +1045,7 @@
              </font>
             </property>
             <property name="text">
-             <string>SMB POWERIN VOLTAGE</string>
+             <string>SMB POWERIN VOLTAGE [V]</string>
             </property>
            </widget>
           </item>
@@ -1055,7 +1079,7 @@
              </font>
             </property>
             <property name="text">
-             <string>TEMPERATURE</string>
+             <string>TEMPERATURE [C]</string>
             </property>
            </widget>
           </item>
@@ -1263,6 +1287,46 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="label_128">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>20</y>
+           <width>141</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>13</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Power [W]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_129">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>50</y>
+           <width>141</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>13</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Voltages [V]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
        </widget>
       </widget>
      </widget>
@@ -1280,7 +1344,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tpm1_attribute_tab">
         <attribute name="title">
@@ -3914,7 +3978,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tpm1_attribute_tab_2">
         <attribute name="title">
