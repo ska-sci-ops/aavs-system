@@ -176,7 +176,7 @@ function create_install() {
   # Create python3 virtual environment
   if [[ ! -d "$VENV_INSTALL/python" ]]; then
     mkdir -p $VENV_INSTALL/python
-    install_package python3.10-venv
+    install_package python3-venv
 
     # Create python virtual environment
     # virtualenv -p python3 $AAVS_INSTALL/python
