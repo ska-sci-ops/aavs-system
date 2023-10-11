@@ -8,7 +8,7 @@ RUN apt-get update && \
     build-essential ca-certificates cmake libcap2-bin git make tzdata xattr
 
 
-ENV AAVS_PYTHON_BIN=/usr/bin/python3.10
+ENV AAVS_PYTHON_BIN=/usr/bin/python3
 
 RUN chmod +x /app/deploy.sh
 
