@@ -1147,6 +1147,7 @@ class Tile(TileHealthMonitor):
 
         :param value: PPS phase terminal count
         """
+        logging.info(f"writing value {value} to register fpga1.pps_manager.sync_tc.cnt_1_pulse")
         self["fpga1.pps_manager.sync_tc.cnt_1_pulse"] = value
         self["fpga2.pps_manager.sync_tc.cnt_1_pulse"] = value
 
@@ -1715,11 +1716,19 @@ class Tile(TileHealthMonitor):
         """
 
         current_tc = self.get_phase_terminal_count()
+        logging.info(f"current_tc: {current_tc}")
         current_delay = self.get_pps_delay()
-        self.set_phase_terminal_count(self.calculate_delay(current_delay,
-                                                           current_tc,
-                                                           target,
-                                                           margin))
+        logging.info(f"current_delay: {current_delay}")
+        logging.info(f"target: {target}")
+        logging.info(f"margin: {margin}")
+        delay = self.calculate_delay(
+            current_delay,
+            current_tc,
+            target,
+            margin,
+        )
+        logging.info(f"setting phase_terminal_count with: {delay}")
+        self.set_phase_terminal_count(delay)
 
     @connected
     def check_fpga_synchronization(self):
